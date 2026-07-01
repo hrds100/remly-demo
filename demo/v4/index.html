@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="airy">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Remly · World-class check-ins. 5-star reviews. +100% with upsells.</title>
+<link rel="icon" href="data:," />
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+/* ============ THEME TOKENS ============ */
+:root{
+  --s:.97;
+  --ink:#141c19;
+  --ink-soft:#5a6662;
+  --bg:#f7f8f7;
+  --card:#ffffff;
+  --line:#e5e9e7;
+  --acc:#2c7e83; --acc2:#5fa6c6; --glow:rgba(63,163,168,.22);
+  /* 8pt spacing scale (4px half-step allowed for icons/small text) */
+  --sp-05:4px;
+  --sp-1:8px;
+  --sp-2:16px;
+  --sp-3:24px;
+  --sp-4:32px;
+  --sp-5:40px;
+  --sp-6:48px;
+  --sp-8:64px;
+  --sp-10:80px;
+  --edge:var(--sp-6);       /* desktop viewport edge padding */
+  --edge-m:20px;            /* mobile viewport edge padding */
+}
+[data-theme="warm"]{ --acc:#c0623a; --acc2:#e0993e; --glow:rgba(192,98,58,.18); }
+[data-theme="luxe"]{ --acc:#a8884f; --acc2:#c9ad76; --glow:rgba(168,136,79,.20); }
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{overflow-x:hidden;}
+body{
+  font-family:'Inter',-apple-system,sans-serif;
+  background:var(--bg); color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+.mobile-only{display:none;}
+
+/* ============ TOP BAR ============ */
+.top{
+  height:64px; display:flex; align-items:center; justify-content:space-between;
+  gap:var(--sp-3);
+  padding:0 var(--edge); border-bottom:1px solid var(--line);
+}
+.wordmark{font-family:'Sora',sans-serif;font-weight:800;font-size:21px;letter-spacing:-.03em;display:flex;align-items:center;gap:var(--sp-1);}
+.wordmark .mark{width:11px;height:11px;border-radius:4px;background:linear-gradient(135deg,var(--acc),var(--acc2));transition:background .5s;}
+.top-note{font-size:14px;line-height:20px;font-weight:500;color:var(--ink-soft);}
+.top-note b{color:var(--acc);font-weight:700;transition:color .5s;}
+
+/* ============ HERO GRID ============ */
+.hero{
+  display:flex; align-items:center; justify-content:center; gap:var(--sp-6);
+  padding:var(--sp-3) var(--edge); min-height:calc(100vh - 64px); position:relative;
+}
+.copy{max-width:660px;flex:0 1 660px;min-width:0;}
+
+.kicker{
+  display:flex;align-items:center;gap:var(--sp-1);
+  font-size:12px;line-height:16px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--acc);
+  margin-bottom:var(--sp-2);transition:color .5s;
+}
+.kicker::before{content:"";width:26px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--acc),var(--acc2));flex:0 0 auto;}
+
+h1{
+  font-family:'Sora',sans-serif;font-weight:800;letter-spacing:-.045em;
+  font-size:clamp(34px, 2vw + 18px, 44px);line-height:1.12;
+}
+.h1-line{display:block;}
+.bignum{
+  font-style:normal;display:inline-block;
+  font-size:clamp(72px, 6vw + 20px, 104px);line-height:1;letter-spacing:-.05em;
+  font-variant-numeric:tabular-nums;
+  background:linear-gradient(110deg,var(--acc),var(--acc2));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  padding-right:var(--sp-05); margin:var(--sp-05) 0;
+  vertical-align:bottom;
+}
+.sub{
+  margin-top:var(--sp-2);font-size:16px;line-height:1.5;color:var(--ink-soft);max-width:560px;
+}
+.sub b{color:var(--ink);font-weight:600;}
+
+/* ============ ROI CARDS ============ */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-2);margin-top:var(--sp-4);}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:18px;
+  padding:var(--sp-2); box-shadow:0 1px 2px rgba(20,28,25,.04);
+}
+.cnum{
+  font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(28px, 1vw + 20px, 34px);letter-spacing:-.04em;
+  font-variant-numeric:tabular-nums;color:var(--acc);transition:color .5s;display:block;
+}
+.clabel{font-size:13px;line-height:16px;font-weight:600;margin-top:var(--sp-1);}
+.ceq{font-size:13px;line-height:1.4;color:var(--ink-soft);margin-top:var(--sp-05);}
+
+/* ============ CTA ============ */
+.cta{margin-top:var(--sp-4);}
+.payline{font-family:'Sora',sans-serif;font-weight:700;font-size:15px;line-height:20px;letter-spacing:-.01em;margin-bottom:12px;}
+.payline em{font-style:normal;color:var(--acc);transition:color .5s;}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;text-decoration:none;
+  font-family:'Sora',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.01em;color:#fff;
+  background:linear-gradient(135deg,var(--acc),var(--acc2));
+  min-height:52px;padding:12px var(--sp-5);border-radius:14px;
+  box-shadow:0 12px 28px -10px var(--glow),0 4px 12px -4px var(--glow);
+  transition:transform .18s ease, box-shadow .3s;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 18px 36px -10px var(--glow),0 6px 14px -4px var(--glow);}
+.cta-sub{margin-top:12px;font-size:14px;line-height:20px;font-weight:500;color:var(--ink-soft);}
+
+/* ============ TRUST CHIPS ============ */
+.chips{display:flex;gap:var(--sp-1);flex-wrap:wrap;margin-top:12px;}
+.chip{
+  display:inline-flex;align-items:center;gap:var(--sp-05);
+  font-size:12px;line-height:16px;font-weight:600;color:var(--ink-soft);
+  background:var(--card);border:1px solid var(--line);border-radius:999px;
+  padding:var(--sp-05) 12px;white-space:nowrap;
+}
+.chip::before{content:"✓";color:var(--acc);font-weight:700;transition:color .5s;}
+
+/* ============ HOST REVIEWS ============ */
+.reviews{max-width:1200px;margin:0 auto;padding:var(--sp-6) var(--edge) var(--sp-8);}
+.rev-title{
+  font-family:'Sora',sans-serif;font-weight:800;letter-spacing:-.03em;
+  font-size:clamp(22px, 1vw + 16px, 28px);line-height:1.2;
+}
+.rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-2);margin-top:var(--sp-3);}
+.rev{
+  background:var(--card);border:1px solid var(--line);border-radius:18px;
+  padding:var(--sp-3);box-shadow:0 1px 2px rgba(20,28,25,.04);
+}
+.rev-stars{color:var(--acc);font-size:14px;line-height:16px;letter-spacing:3px;transition:color .5s;}
+.rev-quote{margin-top:var(--sp-1);font-size:14px;line-height:1.55;color:var(--ink);}
+.rev-who{margin-top:12px;font-size:12px;line-height:16px;font-weight:600;color:var(--ink-soft);}
+
+/* ============ MOBILE DOT RAIL ============ */
+.dotrail{display:none;}
+
+/* ============ PHONE STAGE ============ */
+.stage{display:flex;align-items:center;gap:var(--sp-3);position:relative;flex:0 0 auto;}
+.stage::before{
+  content:"";position:absolute;inset:-70px -90px;pointer-events:none;z-index:0;
+  background:radial-gradient(closest-side,var(--glow),transparent 72%);
+  transition:background .6s;
+}
+.switch{display:flex;flex-direction:column;gap:var(--sp-1);position:relative;z-index:2;width:160px;}
+.hint{
+  pointer-events:none;
+  font-size:12px;line-height:16px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--acc);
+  display:flex;align-items:center;gap:var(--sp-1);margin-bottom:var(--sp-05);transition:color .5s;
+}
+.hint .pulse{width:8px;height:8px;border-radius:50%;background:var(--acc);animation:pulse 1.6s infinite;transition:background .5s;flex:0 0 auto;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.78);}}
+.swbtn{
+  display:flex;align-items:center;gap:var(--sp-1);
+  font-family:'Inter',sans-serif;font-size:13px;line-height:16px;font-weight:600;color:var(--ink-soft);
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  min-height:44px;padding:12px var(--sp-2);cursor:pointer;text-align:left;
+  transition:border-color .3s,color .3s,box-shadow .3s;
+}
+.swbtn .dot{width:12px;height:12px;border-radius:50%;flex:0 0 auto;}
+.swbtn:hover{border-color:var(--acc);}
+.swbtn.active{border-color:var(--acc);color:var(--ink);box-shadow:0 0 0 3px var(--glow);}
+.sw-note{font-size:12px;color:var(--ink-soft);opacity:.75;margin-top:var(--sp-05);line-height:1.4;}
+
+.devwrap{
+  width:calc(411px * var(--s)); height:calc(870px * var(--s));
+  position:relative;z-index:1;flex:0 0 auto;
+}
+.device{
+  width:411px;height:870px;transform:scale(var(--s));transform-origin:top left;
+  background:#101014;border-radius:60px;padding:9px;position:relative;
+  box-shadow:0 34px 70px -22px rgba(16,24,32,.4),0 0 110px var(--glow);
+  transition:box-shadow .6s;
+}
+.device iframe{
+  width:393px;height:852px;border:0;border-radius:51px;background:#fff;display:block;
+  transition:opacity .32s ease;
+}
+.island{
+  position:absolute;top:21px;left:50%;transform:translateX(-50%);
+  width:118px;height:33px;border-radius:20px;background:#101014;z-index:5;pointer-events:none;
+}
+
+/* ============ FOOTER ============ */
+footer{
+  border-top:1px solid var(--line);
+  padding:var(--sp-2) var(--edge);font-size:13px;line-height:20px;color:var(--ink-soft);
+  display:flex;justify-content:space-between;gap:var(--sp-2);flex-wrap:wrap;
+}
+footer a{color:var(--acc);text-decoration:none;font-weight:600;transition:color .5s;}
+
+/* ============ TABLET — stack vertically so nothing clips ============ */
+@media(max-width:1180px) and (min-width:769px){
+  .hero{flex-direction:column;gap:var(--sp-5);padding:var(--sp-5) var(--sp-4) var(--sp-6);min-height:0;}
+  .copy{flex:0 0 auto;width:100%;max-width:660px;}
+}
+
+/* ============ MOBILE — radical minimalism ============ */
+@media(max-width:768px){
+  .mobile-only{display:block;}
+  .copy,.top-note{display:none;}
+  .top{height:56px;padding:0 var(--edge-m);justify-content:center;border-bottom:1px solid var(--line);}
+  .wordmark{font-size:18px;}
+  .hero{flex-direction:column;gap:0;padding:var(--sp-3) var(--edge-m) var(--sp-1);min-height:0;align-items:center;}
+  .m-head{
+    font-family:'Sora',sans-serif;font-weight:800;letter-spacing:-.035em;
+    font-size:clamp(22px, 4vw + 7px, 28px);line-height:1.25;text-align:center;max-width:420px;margin:0 auto var(--sp-2);
+  }
+  .m-head em{font-style:normal;background:linear-gradient(110deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .stage{flex-direction:column;gap:var(--sp-2);}
+  .stage::before{inset:-30px -20px;}
+  .switch{flex-direction:row;flex-wrap:wrap;justify-content:center;width:auto;gap:var(--sp-1);order:2;}
+  .hint{width:100%;justify-content:center;margin-bottom:0;font-size:11px;}
+  .swbtn{min-height:44px;padding:12px;font-size:12px;border-radius:12px;gap:var(--sp-1);}
+  .swbtn .dot{width:10px;height:10px;}
+  .sw-note{display:none;}
+  .m-cta{text-align:center;padding:var(--sp-4) var(--edge-m) var(--sp-1);width:100%;}
+  .m-cta .payline{font-size:14px;margin-bottom:12px;}
+  .m-cta .btn{font-size:17px;width:100%;max-width:360px;}
+  .m-cta .cta-sub{font-size:13px;}
+  .m-cta .chips{justify-content:center;}
+  .reviews{padding:var(--sp-4) var(--edge-m) var(--sp-3);}
+  .rev-title{text-align:center;}
+  .rev-grid{grid-template-columns:1fr;gap:var(--sp-2);margin-top:var(--sp-2);}
+  .rev{padding:var(--sp-2);}
+  .rev-quote{font-size:13px;}
+  .dotrail{
+    position:fixed;left:8px;top:50%;transform:translateY(-50%);z-index:60;
+    display:flex;flex-direction:column;gap:var(--sp-1);
+  }
+  .dotrail button{
+    width:8px;height:8px;border-radius:50%;border:0;padding:0;cursor:pointer;
+    background:rgba(20,28,25,.16);-webkit-tap-highlight-color:transparent;
+    transition:background .3s,transform .3s;
+  }
+  .dotrail button.on{background:var(--acc);transform:scale(1.3);}
+  footer{justify-content:center;text-align:center;padding:var(--sp-2) var(--edge-m) var(--sp-3);font-size:12px;}
+  footer span:last-child,.f-long{display:none;}
+}
+</style>
+</head>
+<body>
+
+<header class="top" id="top">
+  <div class="wordmark"><span class="mark"></span>Remly</div>
+  <div class="top-note">AI guest concierge for short-term rentals · <b>$10 per unit</b></div>
+</header>
+
+<main class="hero">
+
+  <!-- Mobile-only single headline line -->
+  <h1 class="m-head mobile-only">A world-class check-in. 5-star reviews. Guaranteed. <em>+100%</em> with upsells.</h1>
+
+  <!-- ============ LEFT: NUMBERS COPY (desktop) ============ -->
+  <section class="copy">
+    <div class="kicker">Remly · The math of a better stay</div>
+    <h1>
+      <span class="h1-line">A world-class check-in.</span>
+      <span class="h1-line">5-star reviews. Guaranteed.</span>
+      <span class="h1-line"><em class="bignum" id="bigNum">+100%</em> with upsells.</span>
+    </h1>
+    <p class="sub">Every booking gets its own phone app: guided arrival, <b>Remi</b>, your 24/7 AI concierge, and an <b>Extras shop</b> that sells late checkouts, champagne and transfers while you sleep.</p>
+
+    <div class="cards">
+      <div class="card">
+        <span class="cnum" data-prefix="£" data-val="25" data-dec="0">£25</span>
+        <div class="clabel">One late checkout</div>
+        <div class="ceq">= 2.5 months of Remly, fully paid.</div>
+      </div>
+      <div class="card">
+        <span class="cnum" data-prefix="£" data-val="45" data-dec="0">£45</span>
+        <div class="clabel">Champagne on arrival</div>
+        <div class="ceq">= a month and a half, free.</div>
+      </div>
+      <div class="card">
+        <span class="cnum" data-prefix="" data-val="4.9" data-dec="1" data-suffix="★">4.9★</span>
+        <div class="clabel">Review score</div>
+        <div class="ceq">= higher ranking = more bookings.</div>
+      </div>
+    </div>
+
+    <div class="cta">
+      <div class="payline">Pays for itself with <em>ONE</em> upsell.</div>
+      <a class="btn" href="mailto:hugodesouzax@gmail.com?subject=Remly%20%E2%80%94%20I%27m%20in">Get started · $10 per unit</a>
+      <div class="cta-sub">More 5-star reviews · Earn up to 100% more per check-in</div>
+      <div class="chips"><span class="chip">100% customisable</span><span class="chip">100% user-friendly</span></div>
+    </div>
+  </section>
+
+  <!-- ============ RIGHT: LIVE PHONE ============ -->
+  <section class="stage" id="phone">
+    <div class="switch">
+      <div class="hint"><span class="pulse"></span>Live — tap around</div>
+      <button class="swbtn active" data-theme="airy"><span class="dot" style="background:linear-gradient(135deg,#2c7e83,#5fa6c6)"></span>Coastal Blue</button>
+      <button class="swbtn" data-theme="warm"><span class="dot" style="background:linear-gradient(135deg,#c0623a,#e0993e)"></span>Warm Sunset</button>
+      <button class="swbtn" data-theme="luxe"><span class="dot" style="background:linear-gradient(135deg,#a8884f,#c9ad76)"></span>Gold Luxe</button>
+      <div class="sw-note">This is the real guest app — every property gets its own look.</div>
+    </div>
+    <div class="devwrap">
+      <div class="device">
+        <div class="island"></div>
+        <iframe id="demoFrame" src="../../v5-cine-airy/index.html" title="Remly live guest demo"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mobile-only CTA -->
+  <div class="m-cta mobile-only" id="price">
+    <div class="payline">Pays for itself with <em>ONE</em> upsell.</div>
+    <a class="btn" href="mailto:hugodesouzax@gmail.com?subject=Remly%20%E2%80%94%20I%27m%20in">Get started · $10 per unit</a>
+    <div class="cta-sub">More 5-star reviews · Earn up to 100% more per check-in</div>
+    <div class="chips"><span class="chip">100% customisable</span><span class="chip">100% user-friendly</span></div>
+  </div>
+</main>
+
+<!-- ============ HOST REVIEWS ============ -->
+<section class="reviews" id="reviews">
+  <h2 class="rev-title">Hosts already love it</h2>
+  <div class="rev-grid">
+    <article class="rev">
+      <div class="rev-stars" aria-label="5 out of 5 stars">★★★★★</div>
+      <p class="rev-quote">"Reviews jumped from 4.6 to 4.9 stars in two months. Guests add late checkout every single week."</p>
+      <div class="rev-who">— Marta R., hosts 6 flats, Lisbon</div>
+    </article>
+    <article class="rev">
+      <div class="rev-stars" aria-label="5 out of 5 stars">★★★★★</div>
+      <p class="rev-quote">"The check-in feels like a boutique hotel. Upsells alone paid for Remly twenty times over."</p>
+      <div class="rev-who">— James K., Superhost, Manchester</div>
+    </article>
+    <article class="rev">
+      <div class="rev-stars" aria-label="5 out of 5 stars">★★★★★</div>
+      <p class="rev-quote">"Guest questions dropped by half and champagne sells itself. Best $10 I spend per unit."</p>
+      <div class="rev-who">— Sofia L., 12 units, Barcelona</div>
+    </article>
+  </div>
+</section>
+
+<!-- Mobile scroll dot rail -->
+<nav class="dotrail" aria-label="Page sections">
+  <button type="button" data-i="0" class="on" aria-label="Top of page"></button>
+  <button type="button" data-i="1" aria-label="Live phone demo"></button>
+  <button type="button" data-i="2" aria-label="Pricing"></button>
+  <button type="button" data-i="3" aria-label="Host reviews"></button>
+</nav>
+
+<footer>
+  <span>© 2026 Remly<span class="f-long"> — demo for potential partners</span> · <a href="mailto:hugodesouzax@gmail.com">hugodesouzax@gmail.com</a></span>
+  <span>Check-in · Remi AI · House manual · Local guide · Extras shop</span>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+/* ---- Phone scale (JS only — CSS min/max with unitless breaks) ----
+   Mobile: fit width inside the 20px edge padding.
+   Tablet (stacked): comfortable fixed scale, width-capped.
+   Desktop (split): fit the viewport HEIGHT so the phone is never cropped,
+   and never steal so much width that the copy column gets crushed. */
+function fitPhone(){
+  const w=window.innerWidth, h=window.innerHeight;
+  let s;
+  if(w<=768){ s=Math.min(.97,(w-40)/411); }
+  else if(w<=1180){ s=Math.min(.97,(w-64)/411); }
+  else { s=Math.max(.62, Math.min(1.08,(h-152)/870,(w-790)/411)); }
+  document.documentElement.style.setProperty('--s',s.toFixed(3));
+}
+fitPhone(); window.addEventListener('resize',fitPhone);
+
+/* ---- Theme switcher: fade iframe, swap src, recolour page ---- */
+const SRC={
+  airy:'../../v5-cine-airy/index.html',
+  warm:'../../v4-cine-warm/index.html',
+  luxe:'../../v6-cine-luxe/index.html'
+};
+const frame=document.getElementById('demoFrame');
+frame.addEventListener('load',()=>{ frame.style.opacity='1'; });
+
+/* ---- Scroll hand-off: when the in-phone demo hits its scroll end,
+   it posts {remlyScroll: deltaY} — continue the scroll on this page ---- */
+window.addEventListener('message',e=>{
+  const d=e.data&&e.data.remlyScroll;
+  if(typeof d==='number'&&isFinite(d)) window.scrollBy(0,d);
+});
+let current='airy';
+document.querySelectorAll('.swbtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const t=btn.dataset.theme;
+    if(t===current) return;
+    current=t;
+    document.documentElement.setAttribute('data-theme',t);
+    document.querySelectorAll('.swbtn').forEach(b=>b.classList.toggle('active',b.dataset.theme===t));
+    frame.style.opacity='0';
+    setTimeout(()=>{ frame.src=SRC[t]; },320);
+  });
+});
+
+/* ---- GSAP count-ups + entrance ---- */
+if(window.gsap){
+  const big=document.getElementById('bigNum');
+  const obj={v:0};
+  big.textContent='+0%';
+  gsap.to(obj,{v:100,duration:1.9,delay:.35,ease:'power3.out',
+    onUpdate:()=>{ big.textContent='+'+Math.round(obj.v)+'%'; }});
+
+  document.querySelectorAll('.cnum').forEach((el,i)=>{
+    const val=parseFloat(el.dataset.val), dec=parseInt(el.dataset.dec,10);
+    const pre=el.dataset.prefix||'', suf=el.dataset.suffix||'';
+    const o={v:0};
+    el.textContent=pre+(0).toFixed(dec)+suf;
+    gsap.to(o,{v:val,duration:1.3,delay:.55+i*.15,ease:'power2.out',
+      onUpdate:()=>{ el.textContent=pre+o.v.toFixed(dec)+suf; }});
+  });
+
+  gsap.from('.h1-line',{y:26,opacity:0,duration:.7,stagger:.09,ease:'power2.out'});
+  gsap.from('.card',{y:18,opacity:0,duration:.6,delay:.4,stagger:.1,ease:'power2.out'});
+  gsap.from('.cta',{y:14,opacity:0,duration:.6,delay:.7,ease:'power2.out'});
+}
+
+/* ---- Mobile dot rail: track scroll position, tap to jump ---- */
+const railSecs=['top','phone','price','reviews'].map(id=>document.getElementById(id));
+const railBtns=Array.from(document.querySelectorAll('.dotrail button'));
+function railSync(){
+  if(window.innerWidth>768) return;
+  const doc=document.documentElement;
+  const probe=window.scrollY+window.innerHeight*.45;
+  let idx=0;
+  railSecs.forEach((el,i)=>{
+    if(el && (el.getBoundingClientRect().top+window.scrollY)<=probe) idx=i;
+  });
+  if(window.scrollY+window.innerHeight>=doc.scrollHeight-8) idx=railSecs.length-1;
+  railBtns.forEach((b,i)=>b.classList.toggle('on',i===idx));
+}
+railBtns.forEach((b,i)=>{
+  b.addEventListener('click',()=>{
+    if(i===0){ window.scrollTo({top:0,behavior:'smooth'}); }
+    else if(railSecs[i]){ railSecs[i].scrollIntoView({behavior:'smooth',block:'start'}); }
+  });
+});
+window.addEventListener('scroll',railSync,{passive:true});
+window.addEventListener('resize',railSync);
+railSync();
+</script>
+</body>
+</html>

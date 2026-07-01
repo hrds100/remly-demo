@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  REMLY · LANDING A — "EMOTION FIRST"
+  Headline options (strongest used as live H1):
+  1. "Make Every Guest Feel Like You Were Waiting Just For Them."   ← LIVE H1
+  2. "The Welcome They'll Never Forget — Without You Lifting a Finger."
+  3. "Be The Host Who Thought Of Everything."
+  4. "Their Perfect Arrival Starts The Moment They Tap Your Link."
+  5. "Turn A Booking Into A Feeling They'll Five-Star."
+  6. "Every Guest, Greeted Like Family. Every Stay, A Five-Star Story."
+  ============================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Remly · Make every guest feel at home</title>
+<meta name="description" content="Remly is the AI guest check-in & concierge that makes every Airbnb guest feel cared for — more 5-star reviews, fewer questions, effortless upsells." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
+
+<style>
+/* ============ TOKENS (warm) ============ */
+:root{
+  --ivory:#f7f1e8;
+  --ivory-2:#fbf6ee;
+  --paper:#f2e9db;
+  --cream:#fdfaf4;
+  --terracotta:#c8643f;
+  --terracotta-deep:#b04f2d;
+  --amber:#e0993e;
+  --clay:#d8a679;
+  --espresso:#3a2a20;
+  --espresso-soft:#5c4636;
+  --muted:#8a7261;
+  --line:#ece1d0;
+  --line-soft:#f1e8da;
+  --glass:rgba(255,255,255,0.60);
+  --glass-strong:rgba(255,255,255,0.82);
+  --shadow-warm:0 30px 70px -28px rgba(120,72,40,0.36);
+  --shadow-soft:0 14px 36px -18px rgba(120,72,40,0.24);
+  --shadow-hair:0 2px 10px -4px rgba(120,72,40,0.18);
+  --radius:24px;
+  --serif:"Fraunces", Georgia, serif;
+  --sans:"Inter", system-ui, sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:auto;}
+body{
+  font-family:var(--sans);
+  color:var(--espresso);
+  background:var(--ivory-2);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  line-height:1.5;
+}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+::selection{background:rgba(200,100,63,.18);}
+
+/* ambient warm wash */
+.bg-wash{position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(60% 50% at 80% -5%, rgba(224,153,62,.16) 0, transparent 60%),
+    radial-gradient(55% 45% at 8% 12%, rgba(200,100,63,.12) 0, transparent 60%),
+    radial-gradient(70% 60% at 50% 110%, rgba(216,166,121,.18) 0, transparent 65%),
+    linear-gradient(180deg,#fcf8f1 0%, #f7f1e8 40%, #f4ecdf 100%);
+}
+.bg-grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============ TYPE ============ */
+.eyebrow{font-size:11.5px;font-weight:600;letter-spacing:2.6px;text-transform:uppercase;color:var(--terracotta);}
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.5px;line-height:1.04;color:var(--espresso);}
+.display{font-size:clamp(2.6rem,6.4vw,5rem);font-weight:500;line-height:1.0;letter-spacing:-1.5px;}
+.display em{font-style:italic;color:var(--terracotta);font-weight:500;}
+h2.section-title{font-size:clamp(2rem,4.4vw,3.4rem);letter-spacing:-1px;}
+h2.section-title em{font-style:italic;color:var(--terracotta);}
+.lede{font-size:clamp(1rem,1.5vw,1.18rem);color:var(--espresso-soft);line-height:1.65;font-weight:400;}
+.muted{color:var(--muted);}
+
+/* ============ LAYOUT ============ */
+.wrap{width:100%;max-width:1240px;margin:0 auto;padding:0 22px;}
+section{position:relative;}
+.section-pad{padding:clamp(5rem,11vw,9rem) 0;}
+
+/* ============ BUTTONS ============ */
+.btn{position:relative;display:inline-flex;align-items:center;gap:.6em;
+  font-family:var(--sans);font-weight:600;font-size:15.5px;letter-spacing:.1px;
+  padding:16px 28px;border-radius:100px;cursor:pointer;border:1px solid transparent;
+  transition:transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s, background .4s;
+  will-change:transform;white-space:nowrap;}
+.btn .ar{transition:transform .45s cubic-bezier(.2,.8,.2,1);}
+.btn:hover .ar{transform:translateX(4px);}
+.btn-primary{color:#fff;
+  background:linear-gradient(135deg,var(--terracotta) 0%, var(--terracotta-deep) 100%);
+  box-shadow:0 16px 34px -14px rgba(176,79,45,.6), inset 0 1px 0 rgba(255,255,255,.25);}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 26px 46px -16px rgba(176,79,45,.7), inset 0 1px 0 rgba(255,255,255,.3);}
+.btn-primary::after{content:"";position:absolute;inset:0;border-radius:100px;
+  background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);
+  transform:translateX(-120%);transition:transform .8s;}
+.btn-primary:hover::after{transform:translateX(120%);}
+.btn-ghost{color:var(--espresso);background:var(--glass-strong);border:1px solid var(--line);
+  backdrop-filter:blur(12px);box-shadow:var(--shadow-hair);}
+.btn-ghost:hover{transform:translateY(-3px);box-shadow:var(--shadow-soft);background:#fff;}
+.btn-sm{padding:11px 20px;font-size:14px;}
+
+/* ============ NAV ============ */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;transition:padding .4s, background .4s, box-shadow .4s, border-color .4s;
+  padding:18px 0;border-bottom:1px solid transparent;}
+.nav.scrolled{background:rgba(250,246,239,.72);backdrop-filter:blur(18px) saturate(1.2);
+  -webkit-backdrop-filter:blur(18px) saturate(1.2);border-bottom:1px solid var(--line);box-shadow:0 6px 30px -22px rgba(120,72,40,.5);padding:12px 0;}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;}
+.wordmark{font-family:var(--serif);font-weight:600;font-size:25px;letter-spacing:.2px;color:var(--espresso);}
+.wordmark span{color:var(--terracotta);}
+.nav-links{display:flex;align-items:center;gap:34px;}
+.nav-links a.link{font-size:15px;font-weight:500;color:var(--espresso-soft);position:relative;padding:4px 0;transition:color .3s;}
+.nav-links a.link::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:1.5px;background:var(--terracotta);transform:scaleX(0);transform-origin:left;transition:transform .35s cubic-bezier(.2,.8,.2,1);}
+.nav-links a.link:hover{color:var(--espresso);}
+.nav-links a.link:hover::after{transform:scaleX(1);}
+.nav-toggle{display:none;width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:var(--glass-strong);backdrop-filter:blur(10px);cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:5px;}
+.nav-toggle span{width:18px;height:2px;background:var(--espresso);border-radius:2px;transition:.3s;}
+.mobile-menu{display:none;position:fixed;top:0;right:0;bottom:0;width:min(82vw,340px);z-index:1001;
+  background:rgba(252,248,241,.96);backdrop-filter:blur(24px);box-shadow:-30px 0 80px -30px rgba(120,72,40,.4);
+  transform:translateX(100%);transition:transform .5s cubic-bezier(.6,.05,.2,1);padding:90px 30px 30px;flex-direction:column;gap:6px;}
+.mobile-menu.open{transform:translateX(0);}
+.mobile-menu a{font-family:var(--serif);font-size:24px;font-weight:500;color:var(--espresso);padding:16px 0;border-bottom:1px solid var(--line-soft);}
+.mobile-menu .btn{margin-top:24px;justify-content:center;}
+.menu-scrim{display:none;position:fixed;inset:0;z-index:1000;background:rgba(58,42,32,.35);opacity:0;transition:opacity .4s;}
+.menu-scrim.open{opacity:1;}
+
+@media(max-width:860px){
+  .nav-links{display:none;}
+  .nav-toggle{display:flex;}
+  .mobile-menu{display:flex;}
+  .menu-scrim{display:block;pointer-events:none;}
+  .menu-scrim.open{pointer-events:auto;}
+}
+
+/* ============ HERO ============ */
+.hero{padding-top:clamp(7rem,12vw,9.5rem);padding-bottom:clamp(3rem,6vw,5rem);position:relative;overflow:visible;}
+.hero-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(2rem,4vw,4rem);align-items:center;}
+.hero-copy .eyebrow{margin-bottom:18px;display:inline-flex;align-items:center;gap:9px;}
+.hero-copy .eyebrow i{width:7px;height:7px;border-radius:50%;background:var(--terracotta);box-shadow:0 0 0 4px rgba(200,100,63,.16);}
+.hero h1{margin-bottom:22px;}
+.hero .lede{max-width:540px;margin-bottom:34px;}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center;}
+.hero-trust{margin-top:30px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.stars{color:var(--amber);font-size:15px;letter-spacing:2px;}
+.hero-trust .t{font-size:13.5px;color:var(--muted);}
+.hero-trust .t b{color:var(--espresso);font-weight:600;}
+
+/* DEMO STAGE */
+.demo-stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:720px;}
+.phones-area{position:relative;width:100%;display:flex;align-items:center;justify-content:center;height:720px;}
+
+/* phone shared */
+.phone{position:relative;border-radius:44px;background:#1c1410;
+  box-shadow:0 60px 120px -40px rgba(80,46,22,.55), 0 0 0 2px rgba(0,0,0,.15);}
+.phone .screen{position:absolute;inset:9px;border-radius:36px;overflow:hidden;background:var(--ivory);}
+
+/* live centre phone */
+.phone-live{width:392px;height:712px;z-index:30;
+  box-shadow:0 80px 130px -45px rgba(80,46,22,.62), 0 0 0 10px #1c1410, 0 0 0 12px #2a2018;}
+.phone-live .screen{inset:0;border-radius:36px;}
+.phone-live iframe{width:100%;height:100%;border:0;display:block;background:var(--ivory);transition:opacity .45s ease;}
+.phone-live.swapping iframe{opacity:0;}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:24px;background:#1c1410;border-radius:0 0 16px 16px;z-index:5;}
+
+/* side decorative phones */
+.phone-side{position:absolute;width:212px;height:430px;cursor:pointer;z-index:10;
+  transition:transform .7s cubic-bezier(.2,.8,.2,1), box-shadow .7s, filter .7s;
+  filter:saturate(.92);opacity:.96;}
+.phone-side .screen{inset:7px;border-radius:30px;}
+.phone-side:hover,.phone-side.focused{transform:scale(1.06) translateY(-8px)!important;z-index:25;box-shadow:0 80px 120px -42px rgba(80,46,22,.6),0 0 0 2px rgba(0,0,0,.12);filter:saturate(1);}
+.ps-1{top:6%;left:-2%;transform:rotate(-9deg);}
+.ps-2{bottom:2%;left:5%;transform:rotate(7deg);}
+.ps-3{top:3%;right:-1%;transform:rotate(9deg);}
+.ps-4{bottom:4%;right:4%;transform:rotate(-7deg);}
+
+/* decorative phone content */
+.mini{position:absolute;inset:0;padding:22px 16px;display:flex;flex-direction:column;gap:11px;
+  background:linear-gradient(180deg,var(--ivory-2),var(--ivory));}
+.mini .mlabel{font-size:9.5px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;color:var(--terracotta);}
+.mini .mtitle{font-family:var(--serif);font-size:17px;font-weight:500;line-height:1.1;color:var(--espresso);margin-top:2px;}
+.mini .mimg{width:100%;height:104px;border-radius:14px;background:linear-gradient(135deg,#e9d3b8,#d7a878 55%,#c8643f);box-shadow:inset 0 1px 0 rgba(255,255,255,.3);position:relative;overflow:hidden;}
+.mini .mimg::after{content:"";position:absolute;inset:0;background:radial-gradient(70% 60% at 30% 20%,rgba(255,240,220,.4),transparent 60%);}
+.mini .mcard{background:var(--glass);border:1px solid rgba(255,255,255,.7);border-radius:13px;padding:11px 12px;box-shadow:var(--shadow-hair);backdrop-filter:blur(8px);}
+.mini .mrow{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--espresso-soft);}
+.mini .mrow .d{width:24px;height:24px;border-radius:8px;background:rgba(200,100,63,.14);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.mini .mline{height:7px;border-radius:6px;background:rgba(138,114,97,.18);}
+.mini .mline.s{width:60%;}
+.mini .mpill{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:600;color:var(--terracotta-deep);background:rgba(200,100,63,.1);border-radius:100px;padding:4px 9px;align-self:flex-start;}
+.mini .tag{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);font-size:9px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:#fff;background:rgba(58,42,32,.78);backdrop-filter:blur(6px);padding:5px 12px;border-radius:100px;white-space:nowrap;box-shadow:0 8px 20px -8px rgba(58,42,32,.5);}
+
+/* demo phone taglines */
+.demo-kicker{display:inline-flex;align-items:center;gap:9px;margin-bottom:22px;
+  font-size:11.5px;font-weight:600;letter-spacing:2.6px;text-transform:uppercase;color:var(--terracotta);
+  padding:8px 16px;border-radius:100px;background:var(--glass-strong);border:1px solid var(--line);
+  box-shadow:var(--shadow-hair);backdrop-filter:blur(10px);text-align:center;}
+.demo-kicker i{width:7px;height:7px;border-radius:50%;flex-shrink:0;background:var(--terracotta);
+  box-shadow:0 0 0 4px rgba(200,100,63,.16);}
+.demo-sub{margin-top:26px;max-width:380px;text-align:center;font-family:var(--serif);
+  font-size:clamp(1.02rem,1.5vw,1.18rem);font-style:italic;font-weight:400;line-height:1.4;color:var(--espresso-soft);}
+.demo-sub b{font-style:normal;font-weight:500;color:var(--terracotta);}
+@media(max-width:430px){.demo-kicker{font-size:10.5px;letter-spacing:2px;padding:7px 13px;}.demo-sub{max-width:300px;}}
+
+/* style switcher */
+.switcher{margin-top:30px;display:flex;flex-direction:column;align-items:center;gap:12px;z-index:40;position:relative;}
+.switcher .hint{font-family:var(--serif);font-style:italic;font-size:15px;color:var(--muted);display:flex;align-items:center;gap:8px;}
+.chips{display:inline-flex;padding:5px;border-radius:100px;background:var(--glass-strong);border:1px solid var(--line);box-shadow:var(--shadow-soft);backdrop-filter:blur(14px);gap:3px;}
+.chip{border:0;background:transparent;cursor:pointer;font-family:var(--sans);font-weight:600;font-size:14px;color:var(--espresso-soft);
+  padding:10px 22px;border-radius:100px;transition:color .35s;position:relative;z-index:2;}
+.chip.on{color:#fff;}
+.chips{position:relative;}
+.chip-pill{position:absolute;top:5px;bottom:5px;border-radius:100px;z-index:1;transition:transform .5s cubic-bezier(.2,.8,.2,1), width .5s, background .5s;
+  background:linear-gradient(135deg,var(--terracotta),var(--terracotta-deep));box-shadow:0 8px 18px -8px rgba(176,79,45,.6);}
+
+/* EDITABLE PANEL */
+.editable{margin-top:clamp(3.5rem,7vw,6rem);}
+.editable-grid{display:grid;grid-template-columns:1fr;gap:28px;}
+.edit-head .eyebrow{margin-bottom:14px;display:block;}
+.edit-head h2{margin-bottom:14px;}
+.edit-list{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:8px;}
+.edit-item{display:flex;gap:14px;align-items:flex-start;padding:18px 18px;border-radius:18px;
+  background:var(--glass);border:1px solid rgba(255,255,255,.72);box-shadow:var(--shadow-hair);backdrop-filter:blur(10px);
+  transition:transform .4s, box-shadow .4s;}
+.edit-item:hover{transform:translateY(-3px);box-shadow:var(--shadow-soft);}
+.edit-item .tick{width:30px;height:30px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;
+  background:linear-gradient(135deg,var(--terracotta),var(--amber));box-shadow:0 8px 16px -8px rgba(176,79,45,.5);}
+.edit-item .et{font-weight:600;font-size:14.5px;color:var(--espresso);}
+.edit-item .ed{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.45;}
+.edit-item.glow{border-color:rgba(200,100,63,.4);box-shadow:0 16px 40px -18px rgba(176,79,45,.4);}
+.edit-item.glow .you{display:inline-block;margin-top:6px;font-size:11.5px;font-weight:600;color:var(--terracotta-deep);background:rgba(200,100,63,.12);padding:3px 10px;border-radius:100px;}
+
+/* ============ MARQUEE / trust strip ============ */
+.strip{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:26px 0;background:rgba(255,255,255,.4);backdrop-filter:blur(6px);}
+.strip-inner{display:flex;align-items:center;justify-content:center;gap:clamp(28px,5vw,64px);flex-wrap:wrap;}
+.strip-inner .s-item{font-family:var(--serif);font-size:clamp(15px,1.6vw,19px);font-weight:500;color:var(--espresso-soft);display:flex;align-items:center;gap:10px;}
+.strip-inner .s-item b{color:var(--terracotta);font-weight:600;}
+
+/* ============ BENEFITS ============ */
+.bene-head{text-align:center;max-width:680px;margin:0 auto clamp(3rem,5vw,4.5rem);}
+.bene-head .lede{margin-top:18px;}
+.bene-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:20px;}
+.bcard{position:relative;border-radius:var(--radius);padding:32px 28px;overflow:hidden;
+  background:var(--glass);border:1px solid rgba(255,255,255,.72);box-shadow:var(--shadow-soft);backdrop-filter:blur(14px);
+  transition:transform .5s cubic-bezier(.2,.8,.2,1), box-shadow .5s;display:flex;flex-direction:column;}
+.bcard:hover{transform:translateY(-6px);box-shadow:var(--shadow-warm);}
+.bcard::before{content:"";position:absolute;inset:0;opacity:0;transition:opacity .5s;
+  background:radial-gradient(120% 90% at 100% 0%,rgba(224,153,62,.18),transparent 60%);}
+.bcard:hover::before{opacity:1;}
+.bcard .bi{width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;
+  background:linear-gradient(135deg,rgba(200,100,63,.16),rgba(224,153,62,.16));color:var(--terracotta-deep);position:relative;z-index:1;}
+.bcard h3{font-size:22px;margin-bottom:10px;position:relative;z-index:1;}
+.bcard p{font-size:14.5px;color:var(--espresso-soft);line-height:1.6;position:relative;z-index:1;}
+.bcard.feat{grid-column:span 2;grid-row:span 2;justify-content:flex-end;
+  background:linear-gradient(150deg,rgba(255,255,255,.7),rgba(247,241,232,.7));}
+.bcard.span2{grid-column:span 2;}
+.bcard.span3{grid-column:span 3;}
+.bcard .stat{font-family:var(--serif);font-size:clamp(2.6rem,4vw,3.6rem);font-weight:500;color:var(--terracotta);line-height:1;margin-bottom:8px;position:relative;z-index:1;}
+
+/* ============ HOW IT WORKS ============ */
+.how{position:relative;}
+.how-head{text-align:center;max-width:640px;margin:0 auto clamp(3rem,5vw,4.5rem);}
+.how-head .lede{margin-top:18px;}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;position:relative;}
+.step{position:relative;padding:38px 32px;border-radius:var(--radius);
+  background:var(--glass);border:1px solid rgba(255,255,255,.72);box-shadow:var(--shadow-soft);backdrop-filter:blur(14px);
+  transition:transform .5s, box-shadow .5s;}
+.step:hover{transform:translateY(-6px);box-shadow:var(--shadow-warm);}
+.step .num{font-family:var(--serif);font-size:64px;font-weight:500;line-height:1;color:rgba(200,100,63,.22);margin-bottom:6px;}
+.step h3{font-size:24px;margin-bottom:12px;}
+.step p{font-size:15px;color:var(--espresso-soft);line-height:1.6;}
+.step .dot{position:absolute;top:46px;right:32px;width:10px;height:10px;border-radius:50%;background:var(--terracotta);box-shadow:0 0 0 5px rgba(200,100,63,.14);}
+
+/* ============ FEATURES ============ */
+.feat-head{text-align:center;max-width:680px;margin:0 auto clamp(3rem,5vw,4.5rem);}
+.feat-head .lede{margin-top:18px;}
+.fgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.fcard{padding:26px 22px;border-radius:20px;background:var(--glass);border:1px solid rgba(255,255,255,.7);
+  box-shadow:var(--shadow-hair);backdrop-filter:blur(12px);transition:transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s, background .45s;}
+.fcard:hover{transform:translateY(-5px);box-shadow:var(--shadow-soft);background:#fff;}
+.fcard .fi{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:21px;margin-bottom:16px;
+  background:linear-gradient(135deg,rgba(200,100,63,.14),rgba(216,166,121,.18));transition:transform .45s;}
+.fcard:hover .fi{transform:scale(1.08) rotate(-4deg);}
+.fcard h4{font-family:var(--serif);font-size:18px;font-weight:500;margin-bottom:7px;}
+.fcard p{font-size:13px;color:var(--muted);line-height:1.5;}
+
+/* ============ TESTIMONIALS ============ */
+.test-head{text-align:center;max-width:640px;margin:0 auto clamp(3rem,5vw,4rem);}
+.test-grid{columns:3;column-gap:20px;}
+.tcard{break-inside:avoid;margin-bottom:20px;padding:28px 26px;border-radius:var(--radius);
+  background:var(--glass-strong);border:1px solid rgba(255,255,255,.8);box-shadow:var(--shadow-soft);backdrop-filter:blur(14px);
+  transition:transform .5s, box-shadow .5s;}
+.tcard:hover{transform:translateY(-5px);box-shadow:var(--shadow-warm);}
+.tcard .tq{font-family:var(--serif);font-size:18px;line-height:1.45;color:var(--espresso);font-weight:400;margin-bottom:18px;}
+.tcard .tstars{color:var(--amber);font-size:14px;letter-spacing:2px;margin-bottom:14px;}
+.tcard .tmeta{display:flex;align-items:center;gap:11px;}
+.tcard .tav{width:38px;height:38px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--clay),var(--terracotta));box-shadow:inset 0 1px 0 rgba(255,255,255,.4);}
+.tcard .tname{font-size:13.5px;font-weight:600;color:var(--espresso);}
+.tcard .trole{font-size:12px;color:var(--muted);}
+
+/* ============ FINAL CTA ============ */
+.final{position:relative;overflow:hidden;}
+.final-card{position:relative;border-radius:40px;overflow:hidden;text-align:center;
+  padding:clamp(4rem,8vw,7rem) clamp(1.5rem,5vw,5rem);
+  background:linear-gradient(160deg,#fff7ee 0%, #fbeede 50%, #f6e3cd 100%);
+  border:1px solid rgba(255,255,255,.7);box-shadow:0 50px 110px -40px rgba(120,72,40,.4);}
+.final-card::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(60% 70% at 50% -10%,rgba(224,153,62,.3),transparent 60%),radial-gradient(50% 60% at 80% 110%,rgba(200,100,63,.22),transparent 60%);}
+.final-card .inner{position:relative;z-index:1;max-width:760px;margin:0 auto;}
+.final-card .eyebrow{margin-bottom:20px;display:inline-block;}
+.final-card h2{font-size:clamp(2.3rem,5vw,4.2rem);letter-spacing:-1.2px;margin-bottom:22px;line-height:1.02;}
+.final-card h2 em{font-style:italic;color:var(--terracotta);}
+.final-card .lede{max-width:540px;margin:0 auto 36px;}
+.final-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+
+/* ============ FOOTER ============ */
+footer{padding:48px 0 40px;border-top:1px solid var(--line);margin-top:clamp(4rem,7vw,6rem);}
+.foot-inner{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.foot-links{display:flex;gap:26px;flex-wrap:wrap;}
+.foot-links a{font-size:14px;color:var(--muted);transition:color .3s;}
+.foot-links a:hover{color:var(--terracotta);}
+.foot-copy{font-size:13px;color:var(--muted);}
+
+/* ============ REVEAL ============ */
+.reveal{opacity:0;transform:translateY(34px);}
+.reveal-l{opacity:0;transform:translateX(-40px);}
+.reveal-r{opacity:0;transform:translateX(40px);}
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:1100px){
+  .bene-grid{grid-template-columns:repeat(4,1fr);}
+  .bcard.feat{grid-column:span 2;grid-row:span 2;}
+  .bcard.span3{grid-column:span 2;}
+  .fgrid{grid-template-columns:repeat(3,1fr);}
+  .test-grid{columns:2;}
+}
+@media(max-width:980px){
+  .hero-grid{grid-template-columns:1fr;gap:clamp(2.5rem,6vw,4rem);}
+  .hero-copy{text-align:center;}
+  .hero-copy .lede{margin-left:auto;margin-right:auto;}
+  .hero-cta,.hero-trust{justify-content:center;}
+  .phone-side{display:none;}
+  .phones-area{height:auto;min-height:0;}
+  .demo-stage{min-height:0;}
+  .phone-live{width:min(360px,86vw);height:auto;aspect-ratio:392/712;}
+  .editable-grid{grid-template-columns:1fr;}
+  .steps{grid-template-columns:1fr;}
+}
+@media(max-width:720px){
+  .bene-grid{grid-template-columns:1fr;}
+  .bcard.feat,.bcard.span2,.bcard.span3{grid-column:span 1;grid-row:auto;}
+  .fgrid{grid-template-columns:repeat(2,1fr);}
+  .test-grid{columns:1;}
+  .edit-list{grid-template-columns:1fr;}
+  .foot-inner{flex-direction:column;text-align:center;}
+}
+@media(max-width:430px){
+  .wrap{padding:0 18px;}
+  .btn{padding:15px 24px;}
+  .fgrid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<div class="bg-wash"></div>
+<div class="bg-grain"></div>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a href="#top" class="wordmark">Rem<span>ly</span></a>
+    <div class="nav-links">
+      <a href="#benefits" class="link">Benefits</a>
+      <a href="#features" class="link">Features</a>
+      <a href="#demo" class="link">Demo</a>
+      <a href="/signup/" class="btn btn-primary btn-sm">Start Free Trial <span class="ar">→</span></a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="menu-scrim" id="menuScrim"></div>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#benefits">Benefits</a>
+  <a href="#features">Features</a>
+  <a href="#demo">Demo</a>
+  <a href="/signup/" class="btn btn-primary">Start Free Trial <span class="ar">→</span></a>
+</div>
+
+<span id="top"></span>
+
+<!-- ============ HERO ============ -->
+<section class="hero wrap" id="demo">
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow"><i></i>AI guest experience for short-stay hosts</span>
+      <h1 class="display">Make every guest feel like <em>you were waiting</em> just for them.</h1>
+      <p class="lede">Remly greets each guest the moment they arrive — a warm, beautiful welcome that answers every question, guides them in, and quietly offers the little extras that turn a stay into a memory. More five-star reviews, fewer 11pm "how do I get in?" messages, and a host who looks like they thought of everything.</p>
+      <div class="hero-cta">
+        <a href="/signup/" class="btn btn-primary">Start Free Trial <span class="ar">→</span></a>
+        <a href="#demo-live" class="btn btn-ghost" id="watchBtn">Watch the guest experience</a>
+      </div>
+      <div class="hero-trust">
+        <span class="stars">★★★★★</span>
+        <span class="t"><b>Loved by hosts</b> who care how their guests feel</span>
+      </div>
+    </div>
+
+    <!-- DEMO STAGE -->
+    <div class="demo-stage" id="demo-live">
+      <span class="demo-kicker reveal"><i></i>A 24/7 AI concierge in every check-in</span>
+      <div class="phones-area">
+        <!-- side decorative phones -->
+        <div class="phone phone-side ps-1" data-focus>
+          <div class="screen"><div class="mini">
+            <span class="mlabel">AI Concierge</span>
+            <span class="mtitle">Ask me anything, anytime</span>
+            <div class="mcard"><div class="mrow"><div class="d">💬</div><div>What time is check-in?</div></div></div>
+            <div class="mcard" style="background:linear-gradient(135deg,rgba(200,100,63,.12),rgba(224,153,62,.12));"><div class="mrow"><div class="d">✨</div><div>Anytime after 3pm — your door code is 1066.</div></div></div>
+            <span class="mpill">● Replying instantly</span>
+          </div><div class="tag">AI Concierge</div></div>
+        </div>
+        <div class="phone phone-side ps-2" data-focus>
+          <div class="screen"><div class="mini">
+            <span class="mlabel">Check-in</span>
+            <span class="mtitle">A calm, guided arrival</span>
+            <div class="mimg"></div>
+            <div class="mcard"><div class="mline" style="width:80%"></div><div class="mline s" style="margin-top:8px"></div></div>
+            <span class="mpill">Step 3 of 7 · Find the keybox</span>
+          </div><div class="tag">Smart Check-in</div></div>
+        </div>
+        <div class="phone phone-side ps-3" data-focus>
+          <div class="screen"><div class="mini">
+            <span class="mlabel">House Guide</span>
+            <span class="mtitle">Everything they need</span>
+            <div class="mcard"><div class="mrow"><div class="d">📶</div><div>WiFi · one-tap copy</div></div></div>
+            <div class="mcard"><div class="mrow"><div class="d">🔥</div><div>Heating & hot water</div></div></div>
+            <div class="mcard"><div class="mrow"><div class="d">♻️</div><div>Bins & recycling</div></div></div>
+          </div><div class="tag">House Guide</div></div>
+        </div>
+        <div class="phone phone-side ps-4" data-focus>
+          <div class="screen"><div class="mini">
+            <span class="mlabel">Local Guide</span>
+            <span class="mtitle">Your neighbourhood, curated</span>
+            <div class="mimg"></div>
+            <div class="mcard"><div class="mrow"><div class="d">☕</div><div>Best coffee · 3 min walk</div></div></div>
+            <span class="mpill">+ Add late checkout · £25</span>
+          </div><div class="tag">Local Guide & Extras</div></div>
+        </div>
+
+        <!-- LIVE centre phone -->
+        <div class="phone phone-live" id="livePhone">
+          <div class="phone-notch"></div>
+          <div class="screen">
+            <iframe id="demoFrame" src="/v4-cine-warm/index.html" title="Remly live guest experience" loading="eager"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <p class="demo-sub reveal">Send one link before check-in — and <b>outclass every host they've ever stayed with.</b></p>
+
+      <!-- STYLE SWITCHER -->
+      <div class="switcher">
+        <div class="hint">Tap to restyle the whole experience →</div>
+        <div class="chips" id="chips">
+          <span class="chip-pill" id="chipPill"></span>
+          <button class="chip on" data-src="/v4-cine-warm/index.html">Warm</button>
+          <button class="chip" data-src="/v5-cine-airy/index.html">Airy</button>
+          <button class="chip" data-src="/v6-cine-luxe/index.html">Luxe</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVERYTHING IS EDITABLE -->
+  <div class="editable">
+    <div class="editable-grid">
+      <div class="edit-head reveal">
+        <span class="eyebrow">Everything is editable</span>
+        <h2 class="section-title">It looks designed. <em>Because you designed it.</em></h2>
+        <p class="lede" style="max-width:620px">Every word, photo, video and tip is yours to shape — no code, no designer, no waiting. Build the welcome you'd want to receive, then earn more from the extras your guests already want.</p>
+      </div>
+      <div class="edit-list">
+        <div class="edit-item reveal"><div class="tick">✎</div><div><div class="et">Edit every check-in step</div><div class="ed">Reorder, rewrite and reshoot each arrival step in seconds.</div></div></div>
+        <div class="edit-item reveal"><div class="tick">🖼</div><div><div class="et">Swap photos & videos</div><div class="ed">Show the exact door, the exact keybox, the exact view.</div></div></div>
+        <div class="edit-item reveal"><div class="tick">📖</div><div><div class="et">Write your House Guide & Rules</div><div class="ed">From WiFi to "shoes off" — all in your own voice.</div></div></div>
+        <div class="edit-item reveal"><div class="tick">📍</div><div><div class="et">Curate local recommendations</div><div class="ed">The coffee, the dinner, the walk you'd send a friend to.</div></div></div>
+        <div class="edit-item reveal"><div class="tick">💰</div><div><div class="et">Add unlimited Extras & upsells</div><div class="ed">Late checkout, a welcome wine, airport transfers — guests tap, you earn.</div></div></div>
+        <div class="edit-item reveal glow"><div class="tick">🎨</div><div><div class="et">Change the entire look in one tap</div><div class="ed">Warm, Airy or Luxe — restyle the whole experience instantly.</div><span class="you">← you just did that</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRUST STRIP ============ -->
+<div class="strip">
+  <div class="wrap strip-inner">
+    <div class="s-item"><b>5★</b> reviews, on autopilot</div>
+    <div class="s-item"><b>90%</b> fewer "how do I…" messages</div>
+    <div class="s-item"><b>24/7</b> AI concierge</div>
+    <div class="s-item"><b>1 link</b> does everything</div>
+  </div>
+</div>
+
+<!-- ============ BENEFITS ============ -->
+<section class="section-pad wrap" id="benefits">
+  <div class="bene-head reveal">
+    <span class="eyebrow">Why it matters</span>
+    <h2 class="section-title" style="margin-top:14px">The feeling of being <em>cared for</em> — built into every stay.</h2>
+    <p class="lede">Guests remember how you made them feel. Remly makes you the host who thought of everything, so the warmth comes through before you've said a word.</p>
+  </div>
+  <div class="bene-grid">
+    <div class="bcard feat reveal">
+      <div class="bi">💛</div>
+      <div class="stat">+38%</div>
+      <h3>Increase guest satisfaction</h3>
+      <p>A welcome that feels personal and effortless leaves guests glowing — and that glow becomes your next five-star review.</p>
+    </div>
+    <div class="bcard reveal"><div class="bi">💬</div><h3>Reduce guest questions</h3><p>Answers waiting before they're even asked — your evenings stay yours.</p></div>
+    <div class="bcard reveal"><div class="bi">✨</div><h3>Delight every guest</h3><p>Beautiful, warm, human moments from the first tap to checkout.</p></div>
+    <div class="bcard span2 reveal"><div class="bi">🤖</div><h3>An AI concierge, awake 24/7</h3><p>It greets the 2am arrival, points to the late-night pharmacy and recommends breakfast — instantly, in their language, while you sleep.</p></div>
+    <div class="bcard span2 reveal"><div class="bi">🏡</div><h3>A beautiful check-in experience</h3><p>No more screenshots and scattered messages. One serene, guided arrival that makes your place feel loved.</p></div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="section-pad how">
+  <div class="wrap">
+    <div class="how-head reveal">
+      <span class="eyebrow">How it works</span>
+      <h2 class="section-title" style="margin-top:14px">Three quiet steps. <em>One unforgettable arrival.</em></h2>
+      <p class="lede">Set it up once in an afternoon. Every guest after that gets the welcome you always wished you had time to give.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div class="dot"></div><div class="num">1</div><h3>Add your property & knowledge</h3><p>Drop in your address, door code, WiFi and the little things only you know. Remly turns it into a living guide.</p></div>
+      <div class="step reveal"><div class="dot"></div><div class="num">2</div><h3>Customise the look & extras</h3><p>Choose Warm, Airy or Luxe, swap in your photos, and add the upsells guests love — late checkout, wine, transfers.</p></div>
+      <div class="step reveal"><div class="dot"></div><div class="num">3</div><h3>Send one secure link</h3><p>That's it. One link carries the whole experience — check-in, concierge, guide and extras — to every guest.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="section-pad wrap" id="features">
+  <div class="feat-head reveal">
+    <span class="eyebrow">Everything inside</span>
+    <h2 class="section-title" style="margin-top:14px">One link. <em>Every thoughtful detail.</em></h2>
+    <p class="lede">All the warmth of a host who's standing right there — beautifully organised in a single, editable experience.</p>
+  </div>
+  <div class="fgrid">
+    <div class="fcard reveal"><div class="fi">🤖</div><h4>AI Concierge</h4><p>Instant, on-brand answers to any guest question, day or night.</p></div>
+    <div class="fcard reveal"><div class="fi">🎙</div><h4>Voice AI</h4><p>Guests can simply ask out loud and hear a warm reply back.</p></div>
+    <div class="fcard reveal"><div class="fi">🔑</div><h4>Smart Check-in</h4><p>A calm, step-by-step arrival that never leaves anyone lost.</p></div>
+    <div class="fcard reveal"><div class="fi">📖</div><h4>House Guide</h4><p>Heating, appliances, quirks — everything explained simply.</p></div>
+    <div class="fcard reveal"><div class="fi">🗺</div><h4>Maps</h4><p>Pinned directions to the door, the keybox and the parking.</p></div>
+    <div class="fcard reveal"><div class="fi">🎬</div><h4>Videos</h4><p>Short clips that show, not tell — the exact door, the exact key.</p></div>
+    <div class="fcard reveal"><div class="fi">📶</div><h4>WiFi</h4><p>One-tap copy and connect — no squinting at a router sticker.</p></div>
+    <div class="fcard reveal"><div class="fi">📋</div><h4>House Rules</h4><p>Set expectations kindly, clearly, and right up front.</p></div>
+    <div class="fcard reveal"><div class="fi">📍</div><h4>Local Guide</h4><p>Your hand-picked coffee, dinner and walks — like a friend's tips.</p></div>
+    <div class="fcard reveal"><div class="fi">⭐</div><h4>Review Requests</h4><p>Gentle, perfectly-timed nudges that turn smiles into 5 stars.</p></div>
+    <div class="fcard reveal"><div class="fi">💰</div><h4>Extras & Upsells</h4><p>Late checkout, welcome wine, transfers — guests tap, you earn.</p></div>
+    <div class="fcard reveal"><div class="fi">🌍</div><h4>Any Language</h4><p>Every guest welcomed warmly in the language they think in.</p></div>
+  </div>
+</section>
+
+<!-- ============ TESTIMONIALS ============ -->
+<section class="section-pad wrap">
+  <div class="test-head reveal">
+    <span class="eyebrow">Why hosts love it</span>
+    <h2 class="section-title" style="margin-top:14px">The hosting you always <em>meant to give.</em></h2>
+  </div>
+  <div class="test-grid">
+    <div class="tcard reveal"><div class="tstars">★★★★★</div><div class="tq">"My guests message me saying it felt like I'd planned every detail just for them. I barely touch my phone now."</div><div class="tmeta"><div class="tav"></div><div><div class="tname">Superhost</div><div class="trole">Manchester, UK</div></div></div></div>
+    <div class="tcard reveal"><div class="tstars">★★★★★</div><div class="tq">"The late-checkout and wine upsells alone paid for the year in my first month. And the reviews? All five stars."</div><div class="tmeta"><div class="tav"></div><div><div class="tname">Airbnb Host</div><div class="trole">Lisbon, Portugal</div></div></div></div>
+    <div class="tcard reveal"><div class="tstars">★★★★★</div><div class="tq">"No more 'how do I get in?' at midnight. The AI handles it warmly, in their language, while I sleep."</div><div class="tmeta"><div class="tav"></div><div><div class="tname">Short-stay Host</div><div class="trole">Barcelona, Spain</div></div></div></div>
+    <div class="tcard reveal"><div class="tstars">★★★★★</div><div class="tq">"I changed the whole look to match my new place in one tap. It feels like a five-star hotel app, but it's just me."</div><div class="tmeta"><div class="tav"></div><div><div class="tname">Property Manager</div><div class="trole">Edinburgh, UK</div></div></div></div>
+    <div class="tcard reveal"><div class="tstars">★★★★★</div><div class="tq">"Guests arrive relaxed instead of stressed. You can feel it in the reviews — they mention the welcome every time."</div><div class="tmeta"><div class="tav"></div><div><div class="tname">Superhost</div><div class="trole">Amsterdam, NL</div></div></div></div>
+    <div class="tcard reveal"><div class="tstars">★★★★★</div><div class="tq">"Setup took one afternoon. Now every single guest gets the kind of welcome I only used to manage in person."</div><div class="tmeta"><div class="tav"></div><div><div class="tname">Airbnb Host</div><div class="trole">Porto, Portugal</div></div></div></div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="section-pad wrap final">
+  <div class="final-card reveal">
+    <div class="inner">
+      <span class="eyebrow">Your next guest is already booking</span>
+      <h2>Give them the welcome <em>they'll never forget.</em></h2>
+      <p class="lede">Be the host who thought of everything — without lifting a finger after midnight. Start free, set it up in an afternoon, and let every arrival feel like home.</p>
+      <div class="final-cta">
+        <a href="/signup/" class="btn btn-primary">Start Free Trial <span class="ar">→</span></a>
+        <a href="#demo-live" class="btn btn-ghost" id="expBtn">Experience the demo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap foot-inner">
+    <a href="#top" class="wordmark">Rem<span>ly</span></a>
+    <div class="foot-links">
+      <a href="#benefits">Benefits</a>
+      <a href="#features">Features</a>
+      <a href="#demo-live">Demo</a>
+      <a href="/signup/">Start Free Trial</a>
+    </div>
+    <div class="foot-copy">© 2026 Remly · Made for hosts who care.</div>
+  </div>
+</footer>
+
+<script>
+/* ===== LENIS SMOOTH SCROLL (graceful) ===== */
+let lenis = null;
+const hasGSAP = (typeof gsap !== 'undefined');
+if(hasGSAP) gsap.registerPlugin(ScrollTrigger);
+try{
+  if(typeof Lenis !== 'undefined'){
+    lenis = new Lenis({ duration:1.15, easing:t=>Math.min(1,1.001-Math.pow(2,-10*t)), smoothWheel:true });
+    if(hasGSAP){
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add((t)=>lenis.raf(t*1000));
+      gsap.ticker.lagSmoothing(0);
+    } else {
+      function raf(time){ lenis.raf(time); requestAnimationFrame(raf); }
+      requestAnimationFrame(raf);
+    }
+  }
+}catch(e){ lenis = null; }
+
+/* smooth scroll helper that works with or without lenis */
+function smoothTo(el){
+  if(lenis){ lenis.scrollTo(el,{offset:-70,duration:1.3}); }
+  else{ const y=el.getBoundingClientRect().top+window.pageYOffset-70; window.scrollTo({top:y,behavior:'smooth'}); }
+}
+
+/* anchor smooth scroll */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const id=a.getAttribute('href');
+    if(id.length<2)return;
+    const el=document.querySelector(id);
+    if(el){ e.preventDefault(); smoothTo(el); closeMenu(); }
+  });
+});
+
+/* ===== NAV scroll state ===== */
+const nav=document.getElementById('nav');
+function navState(y){ nav.classList.toggle('scrolled', y>30); }
+if(lenis){ lenis.on('scroll',({scroll})=>navState(scroll)); }
+window.addEventListener('scroll',()=>navState(window.pageYOffset),{passive:true});
+
+/* ===== MOBILE MENU ===== */
+const toggle=document.getElementById('navToggle');
+const menu=document.getElementById('mobileMenu');
+const scrim=document.getElementById('menuScrim');
+function openMenu(){ menu.classList.add('open'); scrim.classList.add('open'); }
+function closeMenu(){ menu.classList.remove('open'); scrim.classList.remove('open'); }
+toggle.addEventListener('click',()=> menu.classList.contains('open')?closeMenu():openMenu());
+scrim.addEventListener('click',closeMenu);
+
+/* ===== STYLE SWITCHER ===== */
+const chips=[...document.querySelectorAll('.chip')];
+const chipPill=document.getElementById('chipPill');
+const frame=document.getElementById('demoFrame');
+const livePhone=document.getElementById('livePhone');
+function positionPill(el){
+  chipPill.style.width=el.offsetWidth+'px';
+  chipPill.style.transform=`translateX(${el.offsetLeft-5}px)`;
+}
+function setChip(el){
+  chips.forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  positionPill(el);
+}
+chips.forEach(c=>{
+  c.addEventListener('click',()=>{
+    if(c.classList.contains('on'))return;
+    setChip(c);
+    const src=c.dataset.src;
+    livePhone.classList.add('swapping');
+    setTimeout(()=>{ frame.src=src; },240);
+    frame.addEventListener('load',()=>livePhone.classList.remove('swapping'),{once:true});
+    /* safety remove */
+    setTimeout(()=>livePhone.classList.remove('swapping'),1400);
+  });
+});
+window.addEventListener('load',()=>positionPill(chips[0]));
+window.addEventListener('resize',()=>positionPill(document.querySelector('.chip.on')));
+
+/* ===== SIDE PHONE focus ===== */
+document.querySelectorAll('.phone-side').forEach(p=>{
+  p.addEventListener('click',()=>{
+    const was=p.classList.contains('focused');
+    document.querySelectorAll('.phone-side').forEach(x=>x.classList.remove('focused'));
+    if(!was)p.classList.add('focused');
+  });
+});
+
+/* ===== GSAP REVEALS ===== */
+if(!hasGSAP){
+  /* no animation lib — show everything so the page is never blank */
+  document.querySelectorAll('.reveal,.reveal-l,.reveal-r').forEach(el=>{
+    el.style.opacity=1; el.style.transform='none';
+  });
+} else {
+gsap.utils.toArray('.reveal').forEach(el=>{
+  gsap.to(el,{opacity:1,y:0,duration:1,ease:'power3.out',
+    scrollTrigger:{trigger:el,start:'top 86%'}});
+});
+gsap.utils.toArray('.reveal-l').forEach(el=>{
+  gsap.to(el,{opacity:1,x:0,duration:1,ease:'power3.out',
+    scrollTrigger:{trigger:el,start:'top 86%'}});
+});
+gsap.utils.toArray('.reveal-r').forEach(el=>{
+  gsap.to(el,{opacity:1,x:0,duration:1,ease:'power3.out',
+    scrollTrigger:{trigger:el,start:'top 86%'}});
+});
+
+/* stagger grids */
+function stagger(sel,childSel){
+  document.querySelectorAll(sel).forEach(grid=>{
+    const kids=grid.querySelectorAll(childSel);
+    gsap.set(kids,{opacity:0,y:30});
+    gsap.to(kids,{opacity:1,y:0,duration:.9,ease:'power3.out',stagger:.08,
+      scrollTrigger:{trigger:grid,start:'top 80%'}});
+  });
+}
+stagger('.bene-grid','.bcard');
+stagger('.fgrid','.fcard');
+stagger('.steps','.step');
+stagger('.edit-list','.edit-item');
+
+/* ===== HERO entrance + floating phones ===== */
+window.addEventListener('load',()=>{
+  const tl=gsap.timeline({defaults:{ease:'power3.out'}});
+  tl.from('.hero-copy .eyebrow',{opacity:0,y:20,duration:.8})
+    .from('.hero h1',{opacity:0,y:30,duration:1},'-=.5')
+    .from('.hero .lede',{opacity:0,y:24,duration:.9},'-=.6')
+    .from('.hero-cta',{opacity:0,y:20,duration:.8},'-=.6')
+    .from('.hero-trust',{opacity:0,y:16,duration:.7},'-=.6')
+    .from('.phone-live',{opacity:0,y:50,scale:.94,duration:1.1,ease:'power4.out'},'-=1.1')
+    .from('.phone-side',{opacity:0,scale:.8,duration:1,stagger:.1,ease:'back.out(1.4)'},'-=.8')
+    .from('.switcher',{opacity:0,y:18,duration:.7},'-=.6');
+
+  /* gentle parallax float on side phones */
+  gsap.utils.toArray('.phone-side').forEach((p,i)=>{
+    gsap.to(p,{y:'+=14',duration:3.4+i*.5,repeat:-1,yoyo:true,ease:'sine.inOut',delay:i*.3});
+  });
+});
+
+/* subtle parallax of phones-area on scroll (desktop) */
+if(window.innerWidth>980){
+  gsap.to('.phones-area',{yPercent:-6,ease:'none',
+    scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:1}});
+}
+} /* end hasGSAP */
+</script>
+</body>
+</html>

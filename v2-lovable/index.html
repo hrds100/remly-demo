@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Remly · Guest Check-in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============ THEME TOKENS ============ */
+:root{
+  --coral:#ff6b6b;
+  --coral-deep:#ff5252;
+  --indigo:#6c63ff;
+  --indigo-soft:#8b85ff;
+  --peach:#ffe3d3;
+  --lavender:#e9e3ff;
+  --mint:#d6f5e8;
+  --bg:#faf8f5;
+  --bg-2:#f3eee8;
+  --card:rgba(255,255,255,0.72);
+  --card-solid:#ffffff;
+  --text:#2b2435;
+  --text-soft:#7a7287;
+  --line:rgba(43,36,53,0.08);
+  --shadow:0 10px 30px -12px rgba(80,60,90,0.25);
+  --shadow-sm:0 6px 18px -10px rgba(80,60,90,0.30);
+  --glass-blur:saturate(160%) blur(18px);
+  --nav-glass:rgba(255,255,255,0.65);
+  --radius:26px;
+}
+[data-theme="dark"]{
+  --peach:#3a2a33;
+  --lavender:#2c2742;
+  --mint:#1f3a33;
+  --bg:#15121b;
+  --bg-2:#1d1826;
+  --card:rgba(40,34,52,0.66);
+  --card-solid:#241e30;
+  --text:#f3eefb;
+  --text-soft:#a89fbd;
+  --line:rgba(255,255,255,0.08);
+  --shadow:0 14px 36px -14px rgba(0,0,0,0.6);
+  --shadow-sm:0 8px 22px -12px rgba(0,0,0,0.55);
+  --nav-glass:rgba(36,30,48,0.62);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:
+    radial-gradient(1200px 600px at 80% -10%, var(--peach), transparent 60%),
+    radial-gradient(900px 500px at -10% 20%, var(--lavender), transparent 55%),
+    radial-gradient(1000px 700px at 50% 120%, var(--mint), transparent 55%),
+    var(--bg-2);
+  color:var(--text);
+  display:flex;align-items:center;justify-content:center;
+  min-height:100dvh;
+  transition:background .5s ease,color .35s ease;
+}
+h1,h2,h3,h4,.font-head{font-family:'Plus Jakarta Sans','Inter',sans-serif;}
+
+/* ============ PHONE FRAME ============ */
+.phone{
+  position:relative;
+  width:390px;height:844px;max-height:100dvh;
+  background:var(--bg);
+  border-radius:46px;
+  box-shadow:0 40px 90px -30px rgba(60,40,80,.5), 0 0 0 12px #14101a, 0 0 0 13px rgba(255,255,255,.04);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  transition:background .5s ease;
+}
+@media (max-width:430px){
+  body{align-items:stretch;}
+  .phone{width:100%;height:100dvh;border-radius:0;box-shadow:none;}
+}
+.notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:120px;height:26px;background:#14101a;border-radius:0 0 16px 16px;z-index:60;}
+[data-theme="dark"] .notch{background:#000;}
+
+/* ============ TOP BAR ============ */
+.topbar{
+  position:relative;z-index:30;flex:0 0 auto;
+  padding:42px 20px 10px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.brand{display:flex;align-items:center;gap:9px;}
+.brand .logo{
+  width:34px;height:34px;border-radius:12px;
+  background:linear-gradient(135deg,var(--coral),var(--indigo));
+  display:grid;place-items:center;color:#fff;font-weight:800;
+  box-shadow:0 8px 18px -8px var(--coral);font-family:'Plus Jakarta Sans';
+}
+.brand b{font-family:'Plus Jakarta Sans';font-weight:800;font-size:19px;letter-spacing:-.4px;}
+.brand small{display:block;font-size:11px;color:var(--text-soft);margin-top:-2px;font-weight:500;}
+.top-actions{display:flex;gap:8px;}
+.icon-btn{
+  width:38px;height:38px;border:none;border-radius:50%;
+  background:var(--card);backdrop-filter:var(--glass-blur);
+  box-shadow:var(--shadow-sm);color:var(--text);
+  font-size:16px;cursor:pointer;display:grid;place-items:center;
+  transition:transform .15s, background .3s;
+}
+.icon-btn:active{transform:scale(.86);}
+
+/* ============ SCROLL AREA ============ */
+.screens{flex:1 1 auto;position:relative;overflow:hidden;}
+.screen{
+  position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+  padding:6px 18px 150px;
+  opacity:0;transform:translateY(14px) scale(.99);
+  pointer-events:none;transition:opacity .32s ease, transform .32s ease;
+  -webkit-overflow-scrolling:touch;
+}
+.screen.active{opacity:1;transform:none;pointer-events:auto;}
+.screen::-webkit-scrollbar{width:0;}
+
+.screen-head{margin:6px 2px 16px;}
+.screen-head h2{margin:0;font-size:26px;letter-spacing:-.6px;font-weight:800;}
+.screen-head p{margin:4px 0 0;color:var(--text-soft);font-size:13.5px;}
+
+/* ============ GLASS CARD ============ */
+.card{
+  background:var(--card);
+  backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:16px;
+  transition:transform .2s cubic-bezier(.2,.9,.3,1.4), box-shadow .25s;
+}
+.card.tap:active{transform:scale(.97);}
+
+/* ============ CHECK-IN TIMELINE ============ */
+.progress-wrap{
+  position:sticky;top:0;z-index:10;
+  margin:-6px -2px 14px;padding:12px 14px;
+  background:var(--card);backdrop-filter:var(--glass-blur);
+  border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow-sm);
+}
+.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;}
+.progress-top b{font-size:14px;font-family:'Plus Jakarta Sans';}
+.progress-top span{font-size:12px;color:var(--text-soft);font-weight:600;}
+.bar{height:9px;border-radius:99px;background:var(--bg-2);overflow:hidden;}
+.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--coral),var(--indigo));transition:width .55s cubic-bezier(.3,1,.3,1);}
+
+.timeline{position:relative;}
+.step{position:relative;display:flex;gap:14px;padding-bottom:18px;}
+.rail{position:relative;flex:0 0 auto;display:flex;flex-direction:column;align-items:center;}
+.rail .line{position:absolute;top:32px;bottom:-18px;width:3px;background:linear-gradient(var(--line),var(--line));border-radius:9px;}
+.step:last-child .rail .line{display:none;}
+.check-circle{
+  width:32px;height:32px;flex:0 0 auto;border-radius:50%;
+  border:2.5px solid var(--line);background:var(--card-solid);
+  display:grid;place-items:center;cursor:pointer;z-index:2;
+  font-size:15px;color:transparent;transition:all .3s cubic-bezier(.2,.9,.3,1.5);
+}
+.check-circle:active{transform:scale(.8);}
+.step.done .check-circle{background:linear-gradient(135deg,#34d399,#10b981);border-color:transparent;color:#fff;transform:scale(1.05);box-shadow:0 8px 16px -6px #10b981;}
+.step-body{flex:1 1 auto;min-width:0;}
+.step-img{
+  height:96px;border-radius:18px;margin-bottom:10px;overflow:hidden;position:relative;
+  background-size:cover;background-position:center;
+  box-shadow:var(--shadow-sm);
+}
+.step-img .emoji{position:absolute;inset:0;display:grid;place-items:center;font-size:38px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));}
+.step-body h3{margin:0 0 3px;font-size:16.5px;font-weight:700;letter-spacing:-.3px;}
+.step-body .note{margin:0 0 10px;color:var(--text-soft);font-size:13px;line-height:1.45;}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;}
+.btn{
+  border:none;cursor:pointer;font-family:'Inter';font-weight:600;font-size:13px;
+  padding:9px 14px;border-radius:14px;display:inline-flex;align-items:center;gap:6px;
+  transition:transform .12s;
+}
+.btn:active{transform:scale(.92);}
+.btn.primary{background:linear-gradient(135deg,var(--coral),var(--coral-deep));color:#fff;box-shadow:0 8px 18px -8px var(--coral);}
+.btn.ghost{background:var(--bg-2);color:var(--text);}
+.btn.indigo{background:linear-gradient(135deg,var(--indigo),var(--indigo-soft));color:#fff;box-shadow:0 8px 18px -8px var(--indigo);}
+.code-pill{
+  display:inline-flex;align-items:center;gap:8px;font-family:'Plus Jakarta Sans';font-weight:800;
+  letter-spacing:3px;font-size:16px;background:var(--bg-2);padding:8px 14px;border-radius:13px;
+}
+
+.finish-wrap{margin:6px 0 8px;}
+.finish-btn{
+  width:100%;padding:17px;border:none;border-radius:22px;cursor:pointer;
+  font-family:'Plus Jakarta Sans';font-weight:800;font-size:17px;color:#fff;
+  background:linear-gradient(135deg,var(--coral),var(--indigo));
+  box-shadow:0 16px 30px -12px var(--coral);transition:transform .15s, opacity .3s;
+}
+.finish-btn:active{transform:scale(.96);}
+.finish-btn[disabled]{opacity:.45;filter:grayscale(.5);cursor:not-allowed;}
+
+/* ============ EXPANDABLE HOUSE CARDS ============ */
+.acc{margin-bottom:12px;}
+.acc-head{display:flex;align-items:center;gap:13px;cursor:pointer;}
+.acc-ic{width:44px;height:44px;border-radius:15px;display:grid;place-items:center;font-size:22px;flex:0 0 auto;
+  background:linear-gradient(135deg,var(--peach),var(--lavender));}
+.acc-head h3{margin:0;font-size:16px;font-weight:700;flex:1;letter-spacing:-.3px;}
+.acc-head .chev{color:var(--text-soft);transition:transform .3s;font-size:14px;}
+.acc.open .acc-head .chev{transform:rotate(180deg);}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+.acc.open .acc-body{max-height:340px;}
+.acc-inner{padding:13px 2px 2px;color:var(--text-soft);font-size:13.5px;line-height:1.6;}
+.acc-inner b{color:var(--text);}
+
+/* ============ LOCAL ============ */
+.group-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--text-soft);margin:18px 4px 9px;}
+.local-card{display:flex;gap:13px;align-items:center;margin-bottom:11px;}
+.local-emoji{width:50px;height:50px;border-radius:16px;display:grid;place-items:center;font-size:25px;flex:0 0 auto;
+  background:linear-gradient(135deg,var(--mint),var(--lavender));}
+.local-card .meta{flex:1;min-width:0;}
+.local-card h4{margin:0 0 2px;font-size:15px;font-weight:700;}
+.local-card p{margin:0;font-size:12.5px;color:var(--text-soft);}
+.mini-btn{flex:0 0 auto;border:none;background:var(--bg-2);color:var(--text);border-radius:12px;padding:9px 11px;font-size:12px;font-weight:600;cursor:pointer;transition:transform .12s;}
+.mini-btn:active{transform:scale(.9);}
+
+/* ============ EXTRAS ============ */
+.extras-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.extra{padding:0;overflow:hidden;display:flex;flex-direction:column;}
+.extra .ph{height:78px;display:grid;place-items:center;font-size:34px;}
+.extra .body{padding:11px 12px 13px;display:flex;flex-direction:column;flex:1;}
+.extra h4{margin:0 0 2px;font-size:14px;font-weight:700;letter-spacing:-.2px;}
+.extra .desc{margin:0 0 9px;font-size:11.5px;color:var(--text-soft);line-height:1.4;flex:1;}
+.extra .price-row{display:flex;align-items:center;justify-content:space-between;}
+.extra .price{font-family:'Plus Jakarta Sans';font-weight:800;font-size:15px;}
+.add-btn{border:none;background:linear-gradient(135deg,var(--coral),var(--coral-deep));color:#fff;border-radius:12px;padding:7px 13px;font-size:12.5px;font-weight:700;cursor:pointer;transition:transform .12s;box-shadow:0 6px 14px -7px var(--coral);}
+.add-btn:active{transform:scale(.86);}
+.add-btn.added{background:linear-gradient(135deg,#34d399,#10b981);box-shadow:0 6px 14px -7px #10b981;}
+
+.cart-bar{
+  position:absolute;left:18px;right:18px;bottom:96px;z-index:40;
+  background:linear-gradient(135deg,var(--indigo),var(--indigo-soft));
+  color:#fff;border-radius:20px;padding:14px 18px;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 18px 34px -14px var(--indigo);
+  transform:translateY(140%);opacity:0;transition:transform .4s cubic-bezier(.2,.9,.3,1.3),opacity .3s;
+}
+.cart-bar.show{transform:none;opacity:1;}
+.cart-bar .ct{font-size:12px;opacity:.85;}
+.cart-bar .cv{font-family:'Plus Jakarta Sans';font-weight:800;font-size:18px;}
+.cart-bar button{border:none;background:#fff;color:var(--indigo);font-weight:700;border-radius:13px;padding:9px 15px;font-size:13px;cursor:pointer;}
+
+/* ============ AI FLOATING + SHEET ============ */
+.ai-fab{
+  position:absolute;right:18px;bottom:96px;z-index:45;
+  width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--coral),var(--indigo));
+  color:#fff;font-size:26px;box-shadow:0 16px 30px -10px var(--coral);
+  display:grid;place-items:center;transition:transform .2s;
+  animation:floaty 4s ease-in-out infinite;
+}
+.ai-fab:active{transform:scale(.85);}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+
+.sheet-scrim{position:absolute;inset:0;z-index:70;background:rgba(20,12,28,.4);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .3s;}
+.sheet-scrim.show{opacity:1;pointer-events:auto;}
+.sheet{
+  position:absolute;left:0;right:0;bottom:0;z-index:71;
+  height:78%;background:var(--bg);border-radius:30px 30px 0 0;
+  box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);
+  transform:translateY(110%);transition:transform .42s cubic-bezier(.2,.9,.3,1.2);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.sheet.show{transform:none;}
+.sheet-grab{width:42px;height:5px;border-radius:9px;background:var(--line);margin:10px auto 4px;}
+.sheet-head{display:flex;align-items:center;gap:11px;padding:6px 18px 12px;border-bottom:1px solid var(--line);}
+.sheet-head .av{width:40px;height:40px;border-radius:13px;background:linear-gradient(135deg,var(--coral),var(--indigo));display:grid;place-items:center;font-size:20px;}
+.sheet-head h3{margin:0;font-size:16px;font-weight:800;}
+.sheet-head small{color:var(--text-soft);font-size:11.5px;}
+.sheet-head .close{margin-left:auto;}
+
+.chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:11px;}
+.chat::-webkit-scrollbar{width:0;}
+.msg{max-width:80%;padding:12px 15px;border-radius:20px;font-size:13.5px;line-height:1.5;}
+.msg.ai{align-self:flex-start;background:var(--card);backdrop-filter:var(--glass-blur);border:1px solid var(--line);border-bottom-left-radius:6px;box-shadow:var(--shadow-sm);}
+.msg.me{align-self:flex-end;background:linear-gradient(135deg,var(--coral),var(--coral-deep));color:#fff;border-bottom-right-radius:6px;box-shadow:0 8px 16px -8px var(--coral);}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:20px;border-bottom-left-radius:6px;}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--text-soft);animation:bounce 1.2s infinite;}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+
+.chips{display:flex;gap:8px;padding:4px 16px 10px;overflow-x:auto;flex:0 0 auto;}
+.chips::-webkit-scrollbar{height:0;}
+.chip{white-space:nowrap;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:99px;padding:9px 14px;font-size:12.5px;font-weight:600;cursor:pointer;transition:transform .12s;}
+.chip:active{transform:scale(.9);}
+.composer{flex:0 0 auto;display:flex;gap:9px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);align-items:center;}
+.composer input{flex:1;border:1px solid var(--line);background:var(--card-solid);color:var(--text);border-radius:18px;padding:13px 16px;font-size:14px;font-family:'Inter';outline:none;}
+.composer input:focus{border-color:var(--coral);}
+.cbtn{width:46px;height:46px;flex:0 0 auto;border:none;border-radius:50%;cursor:pointer;display:grid;place-items:center;font-size:18px;transition:transform .12s;}
+.cbtn:active{transform:scale(.85);}
+.cbtn.mic{background:var(--bg-2);color:var(--text);}
+.cbtn.mic.listening{background:linear-gradient(135deg,var(--coral),var(--indigo));color:#fff;animation:pulse 1s infinite;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,107,107,.5)}100%{box-shadow:0 0 0 16px rgba(255,107,107,0)}}
+.cbtn.send{background:linear-gradient(135deg,var(--coral),var(--coral-deep));color:#fff;}
+
+/* ============ BOTTOM NAV ============ */
+.nav{
+  position:absolute;left:50%;transform:translateX(-50%);bottom:16px;z-index:50;
+  width:calc(100% - 28px);max-width:362px;
+  background:var(--nav-glass);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--line);border-radius:30px;
+  box-shadow:0 18px 38px -16px rgba(60,40,80,.45);
+  display:flex;padding:8px;gap:2px;
+}
+.nav button{
+  flex:1;border:none;background:transparent;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:7px 2px;border-radius:22px;color:var(--text-soft);
+  font-size:10px;font-weight:600;transition:all .25s;
+}
+.nav button .ic{font-size:20px;transition:transform .25s;}
+.nav button.active{color:var(--text);background:var(--card-solid);box-shadow:var(--shadow-sm);}
+.nav button.active .ic{transform:translateY(-2px) scale(1.12);}
+
+/* ============ TOAST ============ */
+.toast{
+  position:absolute;left:50%;top:64px;transform:translate(-50%,-26px);
+  z-index:90;background:var(--text);color:var(--bg);
+  padding:11px 18px;border-radius:16px;font-size:13px;font-weight:600;
+  box-shadow:0 14px 30px -12px rgba(0,0,0,.4);
+  opacity:0;pointer-events:none;transition:all .35s cubic-bezier(.2,.9,.3,1.4);
+  white-space:nowrap;max-width:90%;
+}
+.toast.show{opacity:1;transform:translate(-50%,0);}
+
+/* ============ COMPLETION ============ */
+.complete{position:absolute;inset:0;z-index:80;background:
+    radial-gradient(900px 500px at 50% -10%, var(--peach), transparent 60%),
+    radial-gradient(700px 500px at 50% 120%, var(--mint), transparent 55%),
+    var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:30px;text-align:center;
+  opacity:0;pointer-events:none;transform:scale(1.04);transition:opacity .5s,transform .5s;}
+.complete.show{opacity:1;pointer-events:auto;transform:none;}
+.tick{width:108px;height:108px;border-radius:50%;background:linear-gradient(135deg,#34d399,#10b981);display:grid;place-items:center;box-shadow:0 20px 44px -14px #10b981;margin-bottom:24px;}
+.tick svg{width:54px;height:54px;}
+.tick svg path{stroke-dasharray:60;stroke-dashoffset:60;}
+.complete.show .tick svg path{animation:draw .6s .35s forwards cubic-bezier(.6,0,.4,1);}
+@keyframes draw{to{stroke-dashoffset:0}}
+.complete h1{font-size:28px;margin:0 0 8px;letter-spacing:-.6px;}
+.complete p{color:var(--text-soft);font-size:14.5px;margin:0 0 22px;line-height:1.5;max-width:280px;}
+.stars{display:flex;gap:8px;margin-bottom:24px;}
+.stars span{font-size:36px;cursor:pointer;filter:grayscale(1);opacity:.5;transition:all .2s;transform-origin:center;}
+.stars span.lit{filter:none;opacity:1;transform:scale(1.18);}
+.promo{background:var(--card);backdrop-filter:var(--glass-blur);border:1px solid var(--line);border-radius:20px;padding:16px 20px;box-shadow:var(--shadow);margin-bottom:18px;}
+.promo b{font-family:'Plus Jakarta Sans';font-size:16px;}
+.promo small{display:block;color:var(--text-soft);margin-top:3px;font-size:12.5px;}
+
+/* confetti */
+.confetti{position:absolute;top:-12px;width:10px;height:14px;border-radius:3px;z-index:81;pointer-events:none;}
+
+.welcome-banner{position:relative;overflow:hidden;border-radius:var(--radius);padding:20px;margin-bottom:16px;
+  background:linear-gradient(135deg,var(--coral),var(--indigo));color:#fff;box-shadow:0 18px 36px -16px var(--coral);}
+.welcome-banner h3{margin:0 0 5px;font-size:19px;font-weight:800;}
+.welcome-banner p{margin:0;font-size:13px;opacity:.92;line-height:1.5;}
+.welcome-banner .blob{position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.16);top:-40px;right:-30px;}
+</style>
+</head>
+<body data-theme="light">
+
+<div class="phone" id="phone">
+  <div class="notch"></div>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">R</div>
+      <div><b>Remly</b><small id="brand-sub">Halo House · Flat 14</small></div>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="mute-btn" title="Sound">🔊</button>
+      <button class="icon-btn" id="theme-btn" title="Theme">🌙</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- SCREENS -->
+  <div class="screens" id="screens">
+
+    <!-- ===== CHECK-IN ===== -->
+    <section class="screen active" data-screen="checkin">
+      <div class="progress-wrap">
+        <div class="progress-top"><b>Your check-in 💛</b><span id="prog-count">0 of 6 done</span></div>
+        <div class="bar"><i id="prog-bar"></i></div>
+      </div>
+      <div class="timeline" id="timeline"></div>
+      <div class="finish-wrap">
+        <button class="finish-btn" id="finish-btn" disabled>Finish check-in 🎉</button>
+      </div>
+    </section>
+
+    <!-- ===== AI (info screen) ===== -->
+    <section class="screen" data-screen="ai">
+      <div class="screen-head"><h2>Concierge 🤖</h2><p>Your 24/7 host in your pocket.</p></div>
+      <div class="welcome-banner">
+        <div class="blob"></div>
+        <h3>Ask me anything</h3>
+        <p>WiFi, parking, heating, checkout — I know this flat inside out. Tap the glowing button any time.</p>
+      </div>
+      <div class="card tap" id="open-ai-card" style="text-align:center;padding:24px;cursor:pointer;">
+        <div style="font-size:46px;margin-bottom:8px;">💬</div>
+        <h3 style="margin:0 0 4px;">Start a conversation</h3>
+        <p style="margin:0;color:var(--text-soft);font-size:13px;">or use voice — just tap the mic</p>
+      </div>
+    </section>
+
+    <!-- ===== HOUSE ===== -->
+    <section class="screen" data-screen="house">
+      <div class="screen-head"><h2>House manual 🏡</h2><p>Everything about your home for the stay.</p></div>
+      <div id="house-list"></div>
+    </section>
+
+    <!-- ===== LOCAL ===== -->
+    <section class="screen" data-screen="local">
+      <div class="screen-head"><h2>The neighbourhood 📍</h2><p>Hugo's favourite local spots in Ancoats.</p></div>
+      <div id="local-list"></div>
+    </section>
+
+    <!-- ===== EXTRAS ===== -->
+    <section class="screen" data-screen="extras">
+      <div class="screen-head"><h2>Make it special ✨</h2><p>Little touches to upgrade your stay. No pressure.</p></div>
+      <div class="extras-grid" id="extras-grid"></div>
+    </section>
+
+  </div>
+
+  <!-- CART BAR -->
+  <div class="cart-bar" id="cart-bar">
+    <div><div class="ct" id="cart-count">0 items</div><div class="cv" id="cart-total">£0</div></div>
+    <button id="cart-checkout">Checkout</button>
+  </div>
+
+  <!-- AI FAB -->
+  <button class="ai-fab" id="ai-fab">✨</button>
+
+  <!-- AI SHEET -->
+  <div class="sheet-scrim" id="sheet-scrim"></div>
+  <div class="sheet" id="sheet">
+    <div class="sheet-grab"></div>
+    <div class="sheet-head">
+      <div class="av">🤖</div>
+      <div><h3>Remly Concierge</h3><small>Online · replies instantly</small></div>
+      <button class="icon-btn close" id="sheet-close">✕</button>
+    </div>
+    <div class="chat" id="chat"></div>
+    <div class="chips" id="chips"></div>
+    <div class="composer">
+      <button class="cbtn mic" id="mic-btn">🎙️</button>
+      <input id="chat-input" placeholder="Ask about WiFi, parking…" />
+      <button class="cbtn send" id="send-btn">➤</button>
+    </div>
+  </div>
+
+  <!-- COMPLETION -->
+  <div class="complete" id="complete">
+    <div class="tick"><svg viewBox="0 0 52 52" fill="none"><path d="M14 27l8 8 16-18" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <h1>You're all set, Sarah 🎉</h1>
+    <p>Welcome home to Halo House · Flat 14. We hope you have a wonderful stay in Manchester.</p>
+    <div class="stars" id="stars">
+      <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+    </div>
+    <div class="promo"><b>Come back soon 💛</b><small>Save 10% on your next stay with code <b>REMLY10</b></small></div>
+    <button class="btn indigo" id="complete-done" style="padding:13px 26px;font-size:14px;border-radius:16px;">Explore the flat</button>
+  </div>
+
+  <!-- NAV -->
+  <nav class="nav" id="nav">
+    <button class="active" data-go="checkin"><span class="ic">🏠</span>Check-in</button>
+    <button data-go="ai"><span class="ic">🤖</span>AI</button>
+    <button data-go="house"><span class="ic">🏡</span>House</button>
+    <button data-go="local"><span class="ic">📍</span>Local</button>
+    <button data-go="extras"><span class="ic">✨</span>Extras</button>
+  </nav>
+
+</div>
+
+<script>
+/* ================= SOUND + HAPTICS ================= */
+let muted=false, audioCtx=null;
+function ensureAudio(){ if(!audioCtx){ try{audioCtx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){} } }
+function chime(type='tap'){
+  if(muted) return; ensureAudio(); if(!audioCtx) return;
+  const now=audioCtx.currentTime;
+  const freqs = type==='success'?[523,659,784,1046] : type==='pop'?[660,880]:[880];
+  freqs.forEach((f,i)=>{
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type='sine'; o.frequency.value=f;
+    const t=now+i*(type==='success'?0.09:0.0);
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(type==='success'?0.16:0.10,t+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.18);
+    o.connect(g).connect(audioCtx.destination); o.start(t); o.stop(t+0.2);
+  });
+}
+function haptic(ms=10){ if(navigator.vibrate) try{navigator.vibrate(ms);}catch(e){} }
+function fx(type='tap',h=10){ chime(type); haptic(h); }
+
+/* ================= TOAST ================= */
+let toastT;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2100);
+}
+
+/* ================= THEME + MUTE ================= */
+const phone=document.getElementById('phone');
+document.getElementById('theme-btn').onclick=function(){
+  const body=document.body, dark=body.getAttribute('data-theme')==='dark';
+  body.setAttribute('data-theme',dark?'light':'dark');
+  this.textContent=dark?'🌙':'☀️';
+  fx('pop'); toast(dark?'Light mode ☀️':'Dark mode 🌙');
+};
+document.getElementById('mute-btn').onclick=function(){
+  muted=!muted; this.textContent=muted?'🔇':'🔊';
+  haptic(15); toast(muted?'Sound off 🔇':'Sound on 🔊');
+};
+
+/* ================= NAVIGATION ================= */
+const screens=[...document.querySelectorAll('.screen')];
+function go(name){
+  screens.forEach(s=>s.classList.toggle('active',s.dataset.screen===name));
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.go===name));
+  document.querySelector('.screens').scrollTop=0;
+  fx('tap');
+}
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.go));
+
+/* ================= COPY HELPER ================= */
+function copy(text,label){
+  const done=()=>{fx('pop');toast((label||'Copied')+' ✓');};
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(done);
+  } else {
+    const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta);
+    ta.select(); try{document.execCommand('copy');}catch(e){} ta.remove(); done();
+  }
+}
+
+/* ================= CHECK-IN TIMELINE ================= */
+const grad=['linear-gradient(135deg,#ffd6c0,#ffb199)','linear-gradient(135deg,#c7f0e2,#a0e8d0)','linear-gradient(135deg,#cfd6ff,#aab6ff)','linear-gradient(135deg,#ffe0b8,#ffc78a)','linear-gradient(135deg,#e2d3ff,#c6b0ff)','linear-gradient(135deg,#ffd2dc,#ffb3c6)'];
+const steps=[
+  {emoji:'👋',title:'Welcome, Sarah',note:"So happy to host you at Halo House · Flat 14. This little guide walks you in step-by-step. Let's go!",actions:[]},
+  {emoji:'🔑',title:'Collect your key',note:"There's a smart lock on the door — it'll unlock with your code below. Backup lockbox code if needed:",actions:[{t:'Copy code 7421',code:'7421',kind:'primary',label:'Lockbox code'}]},
+  {emoji:'🚶',title:'Walk to the building',note:"You're a 4-minute stroll away at 27 Simpson Street, M4 4GB. Pop it in Maps and head over.",actions:[{t:'Open in Maps',url:'https://maps.google.com/?q=27+Simpson+Street+Manchester+M4+4GB',kind:'indigo'}]},
+  {emoji:'🚪',title:'Building entrance',note:"At the main glass door, enter the entrance code on the keypad to come inside.",actions:[{t:'Copy code 4080',code:'4080',kind:'primary',label:'Entrance code'}]},
+  {emoji:'🏠',title:'Apartment door — Flat 14',note:"Head to Flat 14 on your floor. The door code unlocks it. Welcome in!",actions:[{t:'Copy code 1066',code:'1066',kind:'primary',label:'Door code'}]},
+  {emoji:'🛋️',title:"You're inside!",note:"Make yourself at home 💛 WiFi: HaloHouse_5G · pass Manchester2026. Heating is the Hive in the hallway — set 21°C.",actions:[{t:'Copy WiFi',code:'HaloHouse_5G / Manchester2026',kind:'indigo',label:'WiFi details'}]},
+];
+let doneSet=new Set();
+function renderTimeline(){
+  const tl=document.getElementById('timeline'); tl.innerHTML='';
+  steps.forEach((s,i)=>{
+    const done=doneSet.has(i);
+    const el=document.createElement('div'); el.className='step'+(done?' done':'');
+    const btns=s.actions.map((a,j)=>`<button class="btn ${a.kind}" data-step="${i}" data-act="${j}">${a.t}</button>`).join('');
+    el.innerHTML=`
+      <div class="rail"><div class="line"></div>
+        <div class="check-circle" data-toggle="${i}">✓</div>
+      </div>
+      <div class="step-body">
+        <div class="step-img" style="background:${grad[i]}"><div class="emoji">${s.emoji}</div></div>
+        <h3>${s.title}</h3>
+        <p class="note">${s.note}</p>
+        <div class="btn-row">${btns}</div>
+      </div>`;
+    tl.appendChild(el);
+  });
+  tl.querySelectorAll('.check-circle').forEach(c=>c.onclick=()=>toggleStep(+c.dataset.toggle));
+  tl.querySelectorAll('.btn[data-step]').forEach(b=>b.onclick=()=>{
+    const a=steps[+b.dataset.step].actions[+b.dataset.act];
+    if(a.url){fx('tap');window.open(a.url,'_blank');}
+    else if(a.code){copy(a.code,a.label);}
+  });
+  updateProgress();
+}
+function toggleStep(i){
+  if(doneSet.has(i)){doneSet.delete(i);haptic(8);}
+  else{doneSet.add(i);fx('pop',12);}
+  renderTimeline();
+}
+function updateProgress(){
+  const n=doneSet.size;
+  document.getElementById('prog-count').textContent=n+' of 6 done';
+  document.getElementById('prog-bar').style.width=(n/6*100)+'%';
+  const fb=document.getElementById('finish-btn'); fb.disabled=n<6;
+}
+document.getElementById('finish-btn').onclick=function(){
+  if(this.disabled) return; openComplete();
+};
+
+/* ================= COMPLETION + CONFETTI ================= */
+function fireConfetti(){
+  const colors=['#ff6b6b','#6c63ff','#34d399','#ffc78a','#c6b0ff','#ffb3c6'];
+  for(let i=0;i<70;i++){
+    const c=document.createElement('div'); c.className='confetti';
+    c.style.left=Math.random()*100+'%';
+    c.style.background=colors[i%colors.length];
+    c.style.transform='rotate('+Math.random()*360+'deg)';
+    phone.appendChild(c);
+    const dur=1600+Math.random()*1400, x=(Math.random()-0.5)*180;
+    c.animate([
+      {transform:`translate(0,0) rotate(0deg)`,opacity:1},
+      {transform:`translate(${x}px,860px) rotate(${720+Math.random()*360}deg)`,opacity:.9}
+    ],{duration:dur,easing:'cubic-bezier(.3,.7,.4,1)'}).onfinish=()=>c.remove();
+  }
+}
+function openComplete(){
+  document.getElementById('complete').classList.add('show');
+  fx('success',[12,8,12]); fireConfetti();
+}
+document.getElementById('complete-done').onclick=()=>{
+  fx('tap');
+  document.getElementById('complete').classList.remove('show');
+  go('house');
+};
+/* stars */
+document.querySelectorAll('#stars span').forEach((st,idx)=>{
+  st.onclick=()=>{
+    document.querySelectorAll('#stars span').forEach((s,j)=>s.classList.toggle('lit',j<=idx));
+    fx('pop'); toast(idx===4?'Thank you, 5 stars! 🌟':'Thanks for the feedback 💛');
+  };
+});
+
+/* ================= HOUSE MANUAL ================= */
+const house=[
+  {ic:'📶',t:'WiFi',body:'Network: <b>HaloHouse_5G</b><br>Password: <b>Manchester2026</b><br>Full-fibre, fast enough for streaming & video calls in every room.'},
+  {ic:'🔥',t:'Heating',body:"It's a <b>Hive thermostat</b> on the hallway wall. Tap it and set to <b>21°C</b> — the flat warms up in about 15 minutes. Please switch it off when you head out."},
+  {ic:'📺',t:'TV',body:'<b>Sky Glass</b> in the living room. Use the slim remote — say "Hey Sky" or browse Netflix, Disney+ and live TV. All apps are already signed in for you.'},
+  {ic:'☕',t:'Appliances',body:'<b>Nespresso machine</b> with a few pods on the house in the kitchen. <b>Washer/dryer</b> combo is under the counter — detergent is in the cupboard above.'},
+  {ic:'🆘',t:'Emergency',body:"Your host is <b>Hugo</b> — call or text <b>+44 7700 900123</b> any time, day or night. For real emergencies always dial <b>999</b>."},
+  {ic:'📋',t:'House rules',body:'<b>No parties or events.</b> <b>No smoking</b> anywhere inside. Please keep it <b>quiet after 10pm</b> out of respect for neighbours. Treat it like home 💛'},
+];
+function renderHouse(){
+  const w=document.getElementById('house-list'); w.innerHTML='';
+  house.forEach(h=>{
+    const c=document.createElement('div'); c.className='acc card';
+    c.innerHTML=`<div class="acc-head"><div class="acc-ic">${h.ic}</div><h3>${h.t}</h3><span class="chev">▼</span></div>
+      <div class="acc-body"><div class="acc-inner">${h.body}</div></div>`;
+    c.querySelector('.acc-head').onclick=()=>{c.classList.toggle('open');fx('tap');};
+    w.appendChild(c);
+  });
+}
+
+/* ================= LOCAL ================= */
+const localGroups=[
+  {label:'Restaurants',items:[
+    {e:'🍽️',n:'Mackie Mayor',d:'Buzzy food hall · 3 min walk',q:'Mackie+Mayor+Manchester'},
+    {e:'🍕',n:'Rudy\'s Pizza',d:'Neapolitan pizza · 5 min walk',q:'Rudy\'s+Pizza+Ancoats+Manchester'},
+  ]},
+  {label:'Coffee',items:[
+    {e:'☕',n:'Foundation Coffee House',d:'Great flat whites · 4 min walk',q:'Foundation+Coffee+House+Manchester'},
+  ]},
+  {label:'Supermarket',items:[
+    {e:'🛒',n:'Tesco Express Ancoats',d:'Essentials · 2 min walk',q:'Tesco+Express+Ancoats+Manchester'},
+  ]},
+  {label:'Pharmacy',items:[
+    {e:'💊',n:'Boots Arndale',d:'Chemist · 8 min walk',q:'Boots+Arndale+Manchester'},
+  ]},
+  {label:'Taxi',items:[
+    {e:'🚕',n:'StreetCars',d:'Local cabs · 0161 228 7878',q:'StreetCars+Manchester',tel:'01612287878'},
+  ]},
+];
+function renderLocal(){
+  const w=document.getElementById('local-list'); w.innerHTML='';
+  localGroups.forEach(g=>{
+    const lbl=document.createElement('div'); lbl.className='group-label'; lbl.textContent=g.label; w.appendChild(lbl);
+    g.items.forEach(it=>{
+      const c=document.createElement('div'); c.className='local-card card tap';
+      c.innerHTML=`<div class="local-emoji">${it.e}</div>
+        <div class="meta"><h4>${it.n}</h4><p>${it.d}</p></div>
+        <button class="mini-btn">📍 Maps</button>`;
+      c.querySelector('.mini-btn').onclick=()=>{fx('tap');window.open('https://maps.google.com/?q='+it.q,'_blank');};
+      w.appendChild(c);
+    });
+  });
+}
+
+/* ================= EXTRAS + CART ================= */
+const extras=[
+  {e:'🕐',t:'Late Checkout',d:'Stay until 1pm',p:25},
+  {e:'🌅',t:'Early Check-in',d:'Arrive from 12pm',p:20},
+  {e:'🍷',t:'Bottle of Wine',d:'Chilled & waiting',p:18},
+  {e:'🍾',t:'Champagne',d:'Celebrate in style',p:45},
+  {e:'✈️',t:'Airport Transfer',d:'Door-to-door ride',p:40},
+  {e:'🥐',t:'Grocery Pre-stock',d:'Fridge ready on arrival',p:30},
+  {e:'🧹',t:'Mid-stay Cleaning',d:'Fresh linens & tidy',p:35},
+  {e:'🅿️',t:'Reserved Parking',d:'Secure space',p:15,unit:'/day'},
+  {e:'👶',t:'Baby Cot',d:'Comfy & safe',p:10},
+];
+let cart=[];
+const extraGrad=['#ffe3d3','#e9e3ff','#ffd2dc','#e2d3ff','#cfe2ff','#d6f5e8','#dff7ee','#fff0d6','#ffe8f0'];
+function renderExtras(){
+  const w=document.getElementById('extras-grid'); w.innerHTML='';
+  extras.forEach((x,i)=>{
+    const c=document.createElement('div'); c.className='extra card';
+    const added=cart.includes(i);
+    c.innerHTML=`<div class="ph" style="background:${extraGrad[i]}">${x.e}</div>
+      <div class="body">
+        <h4>${x.t}</h4><p class="desc">${x.d}</p>
+        <div class="price-row">
+          <span class="price">£${x.p}${x.unit||''}</span>
+          <button class="add-btn ${added?'added':''}" data-i="${i}">${added?'Added ✓':'Add'}</button>
+        </div>
+      </div>`;
+    c.querySelector('.add-btn').onclick=()=>toggleCart(i);
+    w.appendChild(c);
+  });
+}
+function toggleCart(i){
+  const idx=cart.indexOf(i);
+  if(idx>=0){cart.splice(idx,1);haptic(8);} else{cart.push(i);fx('pop',12);}
+  renderExtras(); updateCart();
+}
+function updateCart(){
+  const bar=document.getElementById('cart-bar');
+  if(cart.length===0){bar.classList.remove('show');return;}
+  const total=cart.reduce((s,i)=>s+extras[i].p,0);
+  document.getElementById('cart-count').textContent=cart.length+(cart.length===1?' item':' items');
+  document.getElementById('cart-total').textContent='£'+total;
+  bar.classList.add('show');
+}
+document.getElementById('cart-checkout').onclick=()=>{
+  fx('success'); toast('Added to your stay — host notified 💛');
+  cart=[]; renderExtras(); updateCart();
+};
+
+/* ================= AI CONCIERGE ================= */
+const sheet=document.getElementById('sheet'), scrim=document.getElementById('sheet-scrim'), chat=document.getElementById('chat');
+function openSheet(){sheet.classList.add('show');scrim.classList.add('show');fx('pop');setTimeout(()=>document.getElementById('chat-input').focus(),300);}
+function closeSheet(){sheet.classList.remove('show');scrim.classList.remove('show');haptic(8);}
+document.getElementById('ai-fab').onclick=openSheet;
+document.getElementById('open-ai-card').onclick=openSheet;
+document.getElementById('sheet-close').onclick=closeSheet;
+scrim.onclick=closeSheet;
+
+function addMsg(text,who){
+  const m=document.createElement('div'); m.className='msg '+who; m.innerHTML=text;
+  chat.appendChild(m); chat.scrollTop=chat.scrollHeight;
+}
+function aiReply(q){
+  const t=q.toLowerCase();
+  let a;
+  if(/park/.test(t)) a="Parking is at NCP Shudehill, a 4-minute walk. £14/day. Want me to add a reserved space from Extras?";
+  else if(/wifi|internet/.test(t)) a="WiFi is HaloHouse_5G, password Manchester2026. Check the House tab to copy it 💛";
+  else if(/heat|cold/.test(t)) a="It's a Hive thermostat in the hallway — tap it and set 21°C. Warms up in ~15 min.";
+  else if(/checkout|late/.test(t)) a="Checkout is 11am. Late checkout to 1pm is £25 in Extras — shall I add it?";
+  else a="I only know about this lovely flat 🙂 Ask me about WiFi, parking, heating or checkout.";
+  const typing=document.createElement('div'); typing.className='typing'; typing.innerHTML='<i></i><i></i><i></i>';
+  chat.appendChild(typing); chat.scrollTop=chat.scrollHeight;
+  setTimeout(()=>{typing.remove(); addMsg(a,'ai'); fx('pop');},850);
+}
+function sendChat(text){
+  text=(text||'').trim(); if(!text) return;
+  addMsg(text,'me'); fx('tap');
+  document.getElementById('chat-input').value='';
+  aiReply(text);
+}
+document.getElementById('send-btn').onclick=()=>sendChat(document.getElementById('chat-input').value);
+document.getElementById('chat-input').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat(e.target.value);});
+
+/* chips */
+const chipQs=['📶 WiFi password','🅿️ Where do I park?','🔥 How does heating work?','🕐 Can I check out late?'];
+function renderChips(){
+  const w=document.getElementById('chips'); w.innerHTML='';
+  chipQs.forEach(q=>{
+    const b=document.createElement('button'); b.className='chip'; b.textContent=q;
+    b.onclick=()=>sendChat(q.replace(/^[^\w]+/,''));
+    w.appendChild(b);
+  });
+}
+/* voice */
+const mic=document.getElementById('mic-btn');
+mic.onclick=()=>{
+  mic.classList.add('listening'); fx('pop');
+  const inp=document.getElementById('chat-input');
+  inp.placeholder='Listening…';
+  setTimeout(()=>{
+    mic.classList.remove('listening'); inp.placeholder='Ask about WiFi, parking…';
+    sendChat('Where can I park the car?');
+  },1600);
+};
+
+/* greeting */
+addMsg("Hi Sarah! 👋 I'm your Remly concierge for Halo House · Flat 14. Ask me anything about the flat 💛",'ai');
+
+/* ================= INIT ================= */
+renderTimeline(); renderHouse(); renderLocal(); renderExtras(); renderChips();
+['click','touchstart'].forEach(ev=>document.addEventListener(ev,ensureAudio,{once:true}));
+</script>
+</body>
+</html>

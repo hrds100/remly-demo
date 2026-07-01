@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Remly — Five-star reviews, guaranteed. Double your income with upsells.</title>
+<meta name="description" content="Remly is the AI guest concierge for short-term rentals. A world-class check-in experience, five-star reviews, and upsells that double your income. $10 per unit." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%232c7e83'/%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+<style>
+/* ============================================================
+   REMLY — V1 "Spotlight" · Apple-level minimalism
+   ============================================================ */
+:root{
+  --s:.97;
+  --ink:#171d1f;
+  --ink-soft:#5c6a6d;
+  --ink-faint:#96a3a5;
+  --paper:#fafcfc;
+  --bezel:#101416;
+  /* 8pt spacing scale (4px half-step for icons/small text) */
+  --sp-half:4px;
+  --sp-1:8px;
+  --sp-2:16px;
+  --sp-3:24px;
+  --sp-4:32px;
+  --sp-5:40px;
+  --sp-6:48px;
+  --sp-8:64px;
+  --sp-10:80px;
+  --edge:var(--sp-6); /* desktop viewport edge padding */
+}
+
+/* themed accents — recolour with the phone */
+body[data-theme="airy"]{ --c1:#2c7e83; --c2:#5fa6c6; --glow:rgba(63,163,168,.22); }
+body[data-theme="warm"]{ --c1:#c0623a; --c2:#e0993e; --glow:rgba(192,98,58,.18); }
+body[data-theme="luxe"]{ --c1:#a8884f; --c2:#c9ad76; --glow:rgba(168,136,79,.20); }
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{overflow-x:hidden;}
+body{
+  min-height:100vh;
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  padding:var(--sp-6) var(--edge) 0;
+}
+
+::selection{background:var(--c1);color:#fff;}
+
+/* ---------- wordmark ---------- */
+.wordmark{
+  font-family:'Fraunces',serif;
+  font-weight:500;
+  font-size:17px;
+  line-height:24px;
+  letter-spacing:.02em;
+  color:var(--ink);
+}
+.wordmark i{
+  font-style:normal;
+  color:var(--c1);
+  transition:color .8s ease;
+}
+
+/* ---------- headline ---------- */
+.headline{
+  margin-top:var(--sp-4);
+  font-family:'Fraunces',serif;
+  font-weight:400;
+  font-size:clamp(24px,3.05vw,46px);
+  line-height:1.2;
+  letter-spacing:-0.015em;
+  color:var(--ink);
+}
+.hl-desktop{display:inline;}
+.headline .accent{
+  background:linear-gradient(100deg,var(--c1),var(--c2));
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  color:transparent;
+}
+.hl-mobile{display:none;}
+
+/* ---------- stage : glow + phone + dots ---------- */
+.stage{
+  position:relative;
+  margin-top:var(--sp-6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.glow{
+  position:absolute;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  width:min(880px,94vw);
+  aspect-ratio:1/1;
+  border-radius:50%;
+  background:var(--glow);
+  filter:blur(110px);
+  pointer-events:none;
+  z-index:0;
+  transition:background 1s ease;
+}
+
+/* iPhone-15 geometry: iframe 393x852 in a 9px bezel, scaled with --s */
+.device-wrap{
+  position:relative;
+  z-index:1;
+  width:calc(411px * var(--s));
+  height:calc(870px * var(--s));
+}
+.device{
+  width:411px;
+  height:870px;
+  transform:scale(var(--s));
+  transform-origin:top left;
+  background:var(--bezel);
+  border-radius:60px;
+  padding:9px;
+  box-shadow:
+    0 60px 120px -46px rgba(23,29,31,.45),
+    0 24px 48px -28px rgba(23,29,31,.28),
+    inset 0 0 0 2px rgba(255,255,255,.05);
+}
+.device iframe{
+  display:block;
+  width:393px;
+  height:852px;
+  border:0;
+  border-radius:51px;
+  background:#eef4f2;
+  opacity:1;
+  transition:opacity .35s ease;
+}
+.island{
+  position:absolute;
+  top:21px;left:50%;
+  transform:translateX(-50%);
+  width:118px;height:30px;
+  border-radius:20px;
+  background:var(--bezel);
+  z-index:2;
+  pointer-events:none;
+}
+
+/* ---------- live hint (never blocks clicks) ---------- */
+.hint{
+  position:absolute;
+  right:calc(50% + (411px * var(--s)) / 2 + var(--sp-6));
+  top:16%;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  gap:var(--sp-1);
+  font-size:12px;
+  line-height:16px;
+  font-weight:500;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+  pointer-events:none;
+  white-space:nowrap;
+}
+.hint .pulse{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--c1);
+  transition:background .8s ease;
+  animation:pulse 2.2s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 0 0 var(--glow);}
+  50%{box-shadow:0 0 0 7px transparent;}
+}
+
+/* ---------- theme dots beside the phone ---------- */
+.themes{
+  position:absolute;
+  left:calc(50% + (411px * var(--s)) / 2 + var(--sp-5));
+  top:50%;
+  transform:translateY(-50%);
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:var(--sp-1);
+}
+.theme-btn{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:none;border:0;cursor:pointer;
+  font-family:'Inter',sans-serif;
+  padding:12px var(--sp-1);
+  min-height:44px; /* touch target */
+}
+.theme-btn .dot{
+  width:16px;height:16px;border-radius:50%;
+  flex:0 0 auto;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);
+  transition:box-shadow .3s ease, transform .3s ease;
+}
+.theme-btn[data-set-theme="airy"] .dot{background:linear-gradient(135deg,#2c7e83,#5fa6c6);}
+.theme-btn[data-set-theme="warm"] .dot{background:linear-gradient(135deg,#c0623a,#e0993e);}
+.theme-btn[data-set-theme="luxe"] .dot{background:linear-gradient(135deg,#a8884f,#c9ad76);}
+.theme-btn .lbl{
+  font-size:12px;
+  line-height:16px;
+  font-weight:500;
+  letter-spacing:.05em;
+  color:var(--ink-faint);
+  transition:color .3s ease;
+  white-space:nowrap;
+}
+.theme-btn:hover .lbl{color:var(--ink-soft);}
+.theme-btn.active .dot{
+  box-shadow:0 0 0 3px var(--paper), 0 0 0 4.5px var(--ink);
+  transform:scale(1.05);
+}
+.theme-btn.active .lbl{color:var(--ink);}
+
+/* ---------- CTA ---------- */
+.cta{margin-top:var(--sp-6);width:100%;}
+.btn{
+  display:inline-block;
+  min-height:48px;
+  padding:var(--sp-2) var(--sp-5);
+  border-radius:999px;
+  background:var(--c1);
+  color:#fff;
+  text-decoration:none;
+  font-size:17px;
+  line-height:24px;
+  font-weight:600;
+  letter-spacing:.01em;
+  box-shadow:0 18px 38px -18px var(--c1);
+  transition:background .8s ease, box-shadow .8s ease, transform .25s ease;
+}
+.btn:hover{transform:translateY(-2px);}
+.cta .sub{
+  margin-top:var(--sp-2);
+  font-size:14px;
+  line-height:20px;
+  color:var(--ink-soft);
+  letter-spacing:.01em;
+}
+
+/* ---------- trust chips ---------- */
+.chips{
+  margin-top:var(--sp-2);
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:var(--sp-1);
+}
+.chip{
+  display:inline-flex;
+  align-items:center;
+  gap:var(--sp-half);
+  padding:var(--sp-half) var(--sp-2);
+  border:1px solid rgba(23,29,31,.10);
+  border-radius:999px;
+  background:#fff;
+  font-size:12px;
+  line-height:16px;
+  font-weight:500;
+  letter-spacing:.02em;
+  color:var(--ink-soft);
+  white-space:nowrap;
+}
+.chip i{
+  font-style:normal;
+  font-size:11px;
+  color:var(--c1);
+  transition:color .8s ease;
+}
+
+/* ---------- host reviews ---------- */
+.reviews{
+  margin-top:var(--sp-10);
+  width:100%;
+  max-width:1064px;
+}
+.reviews-title{
+  font-family:'Fraunces',serif;
+  font-weight:400;
+  font-size:clamp(20px,2vw,28px);
+  line-height:1.25;
+  letter-spacing:-0.01em;
+  color:var(--ink);
+}
+.review-row{
+  margin-top:var(--sp-4);
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:var(--sp-3);
+}
+.review{
+  text-align:left;
+  background:#fff;
+  border:1px solid rgba(23,29,31,.08);
+  border-radius:var(--sp-3);
+  padding:var(--sp-3);
+  box-shadow:0 24px 48px -40px rgba(23,29,31,.25);
+}
+.review .stars{
+  font-size:13px;
+  line-height:16px;
+  letter-spacing:.22em;
+  color:var(--c1);
+  transition:color .8s ease;
+}
+.review blockquote{
+  margin-top:var(--sp-2);
+  font-size:14px;
+  line-height:22px;
+  color:var(--ink);
+}
+.review figcaption{
+  margin-top:var(--sp-2);
+  font-size:12px;
+  line-height:16px;
+  letter-spacing:.02em;
+  color:var(--ink-faint);
+}
+
+/* ---------- mobile scroll dot rail (hidden on desktop) ---------- */
+.dotrail{display:none;}
+
+#phone,#price,#reviews{scroll-margin-top:var(--sp-3);}
+
+/* ---------- footer ---------- */
+.foot{
+  margin:var(--sp-8) 0 var(--sp-5);
+  font-size:12px;
+  line-height:16px;
+  letter-spacing:.03em;
+  color:var(--ink-faint);
+}
+
+/* entrance state (GSAP animates in) */
+.js .rise{opacity:0;transform:translateY(16px);}
+.js .fade{opacity:0;}
+
+@media(min-width:769px) and (max-width:1040px){
+  .hint{display:none;}
+}
+
+/* ============================================================
+   MOBILE — radical minimalism
+   ============================================================ */
+@media(max-width:768px){
+  body{padding:var(--sp-3) 20px 0;} /* >=20px viewport edge on phones */
+  .headline{margin-top:var(--sp-2);font-size:clamp(23px,6vw,30px);line-height:1.25;}
+  .hl-desktop{display:none;}
+  .hl-mobile{display:inline;}
+  .stage{margin-top:var(--sp-3);flex-direction:column;}
+  .hint{
+    position:static;
+    order:-1;
+    justify-content:center;
+    margin-bottom:var(--sp-2);
+    font-size:12px;
+    line-height:16px;
+  }
+  .themes{
+    position:static;
+    transform:none;
+    flex-direction:row;
+    align-items:flex-start;
+    justify-content:center;
+    gap:var(--sp-2);
+    margin-top:var(--sp-2);
+  }
+  .theme-btn{flex-direction:column;gap:var(--sp-1);align-items:center;padding:var(--sp-1) var(--sp-1);}
+  .theme-btn .lbl{font-size:12px;}
+  .cta{margin-top:var(--sp-3);}
+  .btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    max-width:360px;
+    margin:0 auto;
+    padding:var(--sp-2) var(--sp-4);
+    font-size:16px;
+  }
+  .cta .sub{font-size:13px;line-height:20px;padding:0 var(--sp-1);}
+  .chips{margin-top:var(--sp-2);}
+  .reviews{margin-top:var(--sp-5);}
+  .review-row{
+    margin-top:var(--sp-3);
+    display:flex;
+    flex-direction:column;
+    gap:var(--sp-2);
+  }
+  .review{padding:var(--sp-2);border-radius:var(--sp-2);}
+  .review blockquote{line-height:20px;}
+  .foot{margin:var(--sp-4) 0 var(--sp-3);white-space:nowrap;}
+  .foot-long{display:none;}
+
+  /* slim fixed dot rail on the left edge */
+  .dotrail{
+    display:flex;
+    flex-direction:column;
+    position:fixed;
+    left:4px;
+    top:50%;
+    transform:translateY(-50%);
+    z-index:5;
+  }
+  .dotrail button{
+    width:16px;height:16px;
+    padding:0;border:0;background:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .dotrail button::before{
+    content:"";
+    width:8px;height:8px;border-radius:50%;
+    background:rgba(150,163,165,.38);
+    transition:background .3s ease, transform .3s ease;
+  }
+  .dotrail button.active::before{
+    background:var(--c1);
+    transform:scale(1.2);
+  }
+}
+</style>
+</head>
+
+<body data-theme="airy">
+
+  <header class="wordmark rise">Remly<i>.</i></header>
+
+  <h1 class="headline rise">
+    <span class="hl-desktop">A world-class check-in. Five-star reviews, guaranteed.<br /><span class="accent">Double your income</span> with upsells.</span>
+    <span class="hl-mobile">A world-class check-in. Five-star reviews, guaranteed. <span class="accent">Double your income</span> with upsells.</span>
+  </h1>
+
+  <section class="stage" id="phone">
+    <div class="glow" aria-hidden="true"></div>
+
+    <div class="hint rise" aria-hidden="true"><span class="pulse"></span>Live — tap around</div>
+
+    <div class="device-wrap rise" id="deviceWrap">
+      <div class="device">
+        <div class="island" aria-hidden="true"></div>
+        <iframe id="phoneFrame" src="../../v5-cine-airy/index.html" title="Remly live guest demo"></iframe>
+      </div>
+    </div>
+
+    <div class="themes fade" role="group" aria-label="Demo theme">
+      <button class="theme-btn active" data-set-theme="airy" type="button"><span class="dot"></span><span class="lbl">Coastal Blue</span></button>
+      <button class="theme-btn" data-set-theme="warm" type="button"><span class="dot"></span><span class="lbl">Warm Sunset</span></button>
+      <button class="theme-btn" data-set-theme="luxe" type="button"><span class="dot"></span><span class="lbl">Gold Luxe</span></button>
+    </div>
+  </section>
+
+  <section class="cta rise" id="price">
+    <a class="btn" href="mailto:hugodesouzax@gmail.com?subject=Remly%20%E2%80%94%20I%27m%20in">Get started&nbsp;·&nbsp;$10 per unit</a>
+    <div class="chips" role="list">
+      <span class="chip" role="listitem"><i>✓</i>100% customisable</span>
+      <span class="chip" role="listitem"><i>✓</i>100% user-friendly</span>
+    </div>
+    <p class="sub">More 5-star reviews &nbsp;·&nbsp; Earn up to 100% more per check-in</p>
+  </section>
+
+  <section class="reviews rise" id="reviews" aria-label="Host reviews">
+    <h2 class="reviews-title">Hosts already love it</h2>
+    <div class="review-row">
+      <figure class="review">
+        <div class="stars" aria-label="Rated 5 out of 5 stars">★★★★★</div>
+        <blockquote>&ldquo;Reviews jumped from 4.6 to 4.9 stars in two months. Guests add late checkout every single week.&rdquo;</blockquote>
+        <figcaption>Marta R. &middot; hosts 6 flats, Lisbon</figcaption>
+      </figure>
+      <figure class="review">
+        <div class="stars" aria-label="Rated 5 out of 5 stars">★★★★★</div>
+        <blockquote>&ldquo;The check-in feels like a boutique hotel. Upsells alone paid for Remly twenty times over.&rdquo;</blockquote>
+        <figcaption>James K. &middot; Superhost, Manchester</figcaption>
+      </figure>
+      <figure class="review">
+        <div class="stars" aria-label="Rated 5 out of 5 stars">★★★★★</div>
+        <blockquote>&ldquo;Guest questions dropped by half and champagne sells itself. Best $10 I spend per unit.&rdquo;</blockquote>
+        <figcaption>Sofia L. &middot; 12 units, Barcelona</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <nav class="dotrail" aria-label="Page sections">
+    <button type="button" data-target="top" class="active" aria-label="Top of page"></button>
+    <button type="button" data-target="phone" aria-label="Live phone demo"></button>
+    <button type="button" data-target="price" aria-label="Pricing"></button>
+    <button type="button" data-target="reviews" aria-label="Host reviews"></button>
+  </nav>
+
+  <footer class="foot rise">Remly — the AI guest concierge<span class="foot-long"> for short-term rentals</span> · live demo</footer>
+
+<script>
+document.documentElement.classList.add('js');
+
+/* ---------- phone scale (JS, never pure CSS min/max) ---------- */
+function fitPhone(){
+  let s;
+  if(window.innerWidth <= 768){
+    s = Math.min(.97, (window.innerWidth - 40) / 411);
+  }else{
+    s = Math.min(1.06, Math.max(.97, (window.innerHeight - 150) / 870));
+  }
+  document.documentElement.style.setProperty('--s', s.toFixed(3));
+}
+fitPhone();
+window.addEventListener('resize', fitPhone);
+
+/* ---------- theme switching ---------- */
+const FRAMES = {
+  airy: '../../v5-cine-airy/index.html',
+  warm: '../../v4-cine-warm/index.html',
+  luxe: '../../v6-cine-luxe/index.html'
+};
+const frame = document.getElementById('phoneFrame');
+const btns = document.querySelectorAll('.theme-btn');
+let current = 'airy';
+let swapTimer = null;
+
+frame.addEventListener('load', () => { frame.style.opacity = '1'; });
+
+/* ---------- scroll hand-off from the in-phone demo ---------- */
+window.addEventListener('message', (e) => {
+  const d = e.data && e.data.remlyScroll;
+  if(typeof d === 'number' && isFinite(d)) window.scrollBy(0, d);
+});
+
+btns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const t = btn.dataset.setTheme;
+    if(t === current) return;
+    current = t;
+    document.body.dataset.theme = t;
+    btns.forEach(b => b.classList.toggle('active', b === btn));
+    frame.style.opacity = '0';
+    clearTimeout(swapTimer);
+    swapTimer = setTimeout(() => { frame.src = FRAMES[t]; }, 360);
+  });
+});
+
+/* ---------- mobile scroll dot rail ---------- */
+const railBtns = document.querySelectorAll('.dotrail button');
+const railSections = {
+  top: document.querySelector('.headline'),
+  phone: document.getElementById('phone'),
+  price: document.getElementById('price'),
+  reviews: document.getElementById('reviews')
+};
+const railOrder = ['top', 'phone', 'price', 'reviews'];
+
+railBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const t = btn.dataset.target;
+    if(t === 'top'){
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }else if(railSections[t]){
+      railSections[t].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+
+let railTick = false;
+function updateRail(){
+  let active = 'top';
+  railOrder.forEach(k => {
+    const el = railSections[k];
+    if(el && el.getBoundingClientRect().top <= window.innerHeight * 0.45) active = k;
+  });
+  railBtns.forEach(b => b.classList.toggle('active', b.dataset.target === active));
+}
+window.addEventListener('scroll', () => {
+  if(railTick) return;
+  railTick = true;
+  requestAnimationFrame(() => { updateRail(); railTick = false; });
+}, { passive: true });
+window.addEventListener('resize', updateRail);
+updateRail();
+
+/* ---------- subtle GSAP entrance ---------- */
+if(window.gsap){
+  gsap.to('.rise', {
+    opacity: 1,
+    y: 0,
+    duration: 1,
+    ease: 'power3.out',
+    stagger: 0.09,
+    delay: 0.15
+  });
+  gsap.to('.fade', { opacity: 1, duration: 1.1, ease: 'power2.out', delay: 0.6 });
+}else{
+  document.querySelectorAll('.rise').forEach(el => { el.style.opacity = 1; el.style.transform = 'none'; });
+  document.querySelectorAll('.fade').forEach(el => { el.style.opacity = 1; });
+}
+</script>
+</body>
+</html>

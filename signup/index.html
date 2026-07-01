@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Start your free trial · Remly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff; --ink:#1b1a17; --muted:#7c776e; --line:#ece8e1;
+    --accent:#c0623a; --accent2:#e8a06a; --card:#fbf9f5;
+    --shadow:0 24px 60px rgba(40,30,20,.10); --r:22px;
+    --ease:cubic-bezier(.16,1,.3,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Inter",-apple-system,sans-serif;color:var(--ink);
+    min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 18px;
+    background:
+      radial-gradient(900px 500px at 12% -8%, #fdeede 0%, transparent 60%),
+      radial-gradient(900px 600px at 100% 0%, #eef4f2 0%, transparent 55%),
+      var(--bg);
+  }
+  .wrap{width:100%;max-width:960px;display:grid;grid-template-columns:1.05fr .95fr;gap:0;
+    background:rgba(255,255,255,.7);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:hidden;}
+  .left{padding:46px 42px;background:linear-gradient(160deg,#fff7ef 0%,#fdf3 ea 40%,#f3f7f5 100%);
+    border-right:1px solid var(--line);display:flex;flex-direction:column;}
+  .brand{font-family:"Fraunces",serif;font-weight:600;font-size:22px;letter-spacing:-.01em;}
+  .brand .dot{color:var(--accent)}
+  .h1{font-family:"Fraunces",serif;font-weight:600;font-size:34px;line-height:1.08;letter-spacing:-.02em;margin:26px 0 14px;}
+  .lede{color:var(--muted);font-size:15px;line-height:1.6;max-width:38ch;}
+  .perks{margin-top:26px;display:flex;flex-direction:column;gap:13px}
+  .perk{display:flex;gap:11px;align-items:flex-start;font-size:14.5px;color:#46423b}
+  .tick{flex:0 0 22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff;display:grid;place-items:center;font-size:12px;margin-top:1px}
+  .trust{margin-top:auto;padding-top:28px;color:var(--muted);font-size:12.5px}
+  .right{padding:46px 42px;display:flex;flex-direction:column;justify-content:center}
+  .eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .ttl{font-family:"Fraunces",serif;font-size:24px;font-weight:600;margin:8px 0 22px;letter-spacing:-.01em}
+  label{display:block;font-size:12.5px;font-weight:600;color:#56524b;margin:0 0 6px}
+  .field{width:100%;padding:13px 15px;border:1px solid var(--line);border-radius:13px;background:#fff;
+    font-family:inherit;font-size:15px;color:var(--ink);transition:border-color .25s var(--ease),box-shadow .25s var(--ease);margin-bottom:16px}
+  .field:focus{outline:none;border-color:var(--accent2);box-shadow:0 0 0 4px rgba(232,160,106,.18)}
+  .seg{display:flex;gap:8px;margin-bottom:20px}
+  .seg button{flex:1;padding:11px;border:1px solid var(--line);background:#fff;border-radius:12px;
+    font-family:inherit;font-size:14px;color:#56524b;cursor:pointer;transition:.25s var(--ease)}
+  .seg button.on{border-color:var(--accent);background:linear-gradient(135deg,#fff,#fdf1e8);color:var(--accent);font-weight:600;box-shadow:0 6px 18px rgba(192,98,58,.12)}
+  .cta{width:100%;padding:16px;border:none;border-radius:14px;cursor:pointer;font-family:inherit;font-size:16px;font-weight:600;color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 14px 34px rgba(192,98,58,.30);
+    transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+  .cta:hover{transform:translateY(-2px);box-shadow:0 20px 44px rgba(192,98,58,.38)}
+  .cta:active{transform:translateY(0)}
+  .fine{text-align:center;color:var(--muted);font-size:12px;margin-top:14px}
+  .back{display:inline-block;margin-top:18px;color:var(--muted);font-size:13px;text-decoration:none}
+  .back:hover{color:var(--accent)}
+  .success{display:none;text-align:center;padding:10px 0}
+  .success.show{display:block;animation:rise .6s var(--ease)}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .check{width:64px;height:64px;border-radius:50%;margin:0 auto 16px;display:grid;place-items:center;color:#fff;font-size:30px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 16px 36px rgba(192,98,58,.32)}
+  @media(max-width:760px){
+    .wrap{grid-template-columns:1fr;max-width:460px}
+    .left{border-right:none;border-bottom:1px solid var(--line);padding:34px 28px}
+    .right{padding:32px 28px}
+    .h1{font-size:28px}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="left">
+      <div class="brand">Remly<span class="dot">.</span></div>
+      <h1 class="h1">Start your<br>14-day free trial.</h1>
+      <p class="lede">No card required. Set up your first property and send a guest link in minutes.</p>
+      <div class="perks">
+        <div class="perk"><span class="tick">✓</span><span>Beautiful guest check-in, live in minutes</span></div>
+        <div class="perk"><span class="tick">✓</span><span>AI concierge that answers guests 24/7</span></div>
+        <div class="perk"><span class="tick">✓</span><span>Add paid extras and earn more per stay</span></div>
+        <div class="perk"><span class="tick">✓</span><span>Cancel anytime — keep it only if you love it</span></div>
+      </div>
+      <div class="trust">Trusted by hosts who care about every arrival.</div>
+    </div>
+    <div class="right">
+      <form id="form">
+        <div class="eyebrow">Free Trial</div>
+        <div class="ttl">Create your account</div>
+        <label for="name">Your name</label>
+        <input class="field" id="name" type="text" placeholder="Jane Host" required>
+        <label for="email">Email</label>
+        <input class="field" id="email" type="email" placeholder="you@email.com" required>
+        <label>How many properties?</label>
+        <div class="seg" id="seg">
+          <button type="button" class="on" data-v="1">1</button>
+          <button type="button" data-v="2–5">2–5</button>
+          <button type="button" data-v="6+">6+</button>
+        </div>
+        <button class="cta" type="submit">Start Free Trial →</button>
+        <div class="fine">14 days free · no card · cancel anytime</div>
+      </form>
+      <div class="success" id="success">
+        <div class="check">✓</div>
+        <div class="ttl" style="margin-bottom:8px">You're in 🎉</div>
+        <p class="lede" style="margin:0 auto">Check your inbox to confirm and set up your first property. Welcome to Remly.</p>
+        <a class="back" href="javascript:history.back()">← Back to the demo</a>
+      </div>
+    </div>
+  </div>
+<script>
+  const seg=document.getElementById('seg');
+  seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    seg.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');});
+  document.getElementById('form').addEventListener('submit',e=>{
+    e.preventDefault();
+    document.getElementById('form').style.display='none';
+    document.getElementById('success').classList.add('show');
+  });
+</script>
+</body>
+</html>

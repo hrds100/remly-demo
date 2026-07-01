@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Remly — pick a landing page</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#0e1112; --card:#171b1d; --line:#262c2e; --txt:#f2f4f4; --sub:#97a3a5; --accent:#4fb3b9;
+  --space-1:8px; --space-2:16px; --space-3:24px; --space-4:32px; --space-6:48px; --space-8:64px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--txt);
+  min-height:100vh;padding:clamp(24px,5vw,64px) clamp(16px,4vw,48px);
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:960px;margin:0 auto;}
+.kicker{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:var(--space-2);}
+h1{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(28px,5vw,44px);letter-spacing:-.01em;line-height:1.1;}
+h1 em{font-style:italic;color:var(--accent);}
+.tag{color:var(--sub);font-size:clamp(13px,1.6vw,15px);margin-top:var(--space-2);line-height:1.6;max-width:56ch;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-2);margin-top:var(--space-6);}
+.card{
+  display:flex;flex-direction:column;gap:10px;
+  background:var(--card);border:1px solid var(--line);border-radius:18px;
+  padding:var(--space-3);text-decoration:none;color:inherit;
+  transition:transform .25s ease,border-color .25s ease;
+}
+.card:hover{transform:translateY(-4px);border-color:#3b4547;}
+.num{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--sub);}
+.name{font-family:'Fraunces',serif;font-size:24px;font-weight:500;}
+.sw{height:7px;border-radius:5px;}
+.v1 .sw{background:linear-gradient(90deg,#f4f8f7,#8fc4dd,#3fa3a8);}
+.v2 .sw{background:linear-gradient(90deg,#eaf2f0,#7fae9b,#2c7e83);}
+.v3 .sw{background:linear-gradient(90deg,#0b0c0e,#20444a,#c9ad76);}
+.v4 .sw{background:linear-gradient(90deg,#ffffff,#5fa6c6,#1d6f74);}
+.v5 .sw{background:linear-gradient(90deg,#faf6ee,#e0993e,#a8884f);}
+.desc{color:var(--sub);font-size:13.5px;line-height:1.55;}
+.open{margin-top:auto;padding-top:6px;font-size:13px;font-weight:600;color:var(--accent);}
+.foot{margin-top:var(--space-8);color:var(--sub);font-size:12.5px;line-height:1.7;border-top:1px solid var(--line);padding-top:var(--space-3);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">Remly · demo landing pages</div>
+  <h1>Five directions. <em>One winner.</em></h1>
+  <p class="tag">Same live phone demo inside every one — blue Coastal theme by default, restyleable with one tap. Open each on desktop and on your phone, then pick the one to send out.</p>
+
+  <div class="grid">
+    <a class="card v1" href="v1/">
+      <div class="num">Version 1</div>
+      <div class="sw"></div>
+      <div class="name">Spotlight</div>
+      <p class="desc">Apple-minimal. One line, one huge phone, one button. Nothing to read — pure demo.</p>
+      <div class="open">Open →</div>
+    </a>
+    <a class="card v2" href="v2/">
+      <div class="num">Version 2</div>
+      <div class="sw"></div>
+      <div class="name">Boutique Split</div>
+      <p class="desc">Classic split hero — the pitch on the left, phone on the right, soft glass and calm coastal air.</p>
+      <div class="open">Open →</div>
+    </a>
+    <a class="card v3" href="v3/">
+      <div class="num">Version 3</div>
+      <div class="sw"></div>
+      <div class="name">Noir</div>
+      <p class="desc">Dark cinematic luxury. The phone glows like a jewel on velvet. Sparse, expensive words.</p>
+      <div class="open">Open →</div>
+    </a>
+    <a class="card v4" href="v4/">
+      <div class="num">Version 4</div>
+      <div class="sw"></div>
+      <div class="name">Numbers</div>
+      <p class="desc">Money first — a giant +100% that counts up, ROI cards, and "pays for itself with one upsell".</p>
+      <div class="open">Open →</div>
+    </a>
+    <a class="card v5" href="v5/">
+      <div class="num">Version 5</div>
+      <div class="sw"></div>
+      <div class="name">Editorial</div>
+      <p class="desc">A magazine cover-story. Numbered chapters scroll past a pinned phone. Warm paper and serif type.</p>
+      <div class="open">Open →</div>
+    </a>
+  </div>
+
+  <p class="foot">Every version: live iPhone-15 demo (tap around inside it) · 3 style themes · "$10 per unit" button that emails Hugo · host reviews · minimal on mobile so people land straight on the experience.</p>
+</div>
+</body>
+</html>

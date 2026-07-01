@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Remly — Guest Experience Mockups</title>
+<style>
+  :root{ --bg:#0c0c0f; --card:#16161b; --line:#26262e; --txt:#f4f4f6; --sub:#9a9aa6; --accent:#ff6b6b; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Inter",Segoe UI,sans-serif;background:
+    radial-gradient(1200px 600px at 20% -10%, #1c1c28 0%, transparent 60%),
+    radial-gradient(1000px 600px at 90% 10%, #1a1320 0%, transparent 55%), var(--bg);
+    color:var(--txt);min-height:100vh;padding:48px 20px 64px;}
+  .wrap{max-width:1000px;margin:0 auto;}
+  h1{font-size:40px;margin:0 0 6px;letter-spacing:-.02em;}
+  .tag{color:var(--sub);font-size:16px;margin:0 0 36px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px;text-decoration:none;color:inherit;
+    transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease;display:flex;flex-direction:column;gap:10px;}
+  .card:hover{transform:translateY(-6px);border-color:#3a3a48;box-shadow:0 20px 50px rgba(0,0,0,.45);}
+  .num{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--sub);}
+  .name{font-size:24px;font-weight:650;letter-spacing:-.01em;}
+  .swatch{height:8px;border-radius:6px;margin:4px 0;}
+  .v1 .swatch{background:linear-gradient(90deg,#0a0a0c,#0e5a52,#e0a45a);}
+  .v2 .swatch{background:linear-gradient(90deg,#ffd9c0,#e7d4ff,#c8f5e0);}
+  .v3 .swatch{background:linear-gradient(90deg,#ffffff,#dfe3ea,#0a84ff);}
+  .v4 .swatch{background:linear-gradient(90deg,#f7f1e8,#e8a06a,#c0623a);}
+  .v5 .swatch{background:linear-gradient(90deg,#f4f8f7,#9fd5c4,#6fb3c9);}
+  .v6 .swatch{background:linear-gradient(90deg,#f6f5f2,#e6d2a8,#bfa06a);}
+  .sec{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--sub);margin:44px 0 16px;}
+  .desc{color:var(--sub);font-size:14px;line-height:1.55;}
+  .open{margin-top:auto;font-size:14px;color:var(--accent);font-weight:600;}
+  .foot{margin-top:40px;color:var(--sub);font-size:13px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Remly — Guest Experience</h1>
+  <p class="tag">Three design directions for the same flat (Halo House · Flat 14). Tap one, open it on your phone, compare.</p>
+  <div class="grid">
+    <a class="card v1" href="v1-cinematic/index.html">
+      <div class="num">Version 1 · GSAP + Lenis</div>
+      <div class="swatch"></div>
+      <div class="name">Cinematic 🎬</div>
+      <div class="desc">Dark, film-grain, scroll-driven check-in that plays like a movie. The Higgsfield look — glass cards, vignette, amber + teal.</div>
+      <div class="open">Open →</div>
+    </a>
+    <a class="card v2" href="v2-lovable/index.html">
+      <div class="num">Version 2 · Lovable.dev</div>
+      <div class="swatch"></div>
+      <div class="name">Lovable Soft 💛</div>
+      <div class="desc">Light, soft pastel gradients, pillowy rounded glass cards, springy taps. Warm, emotional, friendly. Working dark mode.</div>
+      <div class="open">Open →</div>
+    </a>
+    <a class="card v3" href="v3-apple/index.html">
+      <div class="num">Version 3 · Minimal</div>
+      <div class="swatch"></div>
+      <div class="name">Apple Premium 🍏</div>
+      <div class="desc">Ultra-clean, whitespace, hairlines, one accent. iOS large titles, sheets, segmented controls. Restraint and polish.</div>
+      <div class="open">Open →</div>
+    </a>
+  </div>
+  <div class="sec">Light Cinematic · GSAP ScrollTrigger + Lenis (new)</div>
+  <div class="grid">
+    <a class="card v4" href="v4-cine-warm/index.html">
+      <div class="num">Version 4 · Cinematic Light</div>
+      <div class="swatch"></div>
+      <div class="name">Warm Editorial ☀️</div>
+      <div class="desc">Sunlit ivory + terracotta + amber, Fraunces serif. Magazine warmth with the same film-grain scroll-driven check-in.</div>
+      <div class="open">Open →</div>
+    </a>
+    <a class="card v5" href="v5-cine-airy/index.html">
+      <div class="num">Version 5 · Cinematic Light</div>
+      <div class="swatch"></div>
+      <div class="name">Airy Coastal 🌿</div>
+      <div class="desc">Fresh sage + teal + sky on pale mist. Calm, breathable, spa-like. Bright glass, cool vignette, luminous.</div>
+      <div class="open">Open →</div>
+    </a>
+    <a class="card v6" href="v6-cine-luxe/index.html">
+      <div class="num">Version 6 · Cinematic Light</div>
+      <div class="swatch"></div>
+      <div class="name">Luxe Hotel 🥂</div>
+      <div class="desc">Bone + champagne gold, Cormorant serif. Five-star boutique hotel in daylight. Restrained, expensive, elegant.</div>
+      <div class="open">Open →</div>
+    </a>
+  </div>
+  <div class="sec">Landing pages · sell the demo (GSAP + Lenis, live demo embedded)</div>
+  <div class="grid">
+    <a class="card v4" href="landing-a/index.html">
+      <div class="num">Landing A</div>
+      <div class="swatch"></div>
+      <div class="name">Emotion First ❤️</div>
+      <div class="desc">Leads with how guests feel and the host as hero. Default demo: Warm. Live style switcher + "everything is editable" panel.</div>
+      <div class="open">Open →</div>
+    </a>
+    <a class="card v6" href="landing-b/index.html">
+      <div class="num">Landing B</div>
+      <div class="swatch"></div>
+      <div class="name">Revenue First 💰</div>
+      <div class="desc">Leads with money and upsells per stay. Default demo: Luxe. Page accent recolours as you switch styles.</div>
+      <div class="open">Open →</div>
+    </a>
+    <a class="card v5" href="landing-c/index.html">
+      <div class="num">Landing C</div>
+      <div class="swatch"></div>
+      <div class="name">Guest Experience First ✨</div>
+      <div class="desc">Walks the full five-star journey. Default demo: Airy. Cinematic scroll, demo above the fold.</div>
+      <div class="open">Open →</div>
+    </a>
+  </div>
+  <p class="foot">All six are self-contained — no internet or install needed. Same demo content, different skin.<br>
+  Guest features in each: Check-in timeline · AI concierge · House manual · Local guide · Extras · Success screen.</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  REMLY — Landing B · "REVENUE FIRST" concept · Default demo = Luxe
+  ============================================================
+
+  HEADLINE OPTIONS (strongest used as live H1 below):
+  1. "Turn Check-in Into Your Highest-Margin Sale."          ← USED
+  2. "Every Guest Arrival Is Revenue. Capture It."
+  3. "The Check-in That Pays For Itself — Every Single Stay."
+  4. "Delight Guests. Sell More. Lift Every Booking."
+  5. "Your Most Profitable Upsell Starts Before They Arrive."
+  6. "Beautiful Check-in. Bigger Revenue. Zero Extra Work."
+  ============================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Remly — The AI Check-in That Pays For Itself</title>
+<meta name="description" content="Remly turns guest check-in into your highest-margin upsell. Beautiful AI concierge, fewer guest questions, more 5-star reviews, more revenue per stay." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+<!-- GSAP + ScrollTrigger + Lenis -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
+
+<style>
+:root{
+  --bone:#f6f5f2;
+  --bone-2:#efede8;
+  --paper:#fbfaf8;
+  --char:#2c2a27;
+  --char-soft:#5d5a54;
+  --char-faint:#8d8980;
+  --gold:#bfa06b;
+  --gold-deep:#a8884f;
+  --gold-soft:#d8c39a;
+  --line:rgba(191,160,107,.26);
+  --line-soft:rgba(44,42,39,.07);
+  --glass:rgba(255,255,255,.62);
+  --glass-strong:rgba(255,255,255,.80);
+  --shadow:0 28px 70px -34px rgba(60,52,40,.40);
+  --shadow-soft:0 14px 40px -22px rgba(60,52,40,.30);
+  --r:24px;
+  --r-lg:32px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --ease-lux:cubic-bezier(.16,1,.3,1);
+  --serif:"Fraunces", Georgia, serif;
+  --sans:"Inter", system-ui, sans-serif;
+  /* accent — swaps with style switcher */
+  --accent:#a8884f;
+  --accent-soft:#d8c39a;
+  --accent-glow:rgba(191,160,107,.22);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:auto}
+html.lenis{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{
+  font-family:var(--sans);
+  color:var(--char);
+  background:
+    radial-gradient(140% 90% at 50% -8%, #fdfcfa 0%, var(--bone) 52%, var(--bone-2) 100%);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+
+.wrap{width:100%;max-width:1240px;margin:0 auto;padding:0 22px}
+@media(min-width:760px){.wrap{padding:0 40px}}
+
+/* ============ helpers ============ */
+.eyebrow{
+  font-size:11px;letter-spacing:.42em;text-transform:uppercase;
+  color:var(--accent);font-weight:600;transition:color .6s var(--ease-lux);
+}
+.serif{font-family:var(--serif)}
+.reveal{opacity:0;transform:translateY(34px)}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;justify-content:center;
+  font-family:var(--sans);font-weight:600;font-size:15px;letter-spacing:.01em;
+  padding:16px 30px;border-radius:50px;cursor:pointer;border:1px solid transparent;
+  transition:transform .5s var(--ease-lux), box-shadow .5s var(--ease-lux), background .4s, color .4s;
+  position:relative;overflow:hidden;will-change:transform;
+}
+.btn .arr{transition:transform .5s var(--ease-lux)}
+.btn:hover .arr{transform:translateX(5px)}
+.btn-primary{
+  background:linear-gradient(135deg,var(--char) 0%, #423f3a 100%);
+  color:#fff;box-shadow:0 18px 40px -18px rgba(44,42,39,.7), inset 0 1px 0 rgba(255,255,255,.12);
+}
+.btn-primary::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;
+  background:linear-gradient(135deg,var(--accent),var(--accent-soft));
+  opacity:0;transition:opacity .5s var(--ease-lux);z-index:0;
+}
+.btn-primary span{position:relative;z-index:1;display:inline-flex;align-items:center;gap:10px}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 28px 56px -20px var(--accent-glow), 0 14px 30px -16px rgba(44,42,39,.6)}
+.btn-primary:hover::after{opacity:1}
+.btn-primary:active{transform:translateY(-1px) scale(.99)}
+.btn-ghost{
+  background:var(--glass-strong);color:var(--char);
+  border:1px solid var(--line);backdrop-filter:blur(14px);
+  box-shadow:var(--shadow-soft);
+}
+.btn-ghost:hover{transform:translateY(-3px);border-color:var(--accent-soft);box-shadow:0 22px 44px -22px rgba(60,52,40,.4)}
+.btn-ghost:active{transform:translateY(-1px) scale(.99)}
+
+/* ============ NAV ============ */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  transition:background .5s var(--ease-lux), box-shadow .5s var(--ease-lux), padding .5s var(--ease-lux), border-color .5s;
+  padding:22px 0;border-bottom:1px solid transparent;
+}
+.nav.scrolled{
+  background:rgba(251,250,248,.72);backdrop-filter:blur(20px) saturate(140%);
+  border-bottom:1px solid var(--line-soft);
+  box-shadow:0 10px 30px -24px rgba(60,52,40,.4);padding:14px 0;
+}
+.nav .inner{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.wordmark{display:flex;align-items:center;gap:11px}
+.wordmark .mark{
+  width:34px;height:34px;border-radius:11px;display:grid;place-items:center;
+  background:linear-gradient(145deg,#fff,#f0ead9);border:1px solid var(--line);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 6px 16px -10px rgba(120,100,60,.4);
+  font-family:var(--serif);font-weight:600;font-size:19px;color:var(--accent);
+}
+.wordmark .txt{font-family:var(--serif);font-weight:600;font-size:23px;letter-spacing:.04em;color:var(--char)}
+.nav-links{display:none;align-items:center;gap:34px}
+@media(min-width:900px){.nav-links{display:flex}}
+.nav-links a{font-size:14.5px;font-weight:500;color:var(--char-soft);position:relative;transition:color .3s}
+.nav-links a::after{content:"";position:absolute;left:0;bottom:-6px;width:0;height:1.5px;background:var(--accent);transition:width .4s var(--ease-lux)}
+.nav-links a:hover{color:var(--char)}
+.nav-links a:hover::after{width:100%}
+.nav-cta{display:flex;align-items:center;gap:14px}
+.nav-cta .btn{padding:12px 24px;font-size:14px}
+.nav-burger{display:grid;gap:5px;cursor:pointer;padding:8px}
+@media(min-width:900px){.nav-burger{display:none}}
+.nav-burger span{width:22px;height:2px;background:var(--char);border-radius:2px;transition:.4s var(--ease-lux)}
+.mobile-menu{
+  position:fixed;inset:0;z-index:99;background:rgba(251,250,248,.96);backdrop-filter:blur(24px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;
+  opacity:0;pointer-events:none;transition:opacity .5s var(--ease-lux);
+}
+.mobile-menu.open{opacity:1;pointer-events:auto}
+.mobile-menu a{font-family:var(--serif);font-size:30px;color:var(--char)}
+.mobile-menu .btn{margin-top:10px}
+
+/* ============ HERO ============ */
+.hero{position:relative;padding:130px 0 70px;overflow:hidden}
+@media(min-width:760px){.hero{padding:160px 0 90px}}
+.hero-orb{
+  position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;pointer-events:none;
+  transition:background .8s var(--ease-lux);
+}
+.hero-orb.a{width:520px;height:520px;top:-120px;right:-120px;background:radial-gradient(circle,var(--accent-glow),transparent 70%)}
+.hero-orb.b{width:460px;height:460px;bottom:-160px;left:-160px;background:radial-gradient(circle,rgba(216,195,154,.30),transparent 70%)}
+
+.hero-grid{display:flex;flex-direction:column;gap:46px;align-items:center}
+@media(min-width:1040px){
+  .hero-grid{display:grid;grid-template-columns:1fr minmax(420px,560px) 1fr;gap:30px;align-items:center}
+}
+.hero-copy{text-align:center;max-width:620px;margin:0 auto}
+@media(min-width:1040px){.hero-copy{grid-column:1 / 2;text-align:left;margin:0;order:0}}
+.hero h1{
+  font-family:var(--serif);font-weight:500;letter-spacing:-.01em;
+  font-size:clamp(40px,8.5vw,62px);line-height:1.02;color:var(--char);margin-top:18px;
+}
+.hero h1 em{font-style:italic;color:var(--accent);transition:color .6s var(--ease-lux)}
+.hero .sub{
+  margin-top:22px;font-size:clamp(16px,2.2vw,18.5px);line-height:1.6;color:var(--char-soft);
+  font-weight:400;max-width:480px;
+}
+@media(min-width:1040px){.hero .sub{margin-left:0}}
+.hero-copy .sub{margin-left:auto;margin-right:auto}
+@media(min-width:1040px){.hero-copy .sub{margin-left:0}}
+.hero-cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px;justify-content:center}
+@media(min-width:1040px){.hero-cta{justify-content:flex-start}}
+
+/* revenue stat strip */
+.stat-strip{
+  margin-top:38px;display:flex;flex-wrap:wrap;gap:14px;justify-content:center;
+}
+@media(min-width:1040px){.stat-strip{justify-content:flex-start}}
+.stat{
+  background:var(--glass-strong);border:1px solid var(--line);border-radius:18px;
+  padding:14px 18px;backdrop-filter:blur(14px);box-shadow:var(--shadow-soft);
+  text-align:left;min-width:124px;
+}
+.stat .num{font-family:var(--serif);font-size:27px;font-weight:600;color:var(--accent);line-height:1;transition:color .6s var(--ease-lux)}
+.stat .lab{font-size:11.5px;color:var(--char-faint);margin-top:6px;letter-spacing:.02em;line-height:1.3}
+
+/* ----- DEMO centrepiece ----- */
+.hero-demo{position:relative;display:flex;flex-direction:column;align-items:center}
+@media(min-width:1040px){.hero-demo{grid-column:2 / 3;order:0}}
+
+.switcher{
+  display:inline-flex;gap:5px;padding:5px;border-radius:50px;margin-bottom:22px;
+  background:var(--glass-strong);border:1px solid var(--line);backdrop-filter:blur(14px);
+  box-shadow:var(--shadow-soft);
+}
+.switcher button{
+  font-family:var(--sans);font-size:13.5px;font-weight:600;letter-spacing:.02em;
+  padding:9px 20px;border-radius:50px;border:none;background:transparent;color:var(--char-soft);
+  cursor:pointer;transition:color .4s var(--ease-lux);position:relative;z-index:1;
+}
+.switcher button.active{color:#fff}
+.switcher .pill{
+  position:absolute;z-index:0;top:5px;height:calc(100% - 10px);border-radius:50px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-soft));
+  box-shadow:0 8px 20px -10px var(--accent-glow);
+  transition:transform .55s var(--ease-lux), width .55s var(--ease-lux), background .6s var(--ease-lux);
+}
+.switch-invite{font-size:12.5px;color:var(--char-faint);margin-bottom:20px;letter-spacing:.02em}
+.switch-invite b{color:var(--accent);font-weight:600;transition:color .6s var(--ease-lux)}
+
+/* demo phone taglines — premium kicker above + selling line below */
+.demo-kicker{
+  display:inline-flex;align-items:center;gap:9px;margin:0 auto 16px;padding:7px 16px;
+  border-radius:50px;background:var(--glass-strong);border:1px solid var(--line);
+  backdrop-filter:blur(14px);box-shadow:var(--shadow-soft);
+  font-size:11px;letter-spacing:.26em;text-transform:uppercase;font-weight:600;color:var(--accent);
+  transition:color .6s var(--ease-lux),border-color .5s var(--ease-lux);max-width:92vw;
+}
+.demo-kicker .dot{
+  width:7px;height:7px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent),var(--accent-soft));
+  box-shadow:0 0 0 4px var(--accent-glow);transition:background .6s var(--ease-lux),box-shadow .6s var(--ease-lux);
+}
+.demo-tagline{
+  margin:22px auto 0;max-width:420px;padding:0 14px;text-align:center;
+  font-family:var(--serif);font-weight:500;font-style:italic;
+  font-size:clamp(15px,2.1vw,18px);line-height:1.45;color:var(--char-soft);
+}
+.demo-tagline em{font-style:italic;color:var(--accent);font-weight:600;transition:color .6s var(--ease-lux)}
+
+.phones{position:relative;display:flex;align-items:center;justify-content:center;width:100%}
+
+/* live phone */
+.phone-live{
+  position:relative;z-index:5;width:392px;max-width:90vw;height:812px;max-height:78vh;
+  border-radius:48px;background:#111014;padding:11px;
+  box-shadow:0 60px 130px -40px rgba(50,42,30,.6), 0 0 0 2px #2a2722;
+  transition:box-shadow .6s var(--ease-lux);
+}
+.phone-live .screen-wrap{
+  position:relative;width:100%;height:100%;border-radius:38px;overflow:hidden;background:var(--paper);
+}
+.phone-live .notch{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);width:130px;height:24px;
+  background:#111014;border-radius:0 0 16px 16px;z-index:10;
+}
+.phone-live iframe{width:100%;height:100%;border:0;display:block;background:var(--paper)}
+.iframe-fade{transition:opacity .45s var(--ease-lux)}
+.iframe-fade.fading{opacity:0}
+
+/* side decorative phones (desktop only) */
+.side-phone{
+  display:none;position:absolute;width:210px;height:430px;border-radius:34px;
+  background:linear-gradient(160deg,#fff,#f4efe4);border:1px solid var(--line);
+  box-shadow:0 40px 90px -40px rgba(60,52,40,.45);padding:14px;cursor:pointer;
+  transition:transform .7s var(--ease-lux), box-shadow .7s var(--ease-lux), opacity .7s var(--ease-lux);
+  opacity:.78;overflow:hidden;
+}
+@media(min-width:1280px){.side-phone{display:block}}
+.side-phone:hover{transform:scale(1.04) translateY(-8px)!important;opacity:1;box-shadow:0 50px 100px -36px rgba(60,52,40,.55)}
+.side-phone .sp-head{font-family:var(--serif);font-size:15px;color:var(--char);margin:8px 4px 12px;font-weight:600}
+.side-phone .sp-tag{font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);margin:0 4px 14px;font-weight:600;transition:color .6s var(--ease-lux)}
+.side-phone .sp-bar{height:11px;border-radius:6px;background:var(--bone-2);margin:0 4px 9px}
+.side-phone .sp-bar.s{width:62%}
+.side-phone .sp-img{height:96px;border-radius:16px;margin:4px;background:linear-gradient(135deg,#efe9dc,#e4ddcd 50%,#f3eee3);position:relative;overflow:hidden}
+.side-phone .sp-img::after{content:"";position:absolute;inset:0;background:radial-gradient(80% 60% at 30% 20%,rgba(255,255,255,.6),transparent 60%)}
+.side-phone .sp-chip{display:inline-block;font-size:10px;color:var(--accent);border:1px solid var(--line);border-radius:30px;padding:5px 11px;margin:8px 4px 0;transition:color .6s var(--ease-lux)}
+.side-phone.left{left:-2px}
+.side-phone.left2{left:8%;bottom:6%}
+.side-phone.right{right:-2px}
+.side-phone.right2{right:8%;top:4%}
+
+/* ----- EDITABLE selling panel ----- */
+.editable{
+  position:relative;width:100%;max-width:620px;margin:0 auto;
+}
+@media(min-width:1040px){.editable{grid-column:3 / 4;max-width:none;margin:0}}
+.editable .eyebrow{display:block;margin-bottom:14px}
+.editable h2{
+  font-family:var(--serif);font-weight:500;font-size:clamp(26px,4vw,34px);line-height:1.08;color:var(--char);
+}
+.editable h2 em{font-style:italic;color:var(--accent);transition:color .6s var(--ease-lux)}
+.editable .lead{margin-top:14px;font-size:15px;line-height:1.6;color:var(--char-soft)}
+.edit-list{margin-top:26px;display:flex;flex-direction:column;gap:12px}
+.edit-item{
+  display:flex;gap:14px;align-items:flex-start;
+  background:var(--glass-strong);border:1px solid var(--line);border-radius:18px;
+  padding:16px 18px;backdrop-filter:blur(14px);box-shadow:var(--shadow-soft);
+  transition:transform .5s var(--ease-lux),border-color .5s,box-shadow .5s;
+}
+.edit-item:hover{transform:translateX(6px);border-color:var(--accent-soft);box-shadow:0 20px 40px -24px rgba(60,52,40,.4)}
+.edit-item .tick{
+  flex-shrink:0;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--accent),var(--accent-soft));color:#fff;font-size:14px;font-weight:700;
+  box-shadow:0 8px 18px -10px var(--accent-glow);transition:background .6s var(--ease-lux);
+}
+.edit-item .et{font-size:14.5px;font-weight:600;color:var(--char);line-height:1.35}
+.edit-item .ed{font-size:12.5px;color:var(--char-faint);margin-top:3px;line-height:1.4}
+.edit-item.highlight{border-color:var(--accent-soft);background:linear-gradient(160deg,rgba(216,195,154,.16),var(--glass-strong))}
+.edit-item .et small{color:var(--accent);font-weight:600;font-size:12.5px;transition:color .6s var(--ease-lux)}
+
+/* ============ generic section ============ */
+section.band{padding:90px 0}
+@media(min-width:760px){section.band{padding:120px 0}}
+.sec-head{text-align:center;max-width:680px;margin:0 auto 56px}
+.sec-head .eyebrow{display:inline-block;margin-bottom:16px}
+.sec-head h2{font-family:var(--serif);font-weight:500;font-size:clamp(32px,5.5vw,52px);line-height:1.05;letter-spacing:-.01em;color:var(--char)}
+.sec-head h2 em{font-style:italic;color:var(--accent);transition:color .6s var(--ease-lux)}
+.sec-head p{margin-top:18px;font-size:17px;line-height:1.6;color:var(--char-soft)}
+
+/* ============ BENEFITS ============ */
+.benefits-grid{display:grid;gap:18px;grid-template-columns:1fr}
+@media(min-width:640px){.benefits-grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1040px){.benefits-grid{grid-template-columns:repeat(3,1fr)}}
+.bcard{
+  position:relative;background:var(--glass-strong);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:34px 30px;backdrop-filter:blur(18px) saturate(125%);box-shadow:var(--shadow-soft);overflow:hidden;
+  transition:transform .6s var(--ease-lux),box-shadow .6s var(--ease-lux),border-color .6s;
+}
+.bcard::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(160deg,rgba(255,255,255,.5),rgba(255,255,255,0) 40%)}
+.bcard:hover{transform:translateY(-8px);border-color:var(--accent-soft);box-shadow:0 36px 70px -34px rgba(60,52,40,.45)}
+.bcard .ic{
+  width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:24px;margin-bottom:22px;
+  background:linear-gradient(145deg,#fff,#f0ead9);border:1px solid var(--line);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 8px 20px -12px rgba(120,100,60,.4);
+}
+.bcard h3{font-family:var(--serif);font-weight:600;font-size:22px;color:var(--char);line-height:1.15}
+.bcard p{margin-top:12px;font-size:14.5px;line-height:1.6;color:var(--char-soft)}
+.bcard.feature{grid-column:1 / -1;display:grid;gap:24px;align-items:center}
+@media(min-width:760px){.bcard.feature{grid-template-columns:1.2fr 1fr;padding:44px}}
+.bcard.feature .stat-row{display:flex;gap:26px;flex-wrap:wrap;margin-top:22px}
+.bcard.feature .stat-row .num{font-family:var(--serif);font-size:38px;font-weight:600;color:var(--accent);line-height:1;transition:color .6s var(--ease-lux)}
+.bcard.feature .stat-row .lab{font-size:12.5px;color:var(--char-faint);margin-top:6px}
+.extras-list{display:flex;flex-direction:column;gap:10px}
+.extra-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;background:var(--paper);border:1px solid var(--line);border-radius:14px;transition:transform .4s var(--ease-lux),border-color .4s}
+.extra-row:hover{transform:translateX(5px);border-color:var(--accent-soft)}
+.extra-row .en{font-size:14px;font-weight:500;color:var(--char);display:flex;align-items:center;gap:10px}
+.extra-row .ep{font-family:var(--serif);font-size:16px;font-weight:600;color:var(--accent);transition:color .6s var(--ease-lux)}
+.extra-row .emoji{font-size:17px}
+
+/* ============ HOW IT WORKS ============ */
+.steps{display:grid;gap:22px;grid-template-columns:1fr;counter-reset:step}
+@media(min-width:860px){.steps{grid-template-columns:repeat(3,1fr)}}
+.step-card{
+  position:relative;background:var(--glass-strong);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:40px 32px 34px;backdrop-filter:blur(16px);box-shadow:var(--shadow-soft);overflow:hidden;
+  transition:transform .6s var(--ease-lux),box-shadow .6s var(--ease-lux),border-color .6s;
+}
+.step-card:hover{transform:translateY(-6px);border-color:var(--accent-soft);box-shadow:0 32px 64px -34px rgba(60,52,40,.42)}
+.step-card .n{
+  font-family:var(--serif);font-size:60px;font-weight:500;line-height:1;color:var(--accent-soft);
+  transition:color .6s var(--ease-lux);
+}
+.step-card h3{font-family:var(--serif);font-weight:600;font-size:23px;color:var(--char);margin-top:14px;line-height:1.15}
+.step-card p{margin-top:12px;font-size:14.5px;line-height:1.6;color:var(--char-soft)}
+.step-card .ln{position:absolute;top:54px;right:-12px;font-size:22px;color:var(--accent-soft);display:none}
+@media(min-width:860px){.step-card:not(:last-child) .ln{display:block}}
+
+/* ============ FEATURES ============ */
+.feat-grid{display:grid;gap:14px;grid-template-columns:repeat(2,1fr)}
+@media(min-width:680px){.feat-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1040px){.feat-grid{grid-template-columns:repeat(4,1fr)}}
+.fcard{
+  background:var(--glass-strong);border:1px solid var(--line);border-radius:20px;padding:26px 22px;
+  backdrop-filter:blur(14px);box-shadow:var(--shadow-soft);
+  transition:transform .5s var(--ease-lux),box-shadow .5s var(--ease-lux),border-color .5s;
+}
+.fcard:hover{transform:translateY(-6px) scale(1.015);border-color:var(--accent-soft);box-shadow:0 26px 50px -30px rgba(60,52,40,.4)}
+.fcard .fi{
+  width:46px;height:46px;border-radius:13px;display:grid;place-items:center;font-size:21px;margin-bottom:16px;
+  background:linear-gradient(145deg,#fff,#f0ead9);border:1px solid var(--line);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+}
+.fcard h4{font-family:var(--serif);font-weight:600;font-size:18px;color:var(--char);line-height:1.2}
+.fcard p{margin-top:8px;font-size:13px;line-height:1.5;color:var(--char-faint)}
+
+/* ============ TESTIMONIALS ============ */
+.test-grid{display:grid;gap:18px;grid-template-columns:1fr}
+@media(min-width:700px){.test-grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1040px){.test-grid{grid-template-columns:repeat(3,1fr)}}
+.tcard{
+  background:var(--glass-strong);border:1px solid var(--line);border-radius:var(--r-lg);padding:32px 30px;
+  backdrop-filter:blur(16px);box-shadow:var(--shadow-soft);display:flex;flex-direction:column;
+  transition:transform .6s var(--ease-lux),box-shadow .6s var(--ease-lux),border-color .6s;
+}
+.tcard:hover{transform:translateY(-6px);border-color:var(--accent-soft);box-shadow:0 32px 62px -34px rgba(60,52,40,.42)}
+.stars{color:var(--accent);font-size:15px;letter-spacing:3px;transition:color .6s var(--ease-lux)}
+.tcard blockquote{font-family:var(--serif);font-weight:500;font-size:19px;line-height:1.45;color:var(--char);margin-top:16px;font-style:italic}
+.tcard .who{margin-top:auto;padding-top:22px;display:flex;align-items:center;gap:12px}
+.tcard .who .av{width:42px;height:42px;border-radius:50%;background:linear-gradient(145deg,var(--accent-soft),var(--accent));display:grid;place-items:center;color:#fff;font-family:var(--serif);font-weight:600;font-size:17px;transition:background .6s var(--ease-lux)}
+.tcard .who .meta{font-size:13px}
+.tcard .who .meta b{display:block;font-weight:600;color:var(--char);font-size:13.5px}
+.tcard .who .meta span{color:var(--char-faint)}
+
+/* ============ FINAL CTA ============ */
+.final{position:relative;padding:110px 0;overflow:hidden}
+@media(min-width:760px){.final{padding:150px 0}}
+.final-card{
+  position:relative;text-align:center;max-width:880px;margin:0 auto;
+  background:linear-gradient(165deg,rgba(255,255,255,.85),rgba(246,245,242,.7));
+  border:1px solid var(--line);border-radius:42px;padding:64px 32px;
+  backdrop-filter:blur(22px) saturate(130%);box-shadow:var(--shadow);overflow:hidden;
+}
+.final-card::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(160deg,rgba(255,255,255,.6),rgba(255,255,255,0) 42%)}
+.final-orb{position:absolute;width:480px;height:480px;border-radius:50%;filter:blur(70px);background:radial-gradient(circle,var(--accent-glow),transparent 70%);top:-180px;left:50%;transform:translateX(-50%);pointer-events:none;transition:background .8s var(--ease-lux)}
+.final-card .eyebrow{display:inline-block;margin-bottom:18px;position:relative}
+.final-card h2{position:relative;font-family:var(--serif);font-weight:500;font-size:clamp(34px,6vw,58px);line-height:1.03;letter-spacing:-.01em;color:var(--char)}
+.final-card h2 em{font-style:italic;color:var(--accent);transition:color .6s var(--ease-lux)}
+.final-card p{position:relative;margin:20px auto 0;max-width:520px;font-size:17px;line-height:1.6;color:var(--char-soft)}
+.final-card .cta{position:relative;display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:36px}
+
+/* ============ FOOTER ============ */
+footer{padding:46px 0;border-top:1px solid var(--line-soft)}
+.foot-inner{display:flex;flex-direction:column;gap:22px;align-items:center;text-align:center}
+@media(min-width:760px){.foot-inner{flex-direction:row;justify-content:space-between;text-align:left}}
+.foot-links{display:flex;flex-wrap:wrap;gap:26px;justify-content:center}
+.foot-links a{font-size:14px;color:var(--char-soft);transition:color .3s}
+.foot-links a:hover{color:var(--accent)}
+.foot-copy{font-size:13px;color:var(--char-faint)}
+
+@media (prefers-reduced-motion: reduce){
+  .reveal{opacity:1!important;transform:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" id="nav">
+  <div class="wrap inner">
+    <a class="wordmark" href="#top">
+      <span class="mark">R</span>
+      <span class="txt">Remly</span>
+    </a>
+    <div class="nav-links">
+      <a href="#benefits">Benefits</a>
+      <a href="#features">Features</a>
+      <a href="#demo">Demo</a>
+    </div>
+    <div class="nav-cta">
+      <a class="btn btn-primary" href="/signup/"><span>Start Free Trial <span class="arr">→</span></span></a>
+      <div class="nav-burger" id="burger"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#benefits" data-close>Benefits</a>
+  <a href="#features" data-close>Features</a>
+  <a href="#demo" data-close>Demo</a>
+  <a class="btn btn-primary" href="/signup/"><span>Start Free Trial →</span></a>
+</div>
+
+<span id="top"></span>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="hero-orb a"></div>
+  <div class="hero-orb b"></div>
+  <div class="wrap">
+    <div class="hero-grid">
+
+      <!-- copy -->
+      <div class="hero-copy">
+        <span class="eyebrow reveal">AI Check-in · Concierge · Upsells</span>
+        <h1 class="reveal">Turn Check-in Into Your <em>Highest-Margin</em> Sale.</h1>
+        <p class="sub reveal">Remly greets every guest with a beautiful AI concierge — answering questions 24/7, lifting your reviews, and quietly selling late checkouts, champagne and transfers. Better stays, fewer messages, more revenue per booking. All on autopilot.</p>
+        <div class="hero-cta reveal">
+          <a class="btn btn-primary" href="/signup/"><span>Start Free Trial <span class="arr">→</span></span></a>
+          <a class="btn btn-ghost" href="#demo">Watch Guest Experience</a>
+        </div>
+        <div class="stat-strip reveal">
+          <div class="stat"><div class="num">+£47</div><div class="lab">avg. upsell<br>per stay</div></div>
+          <div class="stat"><div class="num">‑68%</div><div class="lab">guest questions<br>answered by AI</div></div>
+          <div class="stat"><div class="num">4.9★</div><div class="lab">average review<br>after Remly</div></div>
+        </div>
+      </div>
+
+      <!-- demo centrepiece -->
+      <div class="hero-demo" id="demo">
+        <div class="switcher reveal" id="switcher">
+          <span class="pill" id="switchPill"></span>
+          <button data-style="warm" data-src="/v4-cine-warm/index.html">Warm</button>
+          <button data-style="airy" data-src="/v5-cine-airy/index.html">Airy</button>
+          <button class="active" data-style="luxe" data-src="/v6-cine-luxe/index.html">Luxe</button>
+        </div>
+        <div class="switch-invite reveal">Tap to restyle the whole experience <b>→</b></div>
+
+        <span class="demo-kicker reveal"><span class="dot"></span>A 24/7 AI concierge in every check-in</span>
+
+        <div class="phones">
+          <!-- side decorative phones -->
+          <div class="side-phone left2" data-focus>
+            <div class="sp-tag">AI Concierge</div>
+            <div class="sp-head">Ask me anything</div>
+            <div class="sp-img"></div>
+            <div class="sp-bar"></div><div class="sp-bar s"></div>
+            <span class="sp-chip">Voice · 24/7</span>
+          </div>
+          <div class="side-phone left" data-focus>
+            <div class="sp-tag">Check-in</div>
+            <div class="sp-head">Step-by-step arrival</div>
+            <div class="sp-bar"></div><div class="sp-bar s"></div>
+            <div class="sp-img"></div>
+            <span class="sp-chip">Door code · WiFi</span>
+          </div>
+
+          <!-- LIVE interactive phone -->
+          <div class="phone-live reveal" id="phoneLive">
+            <div class="screen-wrap">
+              <div class="notch"></div>
+              <iframe id="demoFrame" class="iframe-fade" src="/v6-cine-luxe/index.html" title="Remly live guest experience" loading="lazy"></iframe>
+            </div>
+          </div>
+
+          <div class="side-phone right" data-focus>
+            <div class="sp-tag">House Guide</div>
+            <div class="sp-head">Everything explained</div>
+            <div class="sp-img"></div>
+            <div class="sp-bar"></div><div class="sp-bar s"></div>
+            <span class="sp-chip">Photos · Videos</span>
+          </div>
+          <div class="side-phone right2" data-focus>
+            <div class="sp-tag">Local Guide</div>
+            <div class="sp-head">Eat · See · Do</div>
+            <div class="sp-bar"></div><div class="sp-bar s"></div>
+            <div class="sp-img"></div>
+            <span class="sp-chip">Maps · Extras</span>
+          </div>
+        </div>
+
+        <p class="demo-tagline reveal">Send one link before check-in — <em>delight every guest</em> and earn more from every stay.</p>
+      </div>
+
+      <!-- EVERYTHING IS EDITABLE -->
+      <div class="editable">
+        <span class="eyebrow reveal">Everything is editable</span>
+        <h2 class="reveal">Your brand. Your prices. <em>Your revenue.</em></h2>
+        <p class="lead reveal">Remly isn't a template you're stuck with. Edit every word, photo and step — and turn the Extras menu into a quiet money machine that sells while you sleep.</p>
+        <div class="edit-list">
+          <div class="edit-item highlight reveal">
+            <span class="tick">£</span>
+            <div><div class="et">Add unlimited Extras &amp; upsells <small>· your profit driver</small></div><div class="ed">Late checkout, wine, champagne, airport transfer, early check-in — guests tap to buy on arrival.</div></div>
+          </div>
+          <div class="edit-item reveal">
+            <span class="tick">✓</span>
+            <div><div class="et">Set your own prices</div><div class="ed">Full control of every Extra. Keep 100% of the margin.</div></div>
+          </div>
+          <div class="edit-item reveal">
+            <span class="tick">✓</span>
+            <div><div class="et">Edit every check-in step</div><div class="ed">Reorder, reword, add or remove — make it exactly your arrival.</div></div>
+          </div>
+          <div class="edit-item reveal">
+            <span class="tick">✓</span>
+            <div><div class="et">Swap photos &amp; videos</div><div class="ed">Show off your space, not a stock library.</div></div>
+          </div>
+          <div class="edit-item reveal">
+            <span class="tick">✓</span>
+            <div><div class="et">Change the entire look in one tap <small>· ← you just did that</small></div><div class="ed">Warm, Airy or Luxe — restyle the whole guest experience instantly.</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</header>
+
+<!-- ============ BENEFITS ============ -->
+<section class="band" id="benefits">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow reveal">Why it works</span>
+      <h2 class="reveal">More revenue. Happier guests. <em>Hours back.</em></h2>
+      <p class="reveal">A check-in this good doesn't just impress — it earns. Every benefit below moves a number that matters to your business.</p>
+    </div>
+
+    <div class="benefits-grid">
+
+      <!-- revenue feature card -->
+      <div class="bcard feature reveal">
+        <div>
+          <span class="eyebrow">The revenue engine</span>
+          <h3 style="margin-top:14px;font-size:28px">Turn arrival into your best-selling moment.</h3>
+          <p>Guests are never more excited than the minute they arrive. Remly meets them there with a beautiful, tappable Extras menu — and that's where the margin is.</p>
+          <div class="stat-row">
+            <div><div class="num">+£47</div><div class="lab">average upsell<br>per stay</div></div>
+            <div><div class="num">31%</div><div class="lab">of guests buy<br>at least one Extra</div></div>
+            <div><div class="num">£0</div><div class="lab">extra effort<br>from you</div></div>
+          </div>
+        </div>
+        <div class="extras-list">
+          <div class="extra-row"><span class="en"><span class="emoji">🕓</span>Late checkout</span><span class="ep">£25</span></div>
+          <div class="extra-row"><span class="en"><span class="emoji">🍾</span>Champagne on arrival</span><span class="ep">£39</span></div>
+          <div class="extra-row"><span class="en"><span class="emoji">🚗</span>Airport transfer</span><span class="ep">£55</span></div>
+          <div class="extra-row"><span class="en"><span class="emoji">🥂</span>Welcome wine</span><span class="ep">£18</span></div>
+          <div class="extra-row"><span class="en"><span class="emoji">🔑</span>Early check-in</span><span class="ep">£20</span></div>
+        </div>
+      </div>
+
+      <div class="bcard reveal"><div class="ic">⭐</div><h3>Increase Guest Satisfaction</h3><p>A calm, guided arrival sets the tone for the whole stay — and shows up directly in your ratings.</p></div>
+      <div class="bcard reveal"><div class="ic">💬</div><h3>Reduce Guest Questions</h3><p>The AI answers WiFi, parking, check-out and the 100 other repeats — so your phone stops buzzing.</p></div>
+      <div class="bcard reveal"><div class="ic">✨</div><h3>Delight Every Guest</h3><p>A premium, branded welcome that feels like a boutique hotel — on every booking, automatically.</p></div>
+      <div class="bcard reveal"><div class="ic">🤖</div><h3>AI Available 24/7</h3><p>Late-night arrival? Question at 3am? Remly handles it instantly, in any language, while you sleep.</p></div>
+      <div class="bcard reveal"><div class="ic">🛎️</div><h3>Beautiful Check-in</h3><p>A cinematic, step-by-step experience guests actually enjoy — no clunky PDFs, no confusion.</p></div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow reveal">Live in minutes</span>
+      <h2 class="reveal">Three steps to a <em>smarter</em> stay.</h2>
+      <p class="reveal">No app for guests to download. No tech skills needed. Just set it up once and send a link.</p>
+    </div>
+    <div class="steps">
+      <div class="step-card reveal"><div class="n">01</div><span class="ln">→</span><h3>Add your property &amp; knowledge</h3><p>Drop in your address, WiFi, door codes and house notes. Remly learns your place instantly.</p></div>
+      <div class="step-card reveal"><div class="n">02</div><span class="ln">→</span><h3>Customise the look &amp; extras</h3><p>Pick your style, swap photos, and load up your paid Extras with your own prices.</p></div>
+      <div class="step-card reveal"><div class="n">03</div><h3>Send one secure link</h3><p>Share a single link per booking. Guests get the full experience — you get the reviews and revenue.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="band" id="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow reveal">Everything in one link</span>
+      <h2 class="reveal">A full concierge, <em>beautifully</em> built in.</h2>
+      <p class="reveal">Every tool a modern host needs to wow guests and earn more — without juggling five apps.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="fcard reveal"><div class="fi">🤖</div><h4>AI Concierge</h4><p>Instant answers, trained on your property.</p></div>
+      <div class="fcard reveal"><div class="fi">🎙️</div><h4>Voice AI</h4><p>Guests can simply talk and get answers.</p></div>
+      <div class="fcard reveal"><div class="fi">🛎️</div><h4>Smart Check-in</h4><p>Guided, step-by-step arrival flow.</p></div>
+      <div class="fcard reveal"><div class="fi">🏠</div><h4>House Guide</h4><p>How everything works, beautifully shown.</p></div>
+      <div class="fcard reveal"><div class="fi">🗺️</div><h4>Maps</h4><p>Pinned directions and parking made simple.</p></div>
+      <div class="fcard reveal"><div class="fi">🎬</div><h4>Videos</h4><p>Show, don't tell — with quick clips.</p></div>
+      <div class="fcard reveal"><div class="fi">📶</div><h4>WiFi</h4><p>One-tap connect, no typing passwords.</p></div>
+      <div class="fcard reveal"><div class="fi">📋</div><h4>House Rules</h4><p>Clear, friendly, impossible to miss.</p></div>
+      <div class="fcard reveal"><div class="fi">📍</div><h4>Local Guide</h4><p>Your hand-picked eat, see &amp; do list.</p></div>
+      <div class="fcard reveal"><div class="fi">🌟</div><h4>Review Requests</h4><p>Nudge happy guests at the perfect moment.</p></div>
+      <div class="fcard reveal"><div class="fi">💷</div><h4>Extras</h4><p>Your upsells, your prices, your profit.</p></div>
+      <div class="fcard reveal"><div class="fi">🎨</div><h4>One-Tap Styles</h4><p>Warm, Airy or Luxe — your brand, instantly.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TESTIMONIALS ============ -->
+<section class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow reveal">Why hosts love it</span>
+      <h2 class="reveal">Loved by hosts who care <em>about the details.</em></h2>
+      <p class="reveal">From single listings to full portfolios — the feedback is the same.</p>
+    </div>
+    <div class="test-grid">
+      <div class="tcard reveal"><div class="stars">★★★★★</div><blockquote>“The Extras alone paid for Remly in the first week. Guests buy late checkout without me lifting a finger.”</blockquote><div class="who"><div class="av">S</div><div class="meta"><b>Superhost</b><span>Manchester · 3 listings</span></div></div></div>
+      <div class="tcard reveal"><div class="stars">★★★★★</div><blockquote>“My messages dropped off a cliff. The AI just handles it. My reviews went up and my evenings came back.”</blockquote><div class="who"><div class="av">A</div><div class="meta"><b>Airbnb Host</b><span>Lisbon · 1 listing</span></div></div></div>
+      <div class="tcard reveal"><div class="stars">★★★★★</div><blockquote>“It looks like a five-star hotel app, but it's mine. Guests message me just to say how nice the check-in is.”</blockquote><div class="who"><div class="av">P</div><div class="meta"><b>Property Manager</b><span>Edinburgh · 12 listings</span></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="final">
+  <div class="wrap">
+    <div class="final-card">
+      <div class="final-orb"></div>
+      <span class="eyebrow reveal">Start earning more per stay</span>
+      <h2 class="reveal">The check-in that <em>pays for itself.</em></h2>
+      <p class="reveal">Set it up once, send one link, and let Remly delight your guests and grow your revenue — on every booking, automatically.</p>
+      <div class="cta reveal">
+        <a class="btn btn-primary" href="/signup/"><span>Start Free Trial <span class="arr">→</span></span></a>
+        <a class="btn btn-ghost" href="#demo">Experience The Demo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap foot-inner">
+    <a class="wordmark" href="#top"><span class="mark">R</span><span class="txt">Remly</span></a>
+    <div class="foot-links">
+      <a href="#benefits">Benefits</a>
+      <a href="#features">Features</a>
+      <a href="#demo">Demo</a>
+      <a href="/signup/">Start Free Trial</a>
+    </div>
+    <div class="foot-copy">© 2026 Remly · The AI guest experience.</div>
+  </div>
+</footer>
+
+<script>
+/* ============ STYLE PALETTES (accent swaps with switcher) ============ */
+const PALETTES = {
+  luxe: { accent:'#a8884f', soft:'#d8c39a', glow:'rgba(191,160,107,.22)' },
+  warm: { accent:'#c8643f', soft:'#e0993e', glow:'rgba(200,100,63,.22)' },
+  airy: { accent:'#2c7e83', soft:'#7fae9b', glow:'rgba(44,126,131,.22)' }
+};
+const root = document.documentElement;
+function applyPalette(name){
+  const p = PALETTES[name] || PALETTES.luxe;
+  root.style.setProperty('--accent', p.accent);
+  root.style.setProperty('--accent-soft', p.soft);
+  root.style.setProperty('--accent-glow', p.glow);
+}
+
+/* ============ STYLE SWITCHER ============ */
+const switcher = document.getElementById('switcher');
+const pill = document.getElementById('switchPill');
+const frame = document.getElementById('demoFrame');
+const btns = [...switcher.querySelectorAll('button')];
+
+function movePill(btn){
+  pill.style.width = btn.offsetWidth + 'px';
+  pill.style.transform = 'translateX(' + (btn.offsetLeft - 5) + 'px)';
+}
+function setActive(btn){
+  btns.forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  movePill(btn);
+  applyPalette(btn.dataset.style);
+}
+btns.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(btn.classList.contains('active') && frame.src.includes(btn.dataset.src)) { setActive(btn); return; }
+    setActive(btn);
+    frame.classList.add('fading');
+    setTimeout(()=>{
+      frame.src = btn.dataset.src;
+      const onload = ()=>{ frame.classList.remove('fading'); frame.removeEventListener('load', onload); };
+      frame.addEventListener('load', onload);
+      setTimeout(()=>frame.classList.remove('fading'), 700); // fallback
+    }, 320);
+  });
+});
+window.addEventListener('load', ()=> movePill(switcher.querySelector('.active')));
+window.addEventListener('resize', ()=> movePill(switcher.querySelector('.active')));
+
+/* ============ NAV scrolled + mobile menu ============ */
+const nav = document.getElementById('nav');
+const burger = document.getElementById('burger');
+const mobileMenu = document.getElementById('mobileMenu');
+burger.addEventListener('click', ()=> mobileMenu.classList.toggle('open'));
+mobileMenu.querySelectorAll('[data-close]').forEach(a=> a.addEventListener('click', ()=> mobileMenu.classList.remove('open')));
+
+/* ============ side phone focus ============ */
+document.querySelectorAll('.side-phone[data-focus]').forEach(sp=>{
+  sp.addEventListener('click', ()=>{
+    document.querySelectorAll('.side-phone').forEach(o=>o.style.opacity='.78');
+    sp.style.opacity='1';
+    document.getElementById('demo').scrollIntoView({behavior:'smooth', block:'center'});
+  });
+});
+
+/* ============ LENIS smooth scroll ============ */
+let lenis;
+if(window.Lenis){
+  lenis = new Lenis({ duration:1.15, easing:t=>Math.min(1,1.001-Math.pow(2,-10*t)), smoothWheel:true });
+  function raf(t){ lenis.raf(t); requestAnimationFrame(raf); }
+  requestAnimationFrame(raf);
+  if(window.gsap && window.ScrollTrigger){
+    lenis.on('scroll', ScrollTrigger.update);
+  }
+}
+/* anchor smooth-scroll via Lenis */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click', e=>{
+    const id = a.getAttribute('href');
+    if(id.length<2) return;
+    const target = document.querySelector(id);
+    if(!target) return;
+    e.preventDefault();
+    mobileMenu.classList.remove('open');
+    if(lenis) lenis.scrollTo(target, { offset:-70, duration:1.2 });
+    else target.scrollIntoView({behavior:'smooth'});
+  });
+});
+
+/* ============ GSAP reveals ============ */
+if(window.gsap && window.ScrollTrigger){
+  gsap.registerPlugin(ScrollTrigger);
+
+  // nav background on scroll
+  ScrollTrigger.create({
+    start:'top -40',
+    onUpdate:self=> nav.classList.toggle('scrolled', self.scroll() > 40),
+    onRefresh:self=> nav.classList.toggle('scrolled', self.scroll() > 40)
+  });
+
+  // hero entrance (staggered, no scrolltrigger)
+  gsap.to('.hero-copy .reveal', { opacity:1, y:0, duration:1, ease:'power3.out', stagger:0.09, delay:0.15 });
+  gsap.to('#phoneLive', { opacity:1, y:0, duration:1.2, ease:'power3.out', delay:0.35 });
+  gsap.to('.hero-demo .switcher, .switch-invite, .demo-kicker, .demo-tagline', { opacity:1, y:0, duration:1, ease:'power3.out', stagger:0.08, delay:0.25 });
+  gsap.to('.editable .reveal', { opacity:1, y:0, duration:1, ease:'power3.out', stagger:0.07, delay:0.5,
+    scrollTrigger:{ trigger:'.editable', start:'top 85%' } });
+
+  // floating side phones — gentle parallax drift
+  gsap.utils.toArray('.side-phone').forEach((sp,i)=>{
+    gsap.to(sp, {
+      y:(i%2===0? -28 : 24), ease:'none',
+      scrollTrigger:{ trigger:'.hero', start:'top top', end:'bottom top', scrub:1 }
+    });
+  });
+  // subtle idle float on live phone
+  gsap.to('#phoneLive', { y:'-=10', duration:3.4, ease:'sine.inOut', yoyo:true, repeat:-1, delay:1.6 });
+
+  // generic scroll reveals for the rest of the page
+  gsap.utils.toArray('section.band .reveal, .final .reveal').forEach(el=>{
+    gsap.to(el, {
+      opacity:1, y:0, duration:1, ease:'power3.out',
+      scrollTrigger:{ trigger:el, start:'top 88%' }
+    });
+  });
+
+  // pinned moment: benefits heading holds while revenue card rises
+  ScrollTrigger.matchMedia({
+    "(min-width:860px)": function(){
+      gsap.from('.bcard.feature .stat-row > div', {
+        opacity:0, y:24, duration:.8, stagger:.12, ease:'power3.out',
+        scrollTrigger:{ trigger:'.bcard.feature', start:'top 75%' }
+      });
+      gsap.from('.extra-row', {
+        opacity:0, x:24, duration:.7, stagger:.08, ease:'power3.out',
+        scrollTrigger:{ trigger:'.bcard.feature', start:'top 70%' }
+      });
+    }
+  });
+
+  // refresh once everything (fonts) settled
+  window.addEventListener('load', ()=> ScrollTrigger.refresh());
+} else {
+  document.querySelectorAll('.reveal').forEach(el=>{ el.style.opacity=1; el.style.transform='none'; });
+}
+</script>
+</body>
+</html>

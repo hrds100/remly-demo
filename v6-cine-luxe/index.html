@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Remly — Guest Check-in</title>
+
+<!-- Google Fonts: luxury serif + clean sans -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Jost:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+/* ============================================================
+   REMLY — Light Cinematic / Luxe Hotel
+   Self-contained mockup. All data hardcoded.
+   ============================================================ */
+
+:root{
+  --bone:#f6f5f2;
+  --bone-2:#efede8;
+  --paper:#fbfaf8;
+  --char:#2c2a27;        /* refined charcoal (never pure black) */
+  --char-soft:#5d5a54;
+  --char-faint:#8d8980;
+  --gold:#bfa06b;        /* champagne gold */
+  --gold-deep:#a8884f;
+  --gold-soft:#d8c39a;
+  --taupe:#b8ada0;
+  --line:rgba(191,160,107,.28);   /* hairline gold-tinted border */
+  --glass:rgba(255,255,255,.62);
+  --glass-strong:rgba(255,255,255,.82);
+  --shadow:0 18px 50px -22px rgba(60,52,40,.35);
+  --shadow-soft:0 10px 30px -18px rgba(60,52,40,.30);
+  --r:22px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --ease-lux:cubic-bezier(.16,1,.3,1);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:'Jost','Inter',sans-serif;
+  background:
+    radial-gradient(120% 80% at 50% -10%, #fdfcfa 0%, var(--bone) 55%, var(--bone-2) 100%);
+  color:var(--char);
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;
+}
+
+/* ---------- Desktop phone frame ---------- */
+.stage{
+  width:100%;height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:0;
+}
+.phone{
+  position:relative;
+  width:390px;height:100vh;max-height:844px;
+  background:var(--paper);
+  overflow:hidden;
+  box-shadow:none;
+  border-radius:0;
+}
+@media(min-width:760px){
+  body{padding:24px}
+  .phone{
+    height:844px;border-radius:46px;
+    box-shadow:0 50px 120px -30px rgba(50,42,30,.55), 0 0 0 11px #111014, 0 0 0 13px #2a2722;
+    border:1px solid #000;
+  }
+  .phone::after{ /* notch */
+    content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:150px;height:26px;background:#111014;border-radius:0 0 18px 18px;z-index:60;
+  }
+}
+
+/* ---------- Film grain + vignette ---------- */
+.grain{
+  position:absolute;inset:0;z-index:55;pointer-events:none;opacity:.05;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+.vignette{
+  position:absolute;inset:0;z-index:54;pointer-events:none;
+  background:radial-gradient(130% 100% at 50% 35%, transparent 55%, rgba(120,104,78,.10) 100%);
+}
+
+/* ---------- Scroll viewport ---------- */
+.viewport{
+  position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.viewport::-webkit-scrollbar{display:none}
+
+.screen{display:none;min-height:100%;padding:0 0 132px}
+.screen.active{display:block;animation:scrIn .7s var(--ease-lux)}
+@keyframes scrIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ---------- Top header ---------- */
+.top{
+  position:sticky;top:0;z-index:40;
+  padding:54px 24px 16px;
+  background:linear-gradient(to bottom, var(--paper) 62%, rgba(251,250,248,0));
+  backdrop-filter:blur(2px);
+}
+@media(min-width:760px){.top{padding-top:42px}}
+.brand{
+  display:flex;align-items:center;gap:9px;
+}
+.brand .mark{
+  width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
+  background:linear-gradient(145deg,#fff,#f0ead9);
+  border:1px solid var(--line);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 6px 16px -10px rgba(120,100,60,.4);
+  font-family:'Cormorant Garamond',serif;font-weight:700;font-size:18px;color:var(--gold-deep);
+}
+.brand .name{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:21px;letter-spacing:.14em;color:var(--char)}
+.brand .name b{color:var(--gold-deep);font-weight:600}
+.brand .spacer{flex:1}
+.muteBtn{
+  width:38px;height:38px;border-radius:50%;border:1px solid var(--line);
+  background:var(--glass);backdrop-filter:blur(10px);
+  display:grid;place-items:center;font-size:15px;color:var(--char-soft);cursor:pointer;
+  transition:transform .4s var(--ease-lux),background .3s;
+}
+.muteBtn:active{transform:scale(.88)}
+.eyebrow{
+  margin-top:18px;font-size:10.5px;letter-spacing:.42em;text-transform:uppercase;
+  color:var(--gold-deep);font-weight:500;
+}
+.h1{
+  font-family:'Cormorant Garamond',serif;font-weight:500;
+  font-size:40px;line-height:1.02;letter-spacing:.005em;color:var(--char);margin-top:8px;
+}
+.h1 em{font-style:italic;color:var(--gold-deep)}
+.sub{margin-top:12px;color:var(--char-soft);font-size:13.5px;font-weight:300;line-height:1.55;max-width:300px}
+
+.body{padding:6px 22px 0}
+
+/* ---------- Glass card ---------- */
+.glass{
+  position:relative;background:var(--glass-strong);
+  backdrop-filter:blur(18px) saturate(125%);
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.glass::before{ /* inner highlight */
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(160deg, rgba(255,255,255,.55), rgba(255,255,255,0) 38%);
+}
+
+/* image placeholder */
+.imgph{
+  position:relative;height:150px;overflow:hidden;
+  background:
+    linear-gradient(135deg, #efe9dc, #e4ddcd 50%, #f3eee3);
+}
+.imgph .pl-shine{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(80% 60% at 30% 20%, rgba(255,255,255,.6), transparent 60%),
+    repeating-linear-gradient(115deg, rgba(191,160,107,.07) 0 2px, transparent 2px 22px);
+}
+.imgph .pl-icon{
+  position:absolute;inset:0;display:grid;place-items:center;font-size:34px;color:rgba(168,136,79,.55);
+}
+.imgph .pl-tag{
+  position:absolute;left:14px;bottom:12px;font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;
+  color:#fff;background:rgba(44,42,39,.55);backdrop-filter:blur(4px);
+  padding:5px 10px;border-radius:30px;
+}
+
+/* real photos layered into placeholders (gradient stays as loading fallback) */
+.imgph img.ph,.aiCard .aiImg img.ph{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;
+}
+.imgph .pl-shine,.aiCard .aiImg .pl-shine{z-index:1}
+.imgph .pl-icon{z-index:2}
+.imgph .pl-tag,.aiCard .aiImg .pl-tag{z-index:3}
+.aiCard .aiImg .dial{z-index:2}
+/* subtle bottom scrim so tag text stays readable on photos */
+.imgph:has(> img.ph)::after,.aiCard .aiImg:has(> img.ph)::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:55%;z-index:1;pointer-events:none;
+  background:linear-gradient(to top, rgba(44,42,39,.5), rgba(44,42,39,0));
+}
+/* Local list: photo inside the rounded icon square */
+.loc .lic.photo{padding:0;overflow:hidden}
+.loc .lic.photo img{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block}
+/* House manual: photo at top of expanded accordion body */
+.acc .panel .inner img.acc-photo{
+  width:100%;height:110px;object-fit:cover;border-radius:12px;display:block;margin-bottom:12px;
+}
+
+/* ---------- CHECK-IN timeline ---------- */
+.progressWrap{
+  display:flex;align-items:center;gap:12px;margin:20px 0 4px;padding:0 2px;
+}
+.progressWrap .lbl{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--char-faint)}
+.progressWrap .count{margin-left:auto;font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gold-deep)}
+.pbar{height:3px;border-radius:3px;background:var(--bone-2);overflow:hidden;flex:1;margin:0 4px}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold-soft),var(--gold));transition:width .8s var(--ease-lux)}
+
+.timeline{position:relative;margin-top:18px;padding-left:34px}
+.tl-line{
+  position:absolute;left:14px;top:8px;bottom:30px;width:2px;
+  background:var(--bone-2);border-radius:2px;overflow:hidden;
+}
+.tl-line i{display:block;width:100%;height:0;background:linear-gradient(var(--gold-soft),var(--gold));transition:height 1s var(--ease-lux)}
+
+.step{position:relative;margin-bottom:30px;opacity:1}
+.step .node{
+  position:absolute;left:-34px;top:6px;width:30px;height:30px;border-radius:50%;
+  background:var(--paper);border:2px solid var(--gold-soft);
+  display:grid;place-items:center;cursor:pointer;z-index:3;
+  transition:transform .5s var(--ease-lux),background .4s,border-color .4s;
+  box-shadow:0 4px 14px -8px rgba(160,130,70,.6);
+}
+.step .node span{font-size:13px;color:var(--gold-deep);font-weight:600;font-family:'Cormorant Garamond',serif}
+.step .node .tick{display:none;color:#fff;font-size:15px;line-height:1}
+.step.done .node{background:var(--gold);border-color:var(--gold);transform:scale(1.04)}
+.step.done .node span{display:none}
+.step.done .node .tick{display:block}
+
+.card{padding:0;margin-bottom:0}
+.card .meta{padding:16px 17px 17px}
+.card .st-eyebrow{font-size:9.5px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold-deep);font-weight:500}
+.card .st-title{font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:500;color:var(--char);margin-top:5px;line-height:1.05}
+.card .st-note{margin-top:9px;font-size:12.8px;color:var(--char-soft);font-weight:300;line-height:1.55}
+
+.codechip{
+  display:inline-flex;align-items:center;gap:10px;margin-top:13px;
+  padding:9px 12px;border-radius:13px;background:var(--bone);border:1px solid var(--line);
+}
+.codechip .k{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--char-faint)}
+.codechip .v{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:19px;letter-spacing:.12em;color:var(--char)}
+
+.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}
+.btn{
+  appearance:none;border:none;cursor:pointer;font-family:'Jost',sans-serif;
+  font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;
+  padding:11px 16px;border-radius:13px;
+  transition:transform .45s var(--ease-lux),box-shadow .4s,background .3s,color .3s;
+}
+.btn:active{transform:scale(.93)}
+.btn-gold{
+  background:linear-gradient(145deg,var(--gold),var(--gold-deep));color:#fffdf7;
+  box-shadow:0 12px 26px -14px rgba(168,136,79,.85), inset 0 1px 0 rgba(255,255,255,.35);
+}
+.btn-ghost{
+  background:var(--glass);color:var(--char-soft);border:1px solid var(--line);backdrop-filter:blur(8px);
+}
+.btn-block{width:100%;justify-content:center;display:flex;padding:15px}
+
+/* finish button */
+.finishWrap{margin:6px 0 4px;opacity:.45;pointer-events:none;transition:opacity .6s}
+.finishWrap.ready{opacity:1;pointer-events:auto}
+
+/* ---------- generic section ---------- */
+.section-h{
+  font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:.34em;text-transform:uppercase;
+  color:var(--gold-deep);margin:26px 2px 12px;font-weight:600;
+}
+.section-h:first-child{margin-top:6px}
+
+/* expandable (House) */
+.acc{margin-bottom:11px;border-radius:18px}
+.acc .head{
+  display:flex;align-items:center;gap:13px;padding:16px 16px;cursor:pointer;
+}
+.acc .head .ic{
+  width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:18px;
+  background:linear-gradient(145deg,#fff,#f1ead9);border:1px solid var(--line);
+}
+.acc .head .tt{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--char)}
+.acc .head .ar{margin-left:auto;color:var(--gold-deep);font-size:14px;transition:transform .5s var(--ease-lux)}
+.acc.open .ar{transform:rotate(180deg)}
+.acc .panel{max-height:0;overflow:hidden;transition:max-height .55s var(--ease-lux)}
+.acc .panel .inner{padding:0 16px 17px;font-size:12.8px;color:var(--char-soft);font-weight:300;line-height:1.62}
+.acc .panel .inner b{color:var(--char);font-weight:500}
+.acc .panel .inner .codechip{margin-top:10px}
+
+/* local cards */
+.loc{display:flex;gap:13px;align-items:center;padding:13px;margin-bottom:10px;border-radius:17px}
+.loc .lic{
+  width:46px;height:46px;border-radius:13px;display:grid;place-items:center;font-size:20px;flex:0 0 auto;
+  background:linear-gradient(145deg,#fff,#efe8d8);border:1px solid var(--line);
+}
+.loc .lbody{flex:1;min-width:0}
+.loc .lbody .ln{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--char);line-height:1.1}
+.loc .lbody .ld{font-size:11.5px;color:var(--char-faint);margin-top:3px;font-weight:300}
+.loc .lgo{
+  flex:0 0 auto;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);
+  border:1px solid var(--line);border-radius:11px;padding:9px 11px;cursor:pointer;background:var(--glass);
+  transition:transform .4s var(--ease-lux);
+}
+.loc .lgo:active{transform:scale(.9)}
+
+/* extras cards */
+.extra{margin-bottom:14px;border-radius:20px}
+.extra .ebody{padding:14px 16px 16px;display:flex;align-items:flex-start;gap:12px}
+.extra .etext{flex:1}
+.extra .et{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--char);line-height:1.05}
+.extra .ed{font-size:11.8px;color:var(--char-faint);margin-top:5px;font-weight:300;line-height:1.5}
+.extra .epr{font-family:'Cormorant Garamond',serif;font-size:21px;color:var(--gold-deep);margin-top:9px;font-weight:600}
+.extra .eadd{
+  flex:0 0 auto;align-self:center;border:none;cursor:pointer;
+  background:linear-gradient(145deg,var(--gold),var(--gold-deep));color:#fffdf7;
+  font-family:'Jost';font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:500;
+  padding:11px 15px;border-radius:13px;
+  box-shadow:0 10px 22px -14px rgba(168,136,79,.9);
+  transition:transform .45s var(--ease-lux);
+}
+.extra .eadd:active{transform:scale(.9)}
+.extra .eadd.added{background:var(--bone);color:var(--gold-deep);border:1px solid var(--line)}
+
+/* floating cart */
+.cart{
+  position:absolute;left:22px;right:22px;bottom:104px;z-index:46;
+  background:var(--glass-strong);backdrop-filter:blur(20px) saturate(130%);
+  border:1px solid var(--line);border-radius:18px;
+  box-shadow:var(--shadow);
+  padding:13px 16px;display:flex;align-items:center;gap:12px;
+  transform:translateY(140%);opacity:0;transition:transform .6s var(--ease-lux),opacity .5s;
+}
+.cart.show{transform:none;opacity:1}
+.cart .ct{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--char-faint)}
+.cart .cn{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--char);font-weight:600}
+.cart .ctot{margin-left:auto;font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--gold-deep);font-weight:600}
+.cart .cgo{
+  border:none;cursor:pointer;background:var(--char);color:#fff;border-radius:12px;
+  font-family:'Jost';font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:11px 14px;
+  transition:transform .4s var(--ease-lux);
+}
+.cart .cgo:active{transform:scale(.9)}
+
+/* ---------- Bottom nav ---------- */
+.nav{
+  position:absolute;left:14px;right:14px;bottom:16px;z-index:50;
+  height:68px;border-radius:26px;
+  background:var(--glass-strong);backdrop-filter:blur(22px) saturate(135%);
+  border:1px solid var(--line);
+  box-shadow:0 18px 44px -20px rgba(60,52,40,.5), inset 0 1px 0 rgba(255,255,255,.7);
+  display:flex;align-items:center;justify-content:space-around;padding:0 6px;
+}
+.navItem{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;
+  color:var(--char-faint);transition:color .4s;padding:8px 0;position:relative;
+}
+.navItem .ni{font-size:19px;transition:transform .5s var(--ease-lux)}
+.navItem .nl{font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:500}
+.navItem.active{color:var(--gold-deep)}
+.navItem.active .ni{transform:translateY(-2px) scale(1.12)}
+.navItem.active::after{
+  content:"";position:absolute;top:2px;width:5px;height:5px;border-radius:50%;background:var(--gold);
+  box-shadow:0 0 10px var(--gold-soft);
+}
+.navItem:active .ni{transform:scale(.85)}
+
+/* ---------- AI floating button ---------- */
+.aiFab{
+  position:absolute;right:18px;bottom:98px;z-index:52;
+  width:58px;height:58px;border-radius:50%;cursor:pointer;
+  background:linear-gradient(145deg,#fffdf7,#efe4cc);
+  border:1px solid var(--gold-soft);
+  box-shadow:0 16px 34px -14px rgba(168,136,79,.8), inset 0 1px 0 rgba(255,255,255,.9);
+  display:grid;place-items:center;font-size:24px;
+  transition:transform .5s var(--ease-lux),box-shadow .4s;
+}
+.aiFab:active{transform:scale(.88)}
+.aiFab::before{
+  content:"";position:absolute;inset:-4px;border-radius:50%;border:1px solid var(--gold-soft);
+  opacity:0;animation:aiPulse 3.4s var(--ease) infinite;
+}
+@keyframes aiPulse{0%{opacity:.5;transform:scale(.9)}70%{opacity:0;transform:scale(1.35)}100%{opacity:0}}
+
+/* ---------- AI chat sheet ---------- */
+.sheetWrap{position:absolute;inset:0;z-index:70;display:none}
+.sheetWrap.open{display:block}
+.sheetWrap .scrim{position:absolute;inset:0;background:rgba(60,52,40,.28);backdrop-filter:blur(3px);opacity:0;transition:opacity .5s}
+.sheetWrap.open .scrim{opacity:1}
+.sheet{
+  position:absolute;left:0;right:0;bottom:0;max-height:82%;
+  background:var(--paper);border-radius:30px 30px 0 0;
+  border-top:1px solid var(--line);
+  box-shadow:0 -24px 60px -30px rgba(60,52,40,.5);
+  transform:translateY(100%);transition:transform .6s var(--ease-lux);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.sheetWrap.open .sheet{transform:none}
+.sheet .grip{width:42px;height:4px;border-radius:4px;background:var(--bone-2);margin:11px auto 4px}
+.sheet .shead{display:flex;align-items:center;gap:11px;padding:6px 20px 14px;border-bottom:1px solid var(--bone-2)}
+.sheet .shead .ava{
+  width:40px;height:40px;border-radius:13px;display:grid;place-items:center;font-size:19px;
+  background:linear-gradient(145deg,#fff,#efe4cc);border:1px solid var(--line);
+}
+.sheet .shead .stt{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--char)}
+.sheet .shead .sst{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep)}
+.sheet .shead .sx{margin-left:auto;cursor:pointer;font-size:20px;color:var(--char-faint);width:34px;height:34px;display:grid;place-items:center}
+
+.chat{flex:1;overflow-y:auto;padding:16px 18px 8px;scrollbar-width:none}
+.chat::-webkit-scrollbar{display:none}
+.msg{max-width:80%;padding:11px 14px;border-radius:18px;font-size:13px;line-height:1.5;margin-bottom:11px;font-weight:300}
+.msg.ai{background:var(--bone);border:1px solid var(--line);color:var(--char);border-bottom-left-radius:5px}
+.msg.me{background:linear-gradient(145deg,var(--gold),var(--gold-deep));color:#fffdf7;margin-left:auto;border-bottom-right-radius:5px}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;padding:4px 18px 12px}
+.chip{
+  font-size:11px;letter-spacing:.04em;color:var(--gold-deep);background:var(--glass);
+  border:1px solid var(--line);border-radius:30px;padding:8px 13px;cursor:pointer;white-space:nowrap;
+  transition:transform .4s var(--ease-lux),background .3s;
+}
+.chip:active{transform:scale(.92);background:var(--bone)}
+
+.sinput{display:flex;align-items:center;gap:9px;padding:12px 16px 18px;border-top:1px solid var(--bone-2);background:var(--paper)}
+.sinput input{
+  flex:1;border:1px solid var(--line);background:#fff;border-radius:16px;padding:13px 15px;
+  font-family:'Jost';font-size:13px;color:var(--char);outline:none;
+}
+.sinput input::placeholder{color:var(--char-faint)}
+.sinput .mic,.sinput .send{
+  width:46px;height:46px;border-radius:15px;border:none;cursor:pointer;display:grid;place-items:center;font-size:18px;
+  transition:transform .4s var(--ease-lux);
+}
+.sinput .mic{background:var(--bone);border:1px solid var(--line);color:var(--gold-deep);position:relative}
+.sinput .send{background:linear-gradient(145deg,var(--gold),var(--gold-deep));color:#fffdf7}
+.sinput .mic:active,.sinput .send:active{transform:scale(.88)}
+.sinput .mic.listening{background:var(--gold);color:#fff}
+.sinput .mic.listening::after{
+  content:"";position:absolute;inset:-5px;border-radius:18px;border:2px solid var(--gold-soft);
+  animation:micPulse 1s ease-in-out infinite;
+}
+@keyframes micPulse{0%,100%{opacity:.7;transform:scale(.95)}50%{opacity:0;transform:scale(1.25)}}
+
+/* ---------- Toast ---------- */
+.toast{
+  position:absolute;left:50%;bottom:104px;transform:translate(-50%,30px);z-index:80;
+  background:var(--char);color:#fffdf7;font-size:12px;letter-spacing:.04em;
+  padding:12px 18px;border-radius:30px;opacity:0;pointer-events:none;
+  box-shadow:0 14px 30px -14px rgba(0,0,0,.5);transition:opacity .4s,transform .5s var(--ease-lux);
+  white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast b{color:var(--gold-soft);font-weight:500}
+
+/* ---------- Completion screen ---------- */
+#scr-done{padding:0}
+.done-stage{
+  position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 30px 150px;text-align:center;overflow:hidden;
+}
+.glowburst{
+  position:absolute;top:30%;left:50%;width:300px;height:300px;transform:translate(-50%,-50%);
+  background:radial-gradient(circle, rgba(216,195,154,.55), rgba(216,195,154,0) 62%);
+  border-radius:50%;filter:blur(6px);
+  opacity:0;
+}
+.checkring{
+  position:relative;width:120px;height:120px;z-index:3;
+}
+.checkring svg{width:120px;height:120px;overflow:visible}
+.checkring .ring{fill:none;stroke:var(--gold);stroke-width:2.5;
+  stroke-dasharray:339;stroke-dashoffset:339;}
+.checkring .tick{fill:none;stroke:var(--gold-deep);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:80;stroke-dashoffset:80;}
+.done-eyebrow{margin-top:30px;font-size:10.5px;letter-spacing:.42em;text-transform:uppercase;color:var(--gold-deep);z-index:3}
+.done-h{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:500;line-height:1.05;margin-top:12px;color:var(--char);z-index:3}
+.done-h em{font-style:italic;color:var(--gold-deep)}
+.done-p{margin-top:14px;font-size:13.5px;color:var(--char-soft);font-weight:300;max-width:280px;z-index:3;line-height:1.6}
+.stars{display:flex;gap:9px;margin-top:26px;z-index:3}
+.stars .s{font-size:30px;color:var(--bone-2);cursor:pointer;transition:transform .4s var(--ease-lux),color .3s}
+.stars .s.on{color:var(--gold)}
+.stars .s:active{transform:scale(1.25)}
+.bookagain{
+  margin-top:30px;z-index:3;font-size:12.5px;color:var(--char-soft);font-weight:300;line-height:1.6;
+  background:var(--glass-strong);border:1px solid var(--line);border-radius:18px;padding:16px 18px;max-width:300px;
+  backdrop-filter:blur(12px);
+}
+.bookagain b{font-family:'Cormorant Garamond',serif;color:var(--gold-deep);font-weight:600;font-size:15px}
+
+/* particles */
+.particle{position:absolute;border-radius:50%;background:var(--gold-soft);pointer-events:none;z-index:2;opacity:0}
+
+/* fade utility for scroll reveal init */
+.reveal{opacity:0;transform:translateY(26px)}
+
+/* ============================================================
+   REMI CONCIERGE — voice orb + text bubble + voice overlay
+   (matches luxe palette: gold/taupe, Cormorant + Jost, ease-lux)
+   ============================================================ */
+
+/* Remi avatar monogram orb (reused in headers + bubbles) */
+.remiOrb{
+  position:relative;border-radius:50%;display:grid;place-items:center;
+  background:
+    radial-gradient(70% 70% at 32% 28%, #fffdf7 0%, var(--gold-soft) 40%, var(--gold) 74%, var(--gold-deep) 100%);
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.7), 0 6px 16px -8px rgba(168,136,79,.7);
+  color:#fffdf7;font-family:'Cormorant Garamond',serif;font-weight:600;
+  overflow:hidden;
+}
+.remiOrb::before{
+  content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  background:radial-gradient(60% 40% at 70% 75%, rgba(184,173,160,.45), transparent 60%);
+}
+.remiOrb span{position:relative;z-index:2;letter-spacing:.02em}
+
+/* ---- Concierge launcher stack (replaces single aiFab) ---- */
+.conciergeStack{
+  position:absolute;right:18px;bottom:98px;z-index:52;
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+}
+.cLaunch{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}
+.cLaunch .cl-lbl{
+  font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-deep);font-weight:500;
+}
+
+/* primary voice orb — gently breathing */
+.voiceOrb{
+  position:relative;width:64px;height:64px;border-radius:50%;
+  background:
+    radial-gradient(68% 68% at 34% 30%, #fffdf7 0%, var(--gold-soft) 38%, var(--gold) 72%, var(--gold-deep) 100%);
+  box-shadow:0 18px 38px -14px rgba(168,136,79,.85), inset 0 2px 3px rgba(255,255,255,.8);
+  display:grid;place-items:center;font-size:24px;
+  animation:orbBreath 3.6s var(--ease) infinite;
+  transition:transform .5s var(--ease-lux);
+}
+.voiceOrb .vo-ico{position:relative;z-index:2;filter:drop-shadow(0 1px 2px rgba(120,90,40,.4))}
+.voiceOrb::before{ /* outer halo ping */
+  content:"";position:absolute;inset:-5px;border-radius:50%;border:1px solid var(--gold-soft);
+  opacity:0;animation:aiPulse 3.4s var(--ease) infinite;
+}
+.voiceOrb::after{ /* inner glossy shimmer */
+  content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  background:radial-gradient(50% 34% at 68% 74%, rgba(184,173,160,.4), transparent 62%);
+}
+.cLaunch:active .voiceOrb{transform:scale(.9)}
+@keyframes orbBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+
+/* secondary text bubble */
+.textBubble{
+  position:relative;width:46px;height:46px;border-radius:50%;cursor:pointer;
+  background:linear-gradient(145deg,#fffdf7,#efe4cc);
+  border:1px solid var(--gold-soft);
+  box-shadow:0 12px 26px -14px rgba(168,136,79,.7), inset 0 1px 0 rgba(255,255,255,.9);
+  display:grid;place-items:center;font-size:19px;color:var(--gold-deep);
+  transition:transform .5s var(--ease-lux);
+}
+.cLaunch:active .textBubble{transform:scale(.88)}
+
+/* ---- Full-screen VOICE OVERLAY ---- */
+.voiceWrap{
+  position:absolute;inset:0;z-index:90;display:none;
+}
+.voiceWrap.open{display:block}
+.voiceWrap .vBg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(120% 80% at 50% 18%, #fdfcfa 0%, var(--bone) 52%, var(--bone-2) 100%);
+  opacity:0;transition:opacity .6s var(--ease-lux);
+}
+.voiceWrap.open .vBg{opacity:1}
+.voiceStage{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  padding:64px 26px 30px;text-align:center;
+  transform:translateY(14px);opacity:0;transition:transform .7s var(--ease-lux),opacity .6s;
+}
+@media(min-width:760px){.voiceStage{padding-top:52px}}
+.voiceWrap.open .voiceStage{transform:none;opacity:1}
+
+.vTop{display:flex;align-items:center;gap:11px;width:100%;}
+.vTop .vAva{width:38px;height:38px;font-size:15px;flex:0 0 auto}
+.vTop .vName{text-align:left;line-height:1.1}
+.vTop .vName .vn{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--char)}
+.vTop .vName .vr{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep)}
+.vTop .spacer{flex:1}
+.vX{
+  width:38px;height:38px;border-radius:50%;border:1px solid var(--line);
+  background:var(--glass);backdrop-filter:blur(10px);
+  display:grid;place-items:center;font-size:17px;color:var(--char-soft);cursor:pointer;
+  transition:transform .4s var(--ease-lux);
+}
+.vX:active{transform:scale(.85)}
+
+/* lang selector (shared style for voice + chat) */
+.langSel{display:flex;gap:4px;align-items:center;border:1px solid var(--line);border-radius:30px;
+  padding:3px;background:var(--glass);backdrop-filter:blur(8px);margin-right:9px}
+.langSel button{
+  border:none;background:transparent;cursor:pointer;font-family:'Jost';font-size:9.5px;font-weight:500;
+  letter-spacing:.12em;color:var(--char-faint);padding:5px 8px;border-radius:20px;transition:all .3s;
+}
+.langSel button.on{background:linear-gradient(145deg,var(--gold),var(--gold-deep));color:#fffdf7}
+
+/* the big central voice orb */
+.bigOrbHold{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}
+.bigOrb{
+  position:relative;width:188px;height:188px;border-radius:50%;
+  display:grid;place-items:center;
+  background:
+    radial-gradient(66% 66% at 34% 30%, #fffdf7 0%, var(--gold-soft) 36%, var(--gold) 70%, var(--gold-deep) 100%);
+  box-shadow:0 40px 80px -30px rgba(168,136,79,.8), inset 0 3px 6px rgba(255,255,255,.7);
+  transition:transform .7s var(--ease-lux);
+  animation:bigBreath 4.2s var(--ease) infinite;
+}
+.bigOrb::after{
+  content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  background:radial-gradient(48% 32% at 70% 76%, rgba(184,173,160,.45), transparent 60%);
+}
+@keyframes bigBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+
+/* concentric rings (listening / speaking) */
+.bigOrb .ring{
+  position:absolute;border-radius:50%;border:1.5px solid var(--gold-soft);
+  inset:-14px;opacity:0;
+}
+.bigOrb .ring.r2{inset:-30px;border-color:var(--gold)}
+.bigOrb .ring.r3{inset:-48px;border-color:var(--taupe)}
+
+/* listening state — orb swells + rings pulse outward */
+.bigOrb.listening{animation:none;transform:scale(1.1)}
+.bigOrb.listening .ring{animation:ringOut 1.6s var(--ease) infinite}
+.bigOrb.listening .ring.r2{animation-delay:.25s}
+.bigOrb.listening .ring.r3{animation-delay:.5s}
+@keyframes ringOut{0%{opacity:.55;transform:scale(.85)}80%{opacity:0;transform:scale(1.25)}100%{opacity:0}}
+
+/* speaking state — waveform bars over the orb */
+.bigOrb.speaking{animation:none}
+.wave{
+  position:absolute;inset:0;display:none;align-items:center;justify-content:center;gap:5px;z-index:3;
+}
+.bigOrb.speaking .wave{display:flex}
+.wave i{
+  display:block;width:5px;height:18px;border-radius:5px;background:#fffdf7;
+  box-shadow:0 1px 3px rgba(120,90,40,.4);
+  animation:waveBar .9s ease-in-out infinite;
+}
+.wave i:nth-child(2){animation-delay:.12s}
+.wave i:nth-child(3){animation-delay:.24s}
+.wave i:nth-child(4){animation-delay:.36s}
+.wave i:nth-child(5){animation-delay:.48s}
+@keyframes waveBar{0%,100%{height:14px;opacity:.7}50%{height:46px;opacity:1}}
+
+/* center glyph (mic / monogram) shown when idle/listening */
+.bigOrb .vGlyph{position:relative;z-index:2;font-size:46px;color:#fffdf7;
+  font-family:'Cormorant Garamond',serif;font-weight:600;filter:drop-shadow(0 2px 4px rgba(120,90,40,.4))}
+.bigOrb.speaking .vGlyph{opacity:0}
+
+.vStatus{margin-top:34px;font-size:10.5px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-deep);font-weight:500;min-height:14px}
+
+/* captions / transcript */
+.vCaption{
+  margin-top:18px;max-width:320px;min-height:60px;
+}
+.vCap-q{font-family:'Jost';font-size:12.5px;color:var(--char-faint);font-weight:300;letter-spacing:.02em}
+.vCap-a{font-family:'Cormorant Garamond',serif;font-size:21px;line-height:1.32;color:var(--char);font-weight:500;margin-top:8px}
+.vCap-a em{font-style:italic;color:var(--gold-deep)}
+
+/* example chips row (fallback / always-available prompts) */
+.vChips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px;max-width:340px}
+.vChips .chip{font-size:11px}
+
+/* bottom controls */
+.vControls{display:flex;align-items:center;gap:14px;margin-top:18px}
+.vTapBtn{
+  border:none;cursor:pointer;font-family:'Jost';font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:500;
+  padding:14px 22px;border-radius:16px;color:#fffdf7;
+  background:linear-gradient(145deg,var(--gold),var(--gold-deep));
+  box-shadow:0 14px 30px -16px rgba(168,136,79,.9), inset 0 1px 0 rgba(255,255,255,.35);
+  transition:transform .4s var(--ease-lux);
+}
+.vTapBtn:active{transform:scale(.93)}
+.vEnd{
+  border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(8px);
+  color:var(--char-soft);font-family:'Jost';font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:500;
+  padding:14px 18px;border-radius:16px;cursor:pointer;transition:transform .4s var(--ease-lux);
+}
+.vEnd:active{transform:scale(.93)}
+
+/* ---- text-chat enrichments ---- */
+.msgRow{display:flex;gap:8px;align-items:flex-end;margin-bottom:11px;max-width:84%}
+.msgRow .rowAva{width:26px;height:26px;font-size:11px;flex:0 0 auto;margin-bottom:2px}
+.msgRow .msg{margin-bottom:0}
+.aiActions{display:flex;flex-wrap:wrap;gap:7px;margin:-3px 0 12px 34px}
+.aiAct{
+  border:none;cursor:pointer;font-family:'Jost';font-size:10.5px;letter-spacing:.08em;font-weight:500;
+  padding:9px 13px;border-radius:12px;color:#fffdf7;
+  background:linear-gradient(145deg,var(--gold),var(--gold-deep));
+  box-shadow:0 9px 20px -13px rgba(168,136,79,.9);
+  transition:transform .4s var(--ease-lux);
+}
+.aiAct:active{transform:scale(.9)}
+.aiAct.ghost{background:var(--glass);color:var(--gold-deep);border:1px solid var(--line);box-shadow:none}
+.aiAct.added{background:var(--bone);color:var(--gold-deep);border:1px solid var(--line);box-shadow:none}
+
+/* heating visual card inside a chat reply */
+.aiCard{
+  margin:0 0 12px 34px;max-width:78%;border-radius:16px;overflow:hidden;
+  border:1px solid var(--line);background:var(--glass-strong);box-shadow:var(--shadow-soft);
+}
+.aiCard .aiImg{position:relative;height:118px;
+  background:linear-gradient(135deg,#efe9dc,#e4ddcd 50%,#f3eee3)}
+.aiCard .aiImg .pl-shine{position:absolute;inset:0;
+  background:radial-gradient(80% 60% at 30% 20%, rgba(255,255,255,.6), transparent 60%),
+    repeating-linear-gradient(115deg, rgba(191,160,107,.07) 0 2px, transparent 2px 22px)}
+.aiCard .aiImg .dial{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:62px;height:62px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(60% 60% at 35% 30%,#fff,#e9e1cf);
+  border:2px solid var(--gold-soft);box-shadow:0 8px 18px -10px rgba(120,90,40,.6);
+  font-family:'Cormorant Garamond',serif;font-weight:600;font-size:18px;color:var(--gold-deep)}
+.aiCard .aiImg .pl-tag{position:absolute;left:12px;bottom:10px;font-size:9px;letter-spacing:.26em;text-transform:uppercase;
+  color:#fff;background:rgba(44,42,39,.55);backdrop-filter:blur(4px);padding:4px 9px;border-radius:30px}
+.aiCard .aiCap{padding:10px 13px;font-size:11.5px;color:var(--char-soft);font-weight:300;line-height:1.5}
+.aiCard .aiCap b{color:var(--char);font-weight:500}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="phone" id="phone">
+    <div class="grain"></div>
+    <div class="vignette"></div>
+
+    <div class="viewport" id="viewport">
+
+      <!-- ============ CHECK-IN ============ -->
+      <section class="screen active" id="scr-checkin">
+        <div class="top">
+          <div class="brand">
+            <div class="mark">R</div>
+            <div class="name">REM<b>LY</b></div>
+            <div class="spacer"></div>
+            <div class="muteBtn" id="muteBtn" title="Sound">🔊</div>
+          </div>
+          <div class="eyebrow">Your Arrival</div>
+          <h1 class="h1">Welcome to<br><em>Halo House</em></h1>
+          <p class="sub">Halo House · Flat 14. Follow each step below — we'll guide you all the way to the door.</p>
+        </div>
+
+        <div class="body">
+          <div class="progressWrap">
+            <span class="lbl">Check-in</span>
+            <div class="pbar"><i id="pbar"></i></div>
+            <span class="count" id="pcount">0 of 6</span>
+          </div>
+
+          <div class="timeline" id="timeline">
+            <div class="tl-line"><i id="tlfill"></i></div>
+            <!-- steps injected by JS -->
+          </div>
+
+          <div class="finishWrap reveal" id="finishWrap">
+            <button class="btn btn-gold btn-block" id="finishBtn">Finish check-in ✦</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ HOUSE ============ -->
+      <section class="screen" id="scr-house">
+        <div class="top">
+          <div class="brand">
+            <div class="mark">R</div><div class="name">REM<b>LY</b></div>
+            <div class="spacer"></div><div class="muteBtn muteMirror">🔊</div>
+          </div>
+          <div class="eyebrow">The Residence</div>
+          <h1 class="h1">House <em>Manual</em></h1>
+          <p class="sub">Everything you need, gently explained. Tap any card to open it.</p>
+        </div>
+        <div class="body" id="houseList"></div>
+      </section>
+
+      <!-- ============ LOCAL ============ -->
+      <section class="screen" id="scr-local">
+        <div class="top">
+          <div class="brand">
+            <div class="mark">R</div><div class="name">REM<b>LY</b></div>
+            <div class="spacer"></div><div class="muteBtn muteMirror">🔊</div>
+          </div>
+          <div class="eyebrow">The Neighbourhood</div>
+          <h1 class="h1">Around <em>Ancoats</em></h1>
+          <p class="sub">A short, curated list of our favourite places — all within a few minutes' walk.</p>
+        </div>
+        <div class="body" id="localList"></div>
+      </section>
+
+      <!-- ============ EXTRAS ============ -->
+      <section class="screen" id="scr-extras">
+        <div class="top">
+          <div class="brand">
+            <div class="mark">R</div><div class="name">REM<b>LY</b></div>
+            <div class="spacer"></div><div class="muteBtn muteMirror">🔊</div>
+          </div>
+          <div class="eyebrow">Curated For You</div>
+          <h1 class="h1">Stay <em>Extras</em></h1>
+          <p class="sub">Optional touches to make your stay easier. No pressure — only if you'd like.</p>
+        </div>
+        <div class="body" id="extrasList"></div>
+      </section>
+
+      <!-- ============ COMPLETION ============ -->
+      <section class="screen" id="scr-done">
+        <div class="done-stage" id="doneStage">
+          <div class="glowburst" id="glowburst"></div>
+          <div class="checkring">
+            <svg viewBox="0 0 120 120">
+              <circle class="ring" cx="60" cy="60" r="54"/>
+              <path class="tick" d="M38 62 L54 78 L84 44"/>
+            </svg>
+          </div>
+          <div class="done-eyebrow">All Done</div>
+          <h1 class="done-h">You're all<br>checked <em>in</em></h1>
+          <p class="done-p">The door is yours. Settle in, pour something cold, and enjoy Manchester. We're a tap away if you need us.</p>
+          <div class="stars" id="stars">
+            <span class="s">★</span><span class="s">★</span><span class="s">★</span><span class="s">★</span><span class="s">★</span>
+          </div>
+          <div class="bookagain">
+            <b>Loved it here?</b><br>
+            Message Hugo any time to book Halo House again — returning guests always get our best rate.
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /viewport -->
+
+    <!-- Concierge launchers: voice orb (primary) + text bubble (secondary) -->
+    <div class="conciergeStack" id="conciergeStack">
+      <div class="cLaunch" id="voiceLaunch" title="Talk to Remi">
+        <div class="voiceOrb"><span class="vo-ico">🎙️</span></div>
+        <span class="cl-lbl">Talk</span>
+      </div>
+      <div class="cLaunch" id="textLaunch" title="Chat with Remi">
+        <div class="textBubble">💬</div>
+        <span class="cl-lbl">Chat</span>
+      </div>
+    </div>
+
+    <!-- Floating cart -->
+    <div class="cart" id="cart">
+      <div>
+        <div class="ct">Your Extras</div>
+        <div class="cn" id="cartCount">0 items</div>
+      </div>
+      <div class="ctot" id="cartTotal">£0</div>
+      <button class="cgo" id="cartGo">Review</button>
+    </div>
+
+    <!-- Bottom nav -->
+    <nav class="nav" id="nav">
+      <div class="navItem active" data-scr="checkin"><span class="ni">🏠</span><span class="nl">Check-in</span></div>
+      <div class="navItem" data-scr="ai"><span class="ni">🤖</span><span class="nl">AI</span></div>
+      <div class="navItem" data-scr="house"><span class="ni">🏡</span><span class="nl">House</span></div>
+      <div class="navItem" data-scr="local"><span class="ni">📍</span><span class="nl">Local</span></div>
+      <div class="navItem" data-scr="extras"><span class="ni">✨</span><span class="nl">Extras</span></div>
+    </nav>
+
+    <!-- AI chat sheet -->
+    <div class="sheetWrap" id="sheetWrap">
+      <div class="scrim" id="scrim"></div>
+      <div class="sheet">
+        <div class="grip"></div>
+        <div class="shead">
+          <div class="ava remiOrb"><span>R</span></div>
+          <div>
+            <div class="stt">Remi · your concierge</div>
+            <div class="sst">Always here · Halo House</div>
+          </div>
+          <div class="spacer" style="flex:1"></div>
+          <div class="langSel" id="chatLang">
+            <button data-lang="en" class="on">EN</button>
+            <button data-lang="es">ES</button>
+            <button data-lang="fr">FR</button>
+          </div>
+          <div class="sx" id="sheetX">✕</div>
+        </div>
+        <div class="chat" id="chat"></div>
+        <div class="chips" id="chips">
+          <span class="chip">What's the WiFi?</span>
+          <span class="chip">Where can I park?</span>
+          <span class="chip">How does heating work?</span>
+          <span class="chip">Late checkout?</span>
+        </div>
+        <div class="sinput">
+          <input id="chatInput" placeholder="Ask the concierge…" />
+          <button class="mic" id="micBtn">🎙️</button>
+          <button class="send" id="sendBtn">➤</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Full-screen VOICE overlay (Remi) ===== -->
+    <div class="voiceWrap" id="voiceWrap">
+      <div class="vBg"></div>
+      <div class="voiceStage">
+        <div class="vTop">
+          <div class="vAva remiOrb"><span>R</span></div>
+          <div class="vName">
+            <div class="vn">Remi</div>
+            <div class="vr">Your concierge</div>
+          </div>
+          <div class="spacer"></div>
+          <div class="langSel" id="voiceLang">
+            <button data-lang="en" class="on">EN</button>
+            <button data-lang="es">ES</button>
+            <button data-lang="fr">FR</button>
+          </div>
+          <div class="vX" id="voiceX">✕</div>
+        </div>
+
+        <div class="bigOrbHold">
+          <div class="bigOrb" id="bigOrb">
+            <div class="ring"></div><div class="ring r2"></div><div class="ring r3"></div>
+            <div class="wave"><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="vGlyph">R</div>
+          </div>
+          <div class="vStatus" id="vStatus">Tap to speak</div>
+
+          <div class="vCaption" id="vCaption">
+            <div class="vCap-q" id="vCapQ"></div>
+            <div class="vCap-a" id="vCapA"></div>
+          </div>
+
+          <div class="vChips chips" id="vChips">
+            <span class="chip">Where do I park?</span>
+            <span class="chip">What's the WiFi?</span>
+            <span class="chip">How does the heating work?</span>
+            <span class="chip">Can I check out later?</span>
+          </div>
+        </div>
+
+        <div class="vControls">
+          <button class="vTapBtn" id="vTapBtn">Tap to speak</button>
+          <button class="vEnd" id="vEnd">End</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<!-- ===== CDN libs ===== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
+
+<script>
+/* =========================================================
+   DATA
+   ========================================================= */
+const STEPS = [
+  { eyebrow:"Step One", title:"Welcome", icon:"🥂", tag:"Halo House",
+    photo:"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=70",
+    note:"Welcome to Halo House · Flat 14. This quick journey takes you from the street to your sofa. Tap the circle on each step as you go.",
+    actions:[] },
+  { eyebrow:"Step Two", title:"Collect Your Key", icon:"🔑", tag:"Smart Lock",
+    photo:"https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=70",
+    note:"Your door uses a smart lock — no physical key needed. If it ever fails, the lockbox by the entrance holds a backup key.",
+    code:{k:"Lockbox backup", v:"7421", copy:"7421", label:"backup code"},
+    actions:[{t:"Copy code",type:"copy",val:"7421"}] },
+  { eyebrow:"Step Three", title:"Walk to the Building", icon:"🚶", tag:"~4 min walk",
+    photo:"https://images.unsplash.com/photo-1515586838455-8f8f940d6853?auto=format&fit=crop&w=800&q=70",
+    note:"Head to 27 Simpson Street, M4 4GB — about a 4-minute stroll through Ancoats. Open the map for live directions.",
+    actions:[{t:"Open in Maps",type:"map",val:"https://maps.google.com/?q=27+Simpson+Street+Manchester+M4+4GB"}] },
+  { eyebrow:"Step Four", title:"Building Entrance", icon:"🚪", tag:"Main Door",
+    photo:"https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=70",
+    note:"At the main glass door, enter the entrance code on the keypad, then push gently. You'll be in the lobby.",
+    code:{k:"Entrance code", v:"4080", copy:"4080", label:"entrance code"},
+    actions:[{t:"Copy code",type:"copy",val:"4080"}] },
+  { eyebrow:"Step Five", title:"Apartment Door", icon:"🏠", tag:"Flat 14",
+    photo:"https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=70",
+    note:"Take the lift to Flat 14. The door has its own keypad — tap in the code and turn the handle.",
+    code:{k:"Flat 14 door code", v:"1066", copy:"1066", label:"door code"},
+    actions:[{t:"Copy code",type:"copy",val:"1066"}] },
+  { eyebrow:"Step Six", title:"You're Inside", icon:"✨", tag:"Make Yourself Home",
+    photo:"https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=70",
+    note:"Welcome home for now. WiFi details below. Heating is a Hive thermostat in the hallway — set it to 21°C and it warms in about 15 minutes.",
+    code:{k:"WiFi · HaloHouse_5G", v:"Manchester2026", copy:"HaloHouse_5G / Manchester2026", label:"WiFi"},
+    actions:[{t:"Copy WiFi",type:"copy",val:"HaloHouse_5G / Manchester2026"}] },
+];
+
+const HOUSE = [
+  { ic:"📶", t:"WiFi", photo:"https://images.unsplash.com/photo-1606904825846-647eb07f5be2?auto=format&fit=crop&w=800&q=70", body:`Network <b>HaloHouse_5G</b> · Password <b>Manchester2026</b>. Strong 5GHz throughout the flat. The router sits in the hallway cupboard if you ever need to restart it.`,
+    code:{k:"Network / Password", v:"HaloHouse_5G", copy:"HaloHouse_5G / Manchester2026"} },
+  { ic:"🌡️", t:"Heating · Hive", photo:"https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?auto=format&fit=crop&w=800&q=70", body:`A <b>Hive thermostat</b> sits in the hallway. Twist or tap to <b>21°C</b> — the flat warms in around 15 minutes. Please switch it down when you head out.` },
+  { ic:"📺", t:"TV · Sky Glass", photo:"https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=800&q=70", body:`The <b>Sky Glass</b> TV is voice-ready — hold the mic button on the remote and say a show. Netflix, Disney+ and Prime are all signed in. Use the Sky source for live TV.` },
+  { ic:"☕", t:"Appliances", photo:"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=70", body:`<b>Nespresso</b> machine and a starter pod tray are on the counter. The <b>washer/dryer</b> is in the utility cupboard — pods under the sink, dryer is the right-hand dial. Dishwasher tablets in the top drawer.` },
+  { ic:"🆘", t:"Emergency", body:`Anything urgent, call your host <b>Hugo</b> on <b>+44 7700 900123</b>. For genuine emergencies dial 999. Nearest A&E is Manchester Royal Infirmary.` },
+  { ic:"📜", t:"House Rules", body:`A calm building, please: <b>no parties</b>, <b>no smoking</b> anywhere indoors, and <b>quiet after 10pm</b>. Treat it like your own home and all is well.` },
+];
+
+const LOCAL = [
+  { group:"Restaurants", items:[
+    { ic:"🍽️", n:"Mackie Mayor", d:"Food hall · 3 min walk", q:"Mackie Mayor Manchester", photo:"https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=400&q=70" },
+    { ic:"🍕", n:"Rudy's Pizza", d:"Neapolitan pizza · 5 min walk", q:"Rudy's Pizza Ancoats Manchester", photo:"https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=400&q=70" },
+  ]},
+  { group:"Coffee", items:[
+    { ic:"☕", n:"Foundation Coffee House", d:"Specialty coffee · 4 min walk", q:"Foundation Coffee House Manchester", photo:"https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=400&q=70" },
+  ]},
+  { group:"Supermarket", items:[
+    { ic:"🛒", n:"Tesco Express Ancoats", d:"Groceries · 2 min walk", q:"Tesco Express Ancoats Manchester", photo:"https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=400&q=70" },
+  ]},
+  { group:"Pharmacy", items:[
+    { ic:"💊", n:"Boots Arndale", d:"Pharmacy · 8 min walk", q:"Boots Arndale Manchester", photo:"https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=400&q=70" },
+  ]},
+  { group:"Taxi", items:[
+    { ic:"🚕", n:"StreetCars", d:"Call 0161 228 7878", q:"StreetCars taxi Manchester", photo:"https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=400&q=70" },
+  ]},
+];
+
+const EXTRAS = [
+  { ic:"🕧", t:"Late Checkout", d:"Stay until 1pm instead of 11am.", p:25, photo:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=70" },
+  { ic:"🌅", t:"Early Check-in", d:"Arrive from midday, room ready.", p:20, photo:"https://images.unsplash.com/photo-1553531384-cc64ac80f931?auto=format&fit=crop&w=800&q=70" },
+  { ic:"🍷", t:"Bottle of Wine", d:"A chilled house red or white.", p:18, photo:"https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=800&q=70" },
+  { ic:"🍾", t:"Champagne", d:"Brut on ice, waiting on arrival.", p:45, photo:"https://images.unsplash.com/photo-1547595628-c61a29f496f0?auto=format&fit=crop&w=800&q=70" },
+  { ic:"✈️", t:"Airport Transfer", d:"Private car to Manchester Airport.", p:40, photo:"https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=800&q=70" },
+  { ic:"🛍️", t:"Grocery Pre-stock", d:"Fridge filled before you land.", p:30, photo:"https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=800&q=70" },
+  { ic:"🧹", t:"Mid-stay Cleaning", d:"A fresh tidy and linen change.", p:35, photo:"https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=70" },
+  { ic:"🅿️", t:"Reserved Parking", d:"A guaranteed space, per day.", p:15, unit:"/day", photo:"https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=800&q=70" },
+  { ic:"🍼", t:"Baby Cot", d:"Travel cot with fresh bedding.", p:10, photo:"https://images.unsplash.com/photo-1555252333-9f8e92e65df9?auto=format&fit=crop&w=800&q=70" },
+];
+
+const AI_SUGGEST = ["What's the WiFi?","Where can I park?","How does heating work?","Late checkout?"];
+
+/* =========================================================
+   SOUND + HAPTICS
+   ========================================================= */
+let muted = false;
+let audioCtx = null;
+function tick(){
+  if(muted) return;
+  if(navigator.vibrate) try{navigator.vibrate(8)}catch(e){}
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type="sine"; o.frequency.value=1280;
+    g.gain.setValueAtTime(.0001, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.06, audioCtx.currentTime+.005);
+    g.gain.exponentialRampToValueAtTime(.0001, audioCtx.currentTime+.12);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime+.13);
+  }catch(e){}
+}
+function setMute(m){
+  muted = m;
+  document.querySelectorAll('.muteBtn,.muteMirror').forEach(b=>b.textContent = m ? '🔇' : '🔊');
+}
+document.querySelectorAll('.muteBtn,.muteMirror').forEach(b=>{
+  b.addEventListener('click',()=>{ setMute(!muted); if(!muted) tick(); });
+});
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+const toastEl = document.getElementById('toast');
+let toastT;
+function toast(html){
+  toastEl.innerHTML = html;
+  toastEl.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>toastEl.classList.remove('show'), 2200);
+}
+function copyText(txt){
+  const done = ()=>toast('Copied <b>'+txt+'</b>');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done).catch(()=>fallbackCopy(txt,done));
+  } else fallbackCopy(txt,done);
+}
+function fallbackCopy(txt,cb){
+  const ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{document.execCommand('copy')}catch(e){}
+  document.body.removeChild(ta); cb&&cb();
+}
+
+/* =========================================================
+   BUILD CHECK-IN TIMELINE
+   ========================================================= */
+const timeline = document.getElementById('timeline');
+const completed = new Set();
+
+STEPS.forEach((s,i)=>{
+  const wrap = document.createElement('div');
+  wrap.className='step reveal';
+  wrap.dataset.idx=i;
+
+  let codeHTML='';
+  if(s.code){
+    codeHTML = `<div class="codechip"><div><div class="k">${s.code.k}</div><div class="v">${s.code.v}</div></div></div>`;
+  }
+  let actHTML='';
+  if(s.actions && s.actions.length){
+    actHTML = '<div class="actions">'+s.actions.map((a,ai)=>
+      `<button class="btn ${ai===0?'btn-gold':'btn-ghost'}" data-act="${a.type}" data-val="${encodeURIComponent(a.val)}">${a.t}</button>`
+    ).join('')+'</div>';
+  }
+
+  wrap.innerHTML = `
+    <div class="node" title="Mark complete"><span>${i+1}</span><span class="tick">✓</span></div>
+    <div class="glass card">
+      <div class="imgph">
+        ${s.photo?`<img class="ph" src="${s.photo}" alt="" loading="lazy">`:''}
+        <div class="pl-shine"></div>
+        <div class="pl-icon">${s.icon}</div>
+        <div class="pl-tag">${s.tag}</div>
+      </div>
+      <div class="meta">
+        <div class="st-eyebrow">${s.eyebrow}</div>
+        <div class="st-title">${s.title}</div>
+        <div class="st-note">${s.note}</div>
+        ${codeHTML}
+        ${actHTML}
+      </div>
+    </div>`;
+  timeline.appendChild(wrap);
+
+  // node toggle
+  wrap.querySelector('.node').addEventListener('click',()=>{
+    tick();
+    if(completed.has(i)){ completed.delete(i); wrap.classList.remove('done'); }
+    else{ completed.add(i); wrap.classList.add('done'); pulse(wrap.querySelector('.node')); }
+    updateProgress();
+  });
+
+  // action buttons
+  wrap.querySelectorAll('[data-act]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      tick();
+      const type=btn.dataset.act, val=decodeURIComponent(btn.dataset.val);
+      if(type==='copy') copyText(val);
+      else if(type==='map'){ toast('Opening Maps…'); window.open(val,'_blank'); }
+    });
+  });
+});
+
+function pulse(el){
+  if(window.gsap) gsap.fromTo(el,{scale:.8},{scale:1.04,duration:.6,ease:'elastic.out(1,.5)'});
+}
+
+const pbar=document.getElementById('pbar'), pcount=document.getElementById('pcount'),
+      tlfill=document.getElementById('tlfill'), finishWrap=document.getElementById('finishWrap');
+
+function updateProgress(){
+  const n=completed.size, pct=Math.round(n/STEPS.length*100);
+  pbar.style.width=pct+'%';
+  tlfill.style.height=pct+'%';
+  pcount.textContent=n+' of '+STEPS.length;
+  if(n===STEPS.length){
+    finishWrap.classList.add('ready');
+    if(window.gsap) gsap.fromTo(finishWrap,{y:14,opacity:.4},{y:0,opacity:1,duration:.7,ease:'power3.out'});
+  } else {
+    finishWrap.classList.remove('ready');
+  }
+}
+
+document.getElementById('finishBtn').addEventListener('click',()=>{
+  tick();
+  showScreen('done');
+  runCompletion();
+});
+
+/* =========================================================
+   BUILD HOUSE
+   ========================================================= */
+const houseList=document.getElementById('houseList');
+HOUSE.forEach((h,i)=>{
+  const el=document.createElement('div');
+  el.className='glass acc reveal';
+  let codeHTML = h.code ? `<div class="codechip"><div><div class="k">${h.code.k}</div><div class="v">${h.code.v}</div></div></div>
+     <div class="actions"><button class="btn btn-gold accCopy">Copy</button></div>` : '';
+  el.innerHTML=`
+    <div class="head">
+      <div class="ic">${h.ic}</div>
+      <div class="tt">${h.t}</div>
+      <div class="ar">▾</div>
+    </div>
+    <div class="panel"><div class="inner">${h.photo?`<img class="acc-photo" src="${h.photo}" alt="" loading="lazy">`:''}${h.body}${codeHTML}</div></div>`;
+  houseList.appendChild(el);
+  const panel=el.querySelector('.panel');
+  el.querySelector('.head').addEventListener('click',()=>{
+    tick();
+    const isOpen=el.classList.contains('open');
+    if(isOpen){ el.classList.remove('open'); panel.style.maxHeight='0'; }
+    else{ el.classList.add('open'); panel.style.maxHeight=panel.scrollHeight+40+'px'; }
+  });
+  const cc=el.querySelector('.accCopy');
+  if(cc) cc.addEventListener('click',(e)=>{ e.stopPropagation(); tick(); copyText(h.code.copy); });
+});
+
+/* =========================================================
+   BUILD LOCAL
+   ========================================================= */
+const localList=document.getElementById('localList');
+LOCAL.forEach(grp=>{
+  const h=document.createElement('div'); h.className='section-h reveal'; h.textContent=grp.group;
+  localList.appendChild(h);
+  grp.items.forEach(it=>{
+    const el=document.createElement('div'); el.className='glass loc reveal';
+    el.innerHTML=`
+      <div class="lic${it.photo?' photo':''}">${it.photo?`<img src="${it.photo}" alt="" loading="lazy">`:it.ic}</div>
+      <div class="lbody"><div class="ln">${it.n}</div><div class="ld">${it.d}</div></div>
+      <button class="lgo">Maps</button>`;
+    el.querySelector('.lgo').addEventListener('click',()=>{
+      tick(); toast('Opening Maps…');
+      window.open('https://maps.google.com/?q='+encodeURIComponent(it.q),'_blank');
+    });
+    localList.appendChild(el);
+  });
+});
+
+/* =========================================================
+   BUILD EXTRAS + CART
+   ========================================================= */
+const extrasList=document.getElementById('extrasList');
+const cart=new Map(); // title -> {price, unit}
+EXTRAS.forEach((x,i)=>{
+  const el=document.createElement('div'); el.className='glass extra reveal';
+  el.innerHTML=`
+    <div class="imgph" style="height:120px">
+      ${x.photo?`<img class="ph" src="${x.photo}" alt="" loading="lazy">`:''}
+      <div class="pl-shine"></div>
+      <div class="pl-icon">${x.ic}</div>
+      <div class="pl-tag">${x.t}</div>
+    </div>
+    <div class="ebody">
+      <div class="etext">
+        <div class="et">${x.t}</div>
+        <div class="ed">${x.d}</div>
+        <div class="epr">£${x.p}${x.unit||''}</div>
+      </div>
+      <button class="eadd">Add</button>
+    </div>`;
+  const btn=el.querySelector('.eadd');
+  btn.addEventListener('click',()=>{
+    tick();
+    if(cart.has(x.t)){
+      cart.delete(x.t); btn.textContent='Add'; btn.classList.remove('added');
+    }else{
+      cart.set(x.t,{price:x.p,unit:x.unit||''}); btn.textContent='Added ✓'; btn.classList.add('added');
+      if(window.gsap) gsap.fromTo(btn,{scale:.7},{scale:1,duration:.6,ease:'back.out(2)'});
+      flyToCart(el);
+    }
+    updateCart();
+  });
+  extrasList.appendChild(el);
+});
+
+const cartEl=document.getElementById('cart'),
+      cartCount=document.getElementById('cartCount'),
+      cartTotal=document.getElementById('cartTotal');
+function updateCart(){
+  let total=0; cart.forEach(v=>total+=v.price);
+  const n=cart.size;
+  cartCount.textContent=n+(n===1?' item':' items');
+  cartTotal.textContent='£'+total;
+  if(n>0){ cartEl.classList.add('show'); }
+  else cartEl.classList.remove('show');
+}
+document.getElementById('cartGo').addEventListener('click',()=>{
+  tick();
+  let total=0; cart.forEach(v=>total+=v.price);
+  toast('Added to your stay · <b>£'+total+'</b>');
+});
+function flyToCart(card){
+  if(!window.gsap) return;
+  const dot=document.createElement('div');
+  dot.style.cssText='position:absolute;width:14px;height:14px;border-radius:50%;background:var(--gold);z-index:60;pointer-events:none;box-shadow:0 0 12px var(--gold-soft)';
+  const r=card.getBoundingClientRect(), pr=document.getElementById('phone').getBoundingClientRect();
+  dot.style.left=(r.left-pr.left+r.width/2)+'px';
+  dot.style.top=(r.top-pr.top+30)+'px';
+  document.getElementById('phone').appendChild(dot);
+  gsap.to(dot,{left:'85%',top:'88%',scale:.4,opacity:.2,duration:.8,ease:'power2.in',onComplete:()=>dot.remove()});
+}
+
+/* =========================================================
+   SCREEN SWITCHING
+   ========================================================= */
+const viewport=document.getElementById('viewport');
+const screenMap={checkin:'scr-checkin',house:'scr-house',local:'scr-local',extras:'scr-extras',done:'scr-done'};
+function showScreen(key){
+  Object.values(screenMap).forEach(id=>document.getElementById(id).classList.remove('active'));
+  document.getElementById(screenMap[key]).classList.add('active');
+  // nav highlight
+  document.querySelectorAll('.navItem').forEach(n=>{
+    n.classList.toggle('active', n.dataset.scr===key);
+  });
+  if(lenis) lenis.scrollTo(0,{immediate:true}); else viewport.scrollTop=0;
+  setTimeout(initReveal,60);
+}
+document.querySelectorAll('.navItem').forEach(item=>{
+  item.addEventListener('click',()=>{
+    tick();
+    const scr=item.dataset.scr;
+    if(scr==='ai'){ openSheet(); return; }
+    showScreen(scr);
+  });
+});
+
+/* =========================================================
+   REMI — shared concierge brain (answers, greeting, languages)
+   ========================================================= */
+const LISTING_NAME = "Halo House";
+let remiLang = 'en';                 // en | es | fr
+let chatGreeted = false;             // proactive greeting fired (text)
+
+const GREETING = {
+  en:`Welcome to ${LISTING_NAME}. You're a 4 minute walk from the tram, in the heart of Manchester's Northern Quarter. Want me to walk you in?`,
+  es:`Bienvenido a ${LISTING_NAME}. Estás a 4 minutos a pie del tranvía, en pleno Northern Quarter de Mánchester. ¿Quieres que te guíe hasta la entrada?`,
+  fr:`Bienvenue à ${LISTING_NAME}. Vous êtes à 4 minutes à pied du tram, au cœur du Northern Quarter de Manchester. Voulez-vous que je vous guide jusqu'à l'entrée ?`
+};
+const SPEECH_LANG = { en:'en-GB', es:'es-ES', fr:'fr-FR' };
+
+/* Answer engine. Returns {text, speak, actions?, card?} */
+function remiAnswer(q){
+  const s=q.toLowerCase();
+  if(/park/.test(s)) return {
+    text:"Parking is at NCP Shudehill, a 4-minute walk — about £14/day. I can hold a guaranteed reserved space for you if you'd like.",
+    speak:"Parking is at N C P Shudehill, a 4 minute walk, about 14 pounds a day. I can hold a guaranteed reserved space for you if you'd like.",
+    actions:[{label:"Add reserved parking · £15/day", extra:"Reserved Parking"}]
+  };
+  if(/wifi|internet|password|network/.test(s)) return {
+    text:"You're on HaloHouse_5G, password Manchester2026 — strong 5GHz throughout the flat.",
+    speak:"You're on Halo House 5 G, password Manchester twenty twenty six. Strong wifi throughout the flat.",
+    actions:[{label:"Copy WiFi", copy:"HaloHouse_5G / Manchester2026", ghost:true}]
+  };
+  if(/heat|cold|warm|temperature|thermostat|hive/.test(s)) return {
+    text:"There's a Hive thermostat in the hallway. Turn the dial to 21°C and the flat warms in about 15 minutes — here's what it looks like:",
+    speak:"There's a Hive thermostat in the hallway. Turn the dial to 21 degrees and the flat warms in about 15 minutes.",
+    card:'heating'
+  };
+  if(/checkout|check out|check-out|late|leave/.test(s)) return {
+    text:"Checkout is 11am, but I can extend you to 1pm for a relaxed morning — no rush.",
+    speak:"Checkout is 11 a m, but I can extend you to 1 p m for a relaxed morning.",
+    actions:[{label:"Add late checkout · £25", extra:"Late Checkout"}]
+  };
+  if(/coffee|cafe|breakfast/.test(s)) return {
+    text:"Foundation Coffee House is a 4-minute walk — superb flat whites. It's pinned in the Local tab.",
+    speak:"Foundation Coffee House is a 4 minute walk, superb flat whites. It's pinned in the local tab."
+  };
+  if(/tram|metro|station|transport|train/.test(s)) return {
+    text:"The nearest Metrolink tram stop is a gentle 4-minute walk — I can show you the way on the map any time.",
+    speak:"The nearest Metrolink tram stop is a gentle 4 minute walk. I can show you the way on the map any time."
+  };
+  return {
+    text:"I'm Remi, here for anything about your stay. Try asking about the WiFi, parking, heating, or checkout.",
+    speak:"I'm Remi, here for anything about your stay. Try asking about the wifi, parking, heating, or checkout."
+  };
+}
+
+/* =========================================================
+   AI CHAT
+   ========================================================= */
+const sheetWrap=document.getElementById('sheetWrap'),
+      chat=document.getElementById('chat'),
+      chatInput=document.getElementById('chatInput');
+function openSheet(){
+  sheetWrap.classList.add('open');
+  if(!chatGreeted){ chatGreeted=true; setTimeout(()=>addMsg(GREETING[remiLang],'ai'),360); }
+}
+function closeSheet(){ sheetWrap.classList.remove('open'); }
+document.getElementById('textLaunch').addEventListener('click',()=>{ tick(); openSheet(); });
+document.getElementById('sheetX').addEventListener('click',()=>{ tick(); closeSheet(); });
+document.getElementById('scrim').addEventListener('click',closeSheet);
+
+/* add a chat message. who = 'ai' | 'me'. opts: {actions, card} for ai */
+function addMsg(text,who,opts){
+  opts = opts || {};
+  if(who==='ai'){
+    const row=document.createElement('div'); row.className='msgRow';
+    row.innerHTML=`<div class="rowAva remiOrb"><span>R</span></div><div class="msg ai"></div>`;
+    row.querySelector('.msg').textContent=text;
+    chat.appendChild(row);
+    if(window.gsap) gsap.fromTo(row,{y:10,opacity:0},{y:0,opacity:1,duration:.5,ease:'power2.out'});
+    if(opts.card==='heating') chat.appendChild(buildHeatingCard());
+    if(opts.actions && opts.actions.length) chat.appendChild(buildActions(opts.actions));
+  } else {
+    const m=document.createElement('div'); m.className='msg '+who; m.textContent=text;
+    chat.appendChild(m);
+    if(window.gsap) gsap.fromTo(m,{y:10,opacity:0},{y:0,opacity:1,duration:.5,ease:'power2.out'});
+  }
+  chat.scrollTop=chat.scrollHeight;
+}
+
+function buildHeatingCard(){
+  const c=document.createElement('div'); c.className='aiCard';
+  c.innerHTML=`
+    <div class="aiImg">
+      <img class="ph" src="https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?auto=format&fit=crop&w=800&q=70" alt="" loading="lazy">
+      <div class="pl-shine"></div>
+      <div class="dial">21°</div>
+      <div class="pl-tag">Hallway · Hive</div>
+    </div>
+    <div class="aiCap">The <b>Hive thermostat</b> by the front door — twist to <b>21°C</b>, warm in ~15 min.</div>`;
+  return c;
+}
+
+function buildActions(actions){
+  const wrap=document.createElement('div'); wrap.className='aiActions';
+  actions.forEach(a=>{
+    const b=document.createElement('button');
+    b.className='aiAct'+(a.ghost?' ghost':'');
+    b.textContent=a.label;
+    b.addEventListener('click',()=>{
+      tick();
+      if(a.copy){ copyText(a.copy); }
+      else if(a.extra){ addExtraFromChat(a.extra,b); }
+    });
+    wrap.appendChild(b);
+  });
+  return wrap;
+}
+
+/* reuse the EXISTING cart + toast + fly animation via the extras buttons */
+function addExtraFromChat(title,btn){
+  const x=EXTRAS.find(e=>e.t===title); if(!x) return;
+  if(!cart.has(title)){
+    cart.set(title,{price:x.p,unit:x.unit||''});
+    // keep the Extras tab button in sync
+    extrasList.querySelectorAll('.extra').forEach(card=>{
+      if(card.querySelector('.et') && card.querySelector('.et').textContent===title){
+        const eb=card.querySelector('.eadd'); eb.textContent='Added ✓'; eb.classList.add('added');
+      }
+    });
+    updateCart();
+    toast('Added <b>'+title+'</b> · £'+x.p+(x.unit||''));
+  } else {
+    toast('<b>'+title+'</b> already added');
+  }
+  btn.textContent='Added ✓'; btn.classList.add('added');
+}
+
+function aiReply(q){
+  const a=remiAnswer(q);
+  setTimeout(()=>addMsg(a.text,'ai',{actions:a.actions,card:a.card}),520);
+}
+function sendChat(){
+  const v=chatInput.value.trim(); if(!v) return;
+  tick(); addMsg(v,'me'); chatInput.value=''; aiReply(v);
+}
+document.getElementById('sendBtn').addEventListener('click',sendChat);
+chatInput.addEventListener('keydown',e=>{ if(e.key==='Enter') sendChat(); });
+document.getElementById('chips').addEventListener('click',e=>{
+  if(e.target.classList.contains('chip')){
+    tick(); const v=e.target.textContent; addMsg(v,'me'); aiReply(v);
+  }
+});
+
+/* language selectors (chat + voice stay in sync) */
+function setLang(l){
+  remiLang=l;
+  document.querySelectorAll('#chatLang button,#voiceLang button').forEach(b=>{
+    b.classList.toggle('on', b.dataset.lang===l);
+  });
+}
+document.getElementById('chatLang').addEventListener('click',e=>{
+  if(e.target.dataset.lang){ tick(); setLang(e.target.dataset.lang); }
+});
+
+// text-chat mic — quick voice capture into the chat
+const micBtn=document.getElementById('micBtn');
+micBtn.addEventListener('click',()=>{
+  tick();
+  micBtn.classList.add('listening');
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SR){
+    const rec=new SR();
+    rec.lang=SPEECH_LANG[remiLang]; rec.interimResults=false; rec.maxAlternatives=1;
+    rec.onresult=ev=>{ const t=ev.results[0][0].transcript; addMsg(t,'me'); aiReply(t); };
+    rec.onerror=()=>{ toast('Mic unavailable — type instead'); };
+    rec.onend=()=>micBtn.classList.remove('listening');
+    try{ rec.start(); }catch(e){ micBtn.classList.remove('listening'); }
+  } else {
+    // graceful demo fallback
+    setTimeout(()=>{
+      micBtn.classList.remove('listening');
+      const phrase="Where's the nearest coffee?";
+      addMsg(phrase,'me'); aiReply(phrase);
+    },1600);
+  }
+});
+
+/* =========================================================
+   REMI — FULL-SCREEN VOICE MODE
+   ========================================================= */
+const voiceWrap=document.getElementById('voiceWrap'),
+      bigOrb=document.getElementById('bigOrb'),
+      vStatus=document.getElementById('vStatus'),
+      vCapQ=document.getElementById('vCapQ'),
+      vCapA=document.getElementById('vCapA'),
+      vTapBtn=document.getElementById('vTapBtn');
+let voiceGreeted=false, voiceRec=null, voiceVoices=[];
+
+function pickVoice(lang){
+  const want=SPEECH_LANG[lang];
+  let v=voiceVoices.find(x=>x.lang===want && /female|samantha|google|kate|serena|amelie|monica|aurelie/i.test(x.name));
+  if(!v) v=voiceVoices.find(x=>x.lang===want);
+  if(!v) v=voiceVoices.find(x=>x.lang && x.lang.slice(0,2)===lang);
+  return v||null;
+}
+if('speechSynthesis' in window){
+  const load=()=>{ voiceVoices=window.speechSynthesis.getVoices(); };
+  load(); window.speechSynthesis.onvoiceschanged=load;
+}
+
+function remiSpeak(text, ondone){
+  if(!('speechSynthesis' in window)){ ondone&&ondone(); return; }
+  if(muted){ /* still show speaking state briefly */ setOrb('speaking');
+    setTimeout(()=>{ setOrb('idle'); ondone&&ondone(); }, 1400); return; }
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang=SPEECH_LANG[remiLang]; u.rate=.96; u.pitch=1.02; u.volume=1;
+  const v=pickVoice(remiLang); if(v) u.voice=v;
+  u.onstart=()=>setOrb('speaking');
+  u.onend=()=>{ setOrb('idle'); ondone&&ondone(); };
+  u.onerror=()=>{ setOrb('idle'); ondone&&ondone(); };
+  window.speechSynthesis.speak(u);
+}
+
+function setOrb(state){ // idle | listening | speaking
+  bigOrb.classList.remove('listening','speaking');
+  if(state==='listening'){ bigOrb.classList.add('listening'); vStatus.textContent='Listening…'; }
+  else if(state==='speaking'){ bigOrb.classList.add('speaking'); vStatus.textContent='Remi is speaking'; }
+  else{ vStatus.textContent='Tap to speak'; }
+}
+
+function openVoice(){
+  voiceWrap.classList.add('open');
+  if(!voiceGreeted){
+    voiceGreeted=true;
+    vCapQ.textContent='';
+    vCapA.textContent=GREETING[remiLang];
+    setTimeout(()=>remiSpeak(GREETING[remiLang]),520);
+  }
+}
+function closeVoice(){
+  voiceWrap.classList.remove('open');
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  if(voiceRec){ try{voiceRec.abort()}catch(e){} }
+  setOrb('idle');
+}
+document.getElementById('voiceLaunch').addEventListener('click',()=>{ tick(); openVoice(); });
+document.getElementById('voiceX').addEventListener('click',()=>{ tick(); closeVoice(); });
+document.getElementById('vEnd').addEventListener('click',()=>{ tick(); closeVoice(); });
+document.getElementById('voiceLang').addEventListener('click',e=>{
+  if(e.target.dataset.lang){ tick(); setLang(e.target.dataset.lang); }
+});
+
+/* handle one asked question in voice mode */
+function voiceAsk(q){
+  vCapQ.textContent='You · "'+q+'"';
+  const a=remiAnswer(q);
+  vCapA.textContent=a.text;
+  remiSpeak(a.speak||a.text);
+}
+
+/* tap-to-speak: real recognition if available, else chips do the work */
+vTapBtn.addEventListener('click',()=>{
+  tick();
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ toast('Pick a question below'); return; }
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  voiceRec=new SR();
+  voiceRec.lang=SPEECH_LANG[remiLang]; voiceRec.interimResults=false; voiceRec.maxAlternatives=1;
+  setOrb('listening');
+  voiceRec.onresult=ev=>{ const t=ev.results[0][0].transcript; voiceAsk(t); };
+  voiceRec.onerror=()=>{ setOrb('idle'); toast('Mic blocked — tap a question below'); };
+  voiceRec.onend=()=>{ if(!bigOrb.classList.contains('speaking')) setOrb('idle'); };
+  try{ voiceRec.start(); }catch(e){ setOrb('idle'); }
+});
+
+/* example chips in voice mode (fallback path, always tappable) */
+document.getElementById('vChips').addEventListener('click',e=>{
+  if(e.target.classList.contains('chip')){ tick(); voiceAsk(e.target.textContent); }
+});
+
+/* =========================================================
+   COMPLETION ANIMATION
+   ========================================================= */
+function runCompletion(){
+  const glow=document.getElementById('glowburst');
+  const ring=document.querySelector('.checkring .ring');
+  const tk=document.querySelector('.checkring .tick');
+  // reset
+  ring.style.strokeDashoffset=339; tk.style.strokeDashoffset=80; glow.style.opacity=0;
+  if(navigator.vibrate && !muted) try{navigator.vibrate([8,40,16])}catch(e){}
+  if(window.gsap){
+    const tl=gsap.timeline();
+    tl.to(glow,{opacity:1,scale:1.15,duration:1.1,ease:'power2.out'},0)
+      .fromTo(ring,{strokeDashoffset:339},{strokeDashoffset:0,duration:1,ease:'power2.inOut'},.1)
+      .fromTo(tk,{strokeDashoffset:80},{strokeDashoffset:0,duration:.6,ease:'power2.out'},.85)
+      .to(glow,{opacity:.5,scale:1,duration:1.4,ease:'sine.inOut'},1.3);
+    spawnParticles();
+  } else {
+    ring.style.transition='stroke-dashoffset 1s'; ring.style.strokeDashoffset=0;
+    setTimeout(()=>{ tk.style.transition='stroke-dashoffset .6s'; tk.style.strokeDashoffset=0; },800);
+    glow.style.transition='opacity 1s'; glow.style.opacity=.6;
+  }
+}
+function spawnParticles(){
+  const stage=document.getElementById('doneStage');
+  for(let i=0;i<26;i++){
+    const p=document.createElement('div'); p.className='particle';
+    const sz=3+Math.random()*6;
+    p.style.width=p.style.height=sz+'px';
+    p.style.left='50%'; p.style.top='30%';
+    p.style.background = Math.random()>.5 ? 'var(--gold)' : 'var(--gold-soft)';
+    stage.appendChild(p);
+    const ang=Math.random()*Math.PI*2, dist=60+Math.random()*150;
+    gsap.set(p,{opacity:1});
+    gsap.to(p,{
+      x:Math.cos(ang)*dist, y:Math.sin(ang)*dist - 30,
+      opacity:0, duration:1.4+Math.random()*1, ease:'power2.out',
+      delay:.4+Math.random()*.3, onComplete:()=>p.remove()
+    });
+  }
+}
+
+/* star rating */
+const stars=document.querySelectorAll('#stars .s');
+stars.forEach((st,i)=>{
+  st.addEventListener('click',()=>{
+    tick();
+    stars.forEach((s,j)=>s.classList.toggle('on', j<=i));
+    if(window.gsap) gsap.fromTo(st,{scale:1.5},{scale:1,duration:.5,ease:'back.out(3)'});
+    setTimeout(()=>toast('Thank you ★ '+(i+1)+'/5'),120);
+  });
+});
+
+/* =========================================================
+   LENIS + GSAP SCROLLTRIGGER
+   ========================================================= */
+let lenis=null;
+function initScroll(){
+  if(typeof Lenis==='undefined' || typeof gsap==='undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+  // Lenis drives the scrollable viewport; content is its first child
+  lenis=new Lenis({
+    wrapper:viewport,
+    content:viewport.firstElementChild,
+    duration:1.15,
+    easing:t=>Math.min(1,1.001-Math.pow(2,-10*t)),
+    smoothWheel:true, smoothTouch:true
+  });
+  function raf(t){ lenis.raf(t); requestAnimationFrame(raf); }
+  requestAnimationFrame(raf);
+  lenis.on('scroll', ScrollTrigger.update);
+  ScrollTrigger.scrollerProxy(viewport,{
+    scrollTop(v){ return arguments.length ? lenis.scrollTo(v,{immediate:true}) : viewport.scrollTop; },
+    getBoundingClientRect(){ return {top:0,left:0,width:window.innerWidth,height:window.innerHeight}; }
+  });
+}
+
+function initReveal(){
+  if(typeof gsap==='undefined') {
+    document.querySelectorAll('.reveal').forEach(el=>{el.style.opacity=1;el.style.transform='none';});
+    return;
+  }
+  const active=document.querySelector('.screen.active');
+  if(!active) return;
+  const items=active.querySelectorAll('.reveal');
+  items.forEach((el)=>{
+    if(el.dataset.revealed) return;
+    el.dataset.revealed='1';
+    gsap.fromTo(el,{opacity:0,y:28,scale:.985},{
+      opacity:1,y:0,scale:1,duration:.9,ease:'power3.out',
+      scrollTrigger:{ trigger:el, scroller:viewport, start:'top 90%', toggleActions:'play none none none' }
+    });
+    // parallax on step images
+    const img=el.querySelector('.imgph .pl-icon');
+    if(img){
+      gsap.to(img,{ y:-14, ease:'none',
+        scrollTrigger:{ trigger:el, scroller:viewport, start:'top bottom', end:'bottom top', scrub:true }});
+    }
+  });
+  ScrollTrigger.refresh();
+}
+
+window.addEventListener('load',()=>{
+  initScroll();
+  setTimeout(initReveal,120);
+  updateProgress();
+  // gentle intro
+  if(window.gsap){
+    gsap.from('#scr-checkin .top',{opacity:0,y:-16,duration:1,ease:'power3.out'});
+  }
+});
+
+// fallback: ensure reveals show even without libs
+setTimeout(()=>{
+  if(typeof gsap==='undefined'){
+    document.querySelectorAll('.reveal').forEach(el=>{el.style.opacity=1;el.style.transform='none';});
+  }
+},700);
+</script>
+<script>
+/* Embed scroll bridge: when the in-phone demo hits the end of its scroll,
+   hand the wheel/touch over to the parent landing page so it keeps scrolling. */
+(function(){
+  if(window.parent === window) return;
+  function sc(){
+    var v = document.getElementById('viewport');
+    if(v && v.scrollHeight > v.clientHeight + 4) return v;
+    var s = document.querySelector('.screen.active');
+    if(s && s.scrollHeight > s.clientHeight + 4) return s;
+    var d = document.scrollingElement;
+    return (d && d.scrollHeight > d.clientHeight + 4) ? d : null;
+  }
+  function fwd(dy){ try{ parent.postMessage({remlyScroll: dy}, '*'); }catch(e){} }
+  function boundary(el, dy){
+    var top = el.scrollTop <= 1;
+    var bot = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
+    return (dy > 0 && bot) || (dy < 0 && top);
+  }
+  window.addEventListener('wheel', function(e){
+    var el = sc();
+    if(!el){ fwd(e.deltaY); return; }
+    if(boundary(el, e.deltaY)) fwd(e.deltaY);
+  }, {passive:true});
+  var ty = null;
+  window.addEventListener('touchstart', function(e){ ty = e.touches[0].clientY; }, {passive:true});
+  window.addEventListener('touchend', function(){ ty = null; }, {passive:true});
+  window.addEventListener('touchmove', function(e){
+    if(ty === null) return;
+    var y = e.touches[0].clientY, dy = ty - y; ty = y;
+    var el = sc();
+    if(!el){ fwd(dy * 2); return; }
+    if(boundary(el, dy)) fwd(dy * 2);
+  }, {passive:true});
+})();
+</script>
+</body>
+</html>

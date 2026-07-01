@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Remly · Guest Check-in</title>
+
+<!-- Google Fonts: Fraunces (display) + Inter (body) -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+<!-- GSAP + ScrollTrigger + Lenis (CDN) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
+
+<style>
+/* ============================================================
+   REMLY — Light Cinematic, Airy Coastal
+   ============================================================ */
+:root{
+  --mist:#f4f8f7;
+  --mist-2:#eaf2f0;
+  --white:#ffffff;
+  --sage:#7fae9b;
+  --sage-deep:#5c9483;
+  --teal:#3fa3a8;
+  --teal-deep:#2c7e83;
+  --sky:#8fc4dd;
+  --sky-deep:#5fa6c6;
+  --slate:#2f3b3e;
+  --slate-soft:#5a6a6d;
+  --slate-faint:#90a0a2;
+  --line:rgba(47,59,62,0.10);
+  --glass:rgba(255,255,255,0.62);
+  --glass-2:rgba(238,247,244,0.55);
+  --shadow:0 18px 50px -22px rgba(44,126,131,0.40);
+  --shadow-soft:0 10px 30px -16px rgba(44,126,131,0.30);
+  --radius:22px;
+  --radius-sm:14px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:#dce7e4;
+  color:var(--slate);
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+
+/* ----- Desktop phone frame ----- */
+.stage{
+  height:100vh;width:100%;
+  display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #f3faf8 0%, #d3e3df 60%, #c4d8d4 100%);
+}
+.phone{
+  position:relative;
+  width:390px;height:844px;
+  max-height:96vh;
+  background:var(--mist);
+  border-radius:46px;
+  box-shadow:
+    0 50px 120px -40px rgba(30,70,72,0.55),
+    0 0 0 11px #fbfdfc,
+    0 0 0 13px #cdded9;
+  overflow:hidden;
+}
+@media(max-width:430px){
+  .stage{background:var(--mist);}
+  .phone{width:100vw;height:100vh;max-height:100vh;border-radius:0;box-shadow:none;}
+}
+
+/* notch */
+.notch{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:150px;height:30px;background:#0c1413;
+  border-bottom-left-radius:18px;border-bottom-right-radius:18px;
+  z-index:120;opacity:.9;
+}
+@media(max-width:430px){.notch{display:none;}}
+
+/* ----- Scroll viewport ----- */
+.viewport{
+  position:absolute;inset:0;
+  overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+}
+.viewport::-webkit-scrollbar{display:none;}
+
+/* ----- Ambient layers ----- */
+.grain{
+  position:absolute;inset:0;z-index:60;pointer-events:none;
+  opacity:.045;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+.vignette{
+  position:absolute;inset:0;z-index:55;pointer-events:none;
+  box-shadow:inset 0 0 120px 30px rgba(70,110,112,0.10),
+             inset 0 0 40px 0 rgba(120,160,160,0.06);
+  background:radial-gradient(120% 80% at 50% 40%, transparent 55%, rgba(86,128,127,0.10) 100%);
+}
+
+/* ============================================================ SCREENS */
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* shared screen header */
+.s-head{padding:64px 22px 6px;}
+.s-kicker{
+  font-size:11px;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--teal-deep);font-weight:600;margin-bottom:8px;
+}
+.s-title{
+  font-family:'Fraunces',serif;font-weight:400;
+  font-size:34px;line-height:1.02;color:var(--slate);letter-spacing:-.5px;
+}
+.s-title em{font-style:italic;color:var(--sage-deep);}
+.s-sub{margin-top:10px;color:var(--slate-soft);font-size:14px;line-height:1.5;max-width:300px;}
+.pad-bottom{height:140px;}
+
+/* ---------- glass card ---------- */
+.glass{
+  background:linear-gradient(155deg,var(--glass),var(--glass-2));
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  border:1px solid rgba(255,255,255,0.7);
+  box-shadow:var(--shadow-soft),inset 0 1px 0 rgba(255,255,255,0.8);
+  border-radius:var(--radius);
+}
+
+/* image placeholder */
+.imgph{
+  position:relative;width:100%;height:150px;overflow:hidden;
+  border-radius:16px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.4), rgba(255,255,255,0)),
+    linear-gradient(160deg,var(--sky) 0%, var(--sage) 55%, var(--teal) 110%);
+}
+.imgph.alt{background:linear-gradient(160deg,#abd4e0 0%, #8fbfa9 60%, #5fa6c6 110%);}
+.imgph.alt2{background:linear-gradient(160deg,#bfe0d3 0%, #7fae9b 55%, #3fa3a8 110%);}
+.imgph .shine{
+  position:absolute;inset:0;
+  background:radial-gradient(60% 50% at 30% 20%, rgba(255,255,255,.6), transparent 70%);
+  mix-blend-mode:screen;
+}
+.imgph .glyph{
+  position:absolute;bottom:10px;left:14px;color:#fff;font-size:13px;font-weight:600;
+  letter-spacing:.04em;text-shadow:0 2px 10px rgba(0,0,0,.25);
+}
+.imgph .par{will-change:transform;}
+/* real photos layered inside placeholders (gradient stays as loading fallback) */
+.imgph img.ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:0;}
+.imgph .shine{z-index:1;}
+.imgph .glyph{z-index:3;}
+.imgph::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(180deg,transparent 55%,rgba(18,34,34,.42) 100%);}
+/* local list photo thumbnails */
+.acc-ic.photo{padding:0;overflow:hidden;}
+.acc-ic.photo img{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;}
+/* house manual accordion photo */
+.acc-photo{width:100%;height:110px;object-fit:cover;border-radius:12px;display:block;margin-bottom:10px;}
+
+/* buttons */
+.btn{
+  font-family:'Inter';font-weight:600;font-size:13px;
+  border:none;cursor:pointer;border-radius:12px;
+  padding:11px 16px;display:inline-flex;align-items:center;gap:7px;
+  transition:transform .15s cubic-bezier(.2,.8,.2,1);
+  color:var(--white);background:linear-gradient(135deg,var(--teal),var(--teal-deep));
+  box-shadow:0 8px 20px -10px rgba(44,126,131,.8);
+}
+.btn:active{transform:scale(.94);}
+.btn.ghost{
+  background:rgba(255,255,255,.65);color:var(--teal-deep);
+  border:1px solid var(--line);box-shadow:none;
+}
+.btn.sage{background:linear-gradient(135deg,var(--sage),var(--sage-deep));box-shadow:0 8px 20px -10px rgba(92,148,131,.8);}
+.btn-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px;}
+
+/* ============================================================ CHECK-IN TIMELINE */
+.timeline{position:relative;padding:8px 22px 0;}
+.track{
+  position:absolute;left:39px;top:24px;bottom:60px;width:3px;
+  background:rgba(63,163,168,.16);border-radius:3px;
+}
+.track-fill{
+  position:absolute;left:39px;top:24px;width:3px;height:0;
+  background:linear-gradient(var(--teal),var(--sage-deep));border-radius:3px;
+  box-shadow:0 0 14px rgba(63,163,168,.5);transition:height .5s ease;
+}
+.step{position:relative;padding-left:46px;margin-bottom:26px;will-change:transform,opacity;}
+.dot{
+  position:absolute;left:8px;top:4px;width:30px;height:30px;border-radius:50%;
+  background:var(--white);border:2px solid rgba(63,163,168,.5);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:var(--teal-deep);font-weight:700;cursor:pointer;
+  transition:transform .2s,background .3s,border-color .3s;z-index:3;
+}
+.dot:active{transform:scale(.85);}
+.step.done .dot{
+  background:linear-gradient(135deg,var(--sage),var(--teal));
+  border-color:transparent;color:#fff;
+}
+.step-card{padding:14px;}
+.step-no{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--teal-deep);font-weight:600;}
+.step-title{font-family:'Fraunces',serif;font-size:22px;font-weight:400;margin:3px 0 6px;color:var(--slate);}
+.step-note{font-size:13px;color:var(--slate-soft);line-height:1.55;}
+.code-chip{
+  display:inline-flex;align-items:center;gap:8px;margin-top:10px;
+  background:rgba(63,163,168,.10);border:1px dashed rgba(63,163,168,.5);
+  border-radius:10px;padding:8px 12px;font-weight:700;letter-spacing:.18em;
+  color:var(--teal-deep);font-size:16px;
+}
+.progress-pill{
+  position:fixed;left:50%;transform:translateX(-50%);
+  top:16px;z-index:80;
+  background:rgba(255,255,255,.78);backdrop-filter:blur(14px);
+  border:1px solid var(--line);border-radius:999px;
+  padding:7px 16px;font-size:12px;font-weight:600;color:var(--teal-deep);
+  box-shadow:var(--shadow-soft);
+  display:flex;align-items:center;gap:8px;
+}
+@media(max-width:430px){.progress-pill{position:absolute;top:54px;} .s-head{padding-top:110px;}}
+.progress-pill .mini{width:60px;height:5px;border-radius:5px;background:rgba(63,163,168,.18);overflow:hidden;}
+.progress-pill .mini span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--sage));transition:width .4s;}
+
+.finish-wrap{padding:0 22px;margin-top:6px;
+  max-height:0;overflow:hidden;opacity:0;transition:max-height .5s,opacity .5s,margin .5s;}
+.finish-wrap.show{max-height:200px;opacity:1;margin-top:10px;}
+.finish-btn{
+  width:100%;justify-content:center;font-size:15px;padding:16px;border-radius:18px;
+  background:linear-gradient(135deg,var(--sage-deep),var(--teal-deep));
+}
+
+/* ============================================================ HOUSE / LOCAL accordion */
+.card-list{padding:6px 22px 0;display:flex;flex-direction:column;gap:12px;}
+.acc{padding:0;overflow:hidden;}
+.acc-head{
+  display:flex;align-items:center;gap:13px;padding:16px;cursor:pointer;
+}
+.acc-ic{
+  width:42px;height:42px;border-radius:13px;flex:none;
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  background:linear-gradient(135deg,rgba(143,196,221,.35),rgba(127,174,155,.35));
+}
+.acc-tt{flex:1;}
+.acc-tt h4{font-size:15px;font-weight:600;color:var(--slate);}
+.acc-tt p{font-size:12px;color:var(--slate-faint);margin-top:2px;}
+.chev{transition:transform .35s;color:var(--slate-faint);font-size:13px;}
+.acc.open .chev{transform:rotate(180deg);}
+.acc-body{
+  max-height:0;overflow:hidden;transition:max-height .4s ease;
+  padding:0 16px;
+}
+.acc.open .acc-body{max-height:480px;}
+.acc-body-in{padding:0 0 16px;font-size:13px;color:var(--slate-soft);line-height:1.6;border-top:1px solid var(--line);padding-top:12px;}
+
+/* Local groups */
+.group-label{
+  padding:18px 22px 6px;font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--teal-deep);font-weight:600;
+}
+.rec{display:flex;align-items:center;gap:13px;padding:14px;}
+.rec .acc-ic{font-size:19px;}
+.rec .acc-tt h4{font-size:15px;}
+.rec .acc-tt p{font-size:12.5px;color:var(--slate-soft);margin-top:3px;}
+
+/* ============================================================ EXTRAS */
+.extras-grid{padding:6px 22px 0;display:flex;flex-direction:column;gap:14px;}
+.extra{overflow:hidden;}
+.extra .imgph{height:118px;border-radius:0;}
+.extra-body{padding:14px;}
+.extra-body h4{font-family:'Fraunces',serif;font-size:19px;font-weight:400;color:var(--slate);}
+.extra-body p{font-size:12.5px;color:var(--slate-soft);margin:5px 0 12px;line-height:1.5;}
+.extra-foot{display:flex;align-items:center;justify-content:space-between;}
+.price{font-size:18px;font-weight:700;color:var(--teal-deep);}
+.price small{font-size:12px;font-weight:500;color:var(--slate-faint);}
+.add-btn{padding:10px 22px;}
+.add-btn.added{background:linear-gradient(135deg,var(--sage),var(--sage-deep));}
+
+/* floating cart */
+.cart{
+  position:absolute;left:22px;right:22px;bottom:96px;z-index:70;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-radius:18px;
+  background:linear-gradient(135deg,rgba(44,126,131,.96),rgba(92,148,131,.96));
+  color:#fff;box-shadow:0 18px 40px -16px rgba(44,126,131,.9);
+  transform:translateY(140px);opacity:0;transition:transform .45s cubic-bezier(.2,.9,.2,1),opacity .4s;
+}
+.cart.show{transform:translateY(0);opacity:1;}
+.cart .ct-info b{font-size:16px;}
+.cart .ct-info span{display:block;font-size:11px;opacity:.8;}
+.cart .ct-btn{background:#fff;color:var(--teal-deep);border-radius:12px;padding:10px 16px;font-weight:700;font-size:13px;border:none;}
+
+/* ============================================================ BOTTOM NAV */
+.nav{
+  position:absolute;left:14px;right:14px;bottom:14px;z-index:100;
+  height:66px;border-radius:24px;
+  background:rgba(255,255,255,.70);
+  backdrop-filter:blur(22px) saturate(160%);
+  -webkit-backdrop-filter:blur(22px) saturate(160%);
+  border:1px solid rgba(255,255,255,.8);
+  box-shadow:0 18px 40px -18px rgba(44,126,131,.5),inset 0 1px 0 rgba(255,255,255,.9);
+  display:flex;align-items:center;justify-content:space-around;padding:0 6px;
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:pointer;color:var(--slate-faint);font-size:9.5px;font-weight:600;
+  letter-spacing:.02em;transition:color .25s;padding:6px 0;position:relative;
+}
+.nav-item .ni-ic{font-size:19px;transition:transform .25s;}
+.nav-item.active{color:var(--teal-deep);}
+.nav-item.active .ni-ic{transform:translateY(-2px) scale(1.12);}
+.nav-item.active::after{
+  content:'';position:absolute;top:-1px;width:5px;height:5px;border-radius:50%;
+  background:var(--teal);box-shadow:0 0 8px var(--teal);
+}
+
+/* ============================================================ AI BUTTON + SHEET */
+.ai-fab{
+  position:absolute;right:18px;bottom:92px;z-index:101;
+  width:58px;height:58px;border-radius:50%;cursor:pointer;border:none;
+  background:linear-gradient(140deg,var(--sky-deep),var(--teal),var(--sage-deep));
+  box-shadow:0 14px 30px -10px rgba(44,126,131,.85),inset 0 1px 0 rgba(255,255,255,.5);
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+  animation:floaty 4s ease-in-out infinite;
+}
+.ai-fab:active{transform:scale(.9);}
+@keyframes floaty{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+.ai-fab::after{
+  content:'';position:absolute;inset:-5px;border-radius:50%;
+  border:2px solid rgba(63,163,168,.35);animation:ring 2.6s ease-out infinite;
+}
+@keyframes ring{0%{transform:scale(.9);opacity:.7;}100%{transform:scale(1.5);opacity:0;}}
+
+/* ---------- Remi concierge dock (voice orb + chat bubble) ---------- */
+.remi-dock{
+  position:absolute;right:18px;bottom:90px;z-index:101;
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+  transition:transform .45s cubic-bezier(.2,.9,.2,1);
+}
+.remi-dock.lifted{transform:translateY(-78px);}
+.remi-btn{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  border:none;background:none;cursor:pointer;
+}
+.remi-btn .lbl{
+  font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--teal-deep);
+  background:rgba(255,255,255,.72);backdrop-filter:blur(8px);
+  padding:2px 9px;border-radius:999px;box-shadow:var(--shadow-soft);
+}
+.remi-btn:active .orb-face,.remi-btn:active .bubble-face{transform:scale(.9);}
+/* voice orb */
+.orb-face{
+  position:relative;width:66px;height:66px;border-radius:50%;
+  background:radial-gradient(circle at 34% 28%,#ffffff 0%,var(--sky) 30%,var(--teal) 65%,var(--sage-deep) 100%);
+  box-shadow:0 16px 34px -10px rgba(44,126,131,.9),inset 0 1px 0 rgba(255,255,255,.6);
+  display:flex;align-items:center;justify-content:center;font-size:25px;
+  transition:transform .15s cubic-bezier(.2,.8,.2,1);
+  animation:remiBreath 4.2s ease-in-out infinite;
+}
+@keyframes remiBreath{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+.orb-face::after{
+  content:'';position:absolute;inset:-5px;border-radius:50%;
+  border:2px solid rgba(63,163,168,.4);animation:ring 2.8s ease-out infinite;
+}
+.orb-face .gloss{
+  position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(55% 45% at 32% 22%,rgba(255,255,255,.75),transparent 70%);
+  mix-blend-mode:screen;pointer-events:none;
+}
+/* chat bubble */
+.bubble-face{
+  width:48px;height:48px;border-radius:50%;
+  background:linear-gradient(140deg,var(--sage),var(--sage-deep));
+  box-shadow:0 12px 26px -10px rgba(92,148,131,.85),inset 0 1px 0 rgba(255,255,255,.5);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  transition:transform .15s cubic-bezier(.2,.8,.2,1);
+}
+
+/* ---------- Remi monogram avatar (header + bubbles) ---------- */
+.remi-av{
+  width:40px;height:40px;border-radius:50%;flex:none;position:relative;
+  background:radial-gradient(circle at 34% 28%,#ffffff,var(--sky) 32%,var(--teal) 70%,var(--sage-deep) 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fraunces',serif;font-weight:500;font-size:18px;color:#fff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 4px 12px -4px rgba(44,126,131,.6);
+}
+.remi-av.sm{width:26px;height:26px;font-size:13px;}
+.bubble.ai{position:relative;}
+.bubble.ai.with-av{margin-left:34px;}
+.bubble.ai .ai-av{position:absolute;left:-34px;bottom:0;}
+.ai-actions{display:flex;flex-direction:column;gap:8px;margin-top:11px;}
+.ai-act{
+  align-self:flex-start;font-family:'Inter';font-weight:600;font-size:12.5px;
+  border:none;cursor:pointer;border-radius:11px;padding:9px 15px;
+  display:inline-flex;align-items:center;gap:7px;color:#fff;
+  background:linear-gradient(135deg,var(--teal),var(--teal-deep));
+  box-shadow:0 8px 18px -10px rgba(44,126,131,.8);
+  transition:transform .15s cubic-bezier(.2,.8,.2,1);
+}
+.ai-act:active{transform:scale(.94);}
+.ai-act.sage{background:linear-gradient(135deg,var(--sage),var(--sage-deep));}
+.ai-act.ghost{background:rgba(255,255,255,.7);color:var(--teal-deep);border:1px solid var(--line);box-shadow:none;}
+.ai-act.done{background:linear-gradient(135deg,var(--sage),var(--sage-deep));}
+/* visual answer card (heating) */
+.ans-photo{margin-top:11px;border-radius:14px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow-soft);}
+.ans-photo .imgph{height:120px;border-radius:0;}
+.ans-photo .cap{
+  padding:9px 12px;font-size:11.5px;color:var(--slate-soft);background:rgba(255,255,255,.7);
+  display:flex;align-items:center;gap:7px;
+}
+.ans-photo .cap b{color:var(--teal-deep);}
+/* language selector */
+.lang-sel{display:flex;gap:4px;margin-left:auto;margin-right:8px;}
+.lang-sel button{
+  border:1px solid var(--line);background:rgba(255,255,255,.6);
+  color:var(--slate-faint);font-size:10px;font-weight:700;letter-spacing:.04em;
+  padding:5px 8px;border-radius:9px;cursor:pointer;transition:all .2s;
+}
+.lang-sel button.on{background:linear-gradient(135deg,var(--teal),var(--teal-deep));color:#fff;border-color:transparent;}
+
+/* ============================================================ VOICE MODE (full-screen) */
+.voice{
+  position:absolute;inset:0;z-index:170;display:none;flex-direction:column;
+  background:
+    radial-gradient(120% 70% at 50% 18%,#f7fcfb 0%,#e4f0ec 55%,#d4e4df 100%);
+  overflow:hidden;
+}
+.voice.show{display:flex;}
+.voice-head{
+  padding:54px 20px 6px;display:flex;align-items:center;gap:12px;z-index:3;flex:none;
+}
+@media(max-width:430px){.voice-head{padding-top:58px;}}
+.voice-head .vh-tt h4{font-family:'Fraunces',serif;font-weight:500;font-size:17px;color:var(--slate);}
+.voice-head .vh-tt p{font-size:11px;color:var(--sage-deep);font-weight:600;display:flex;align-items:center;gap:5px;}
+.voice-head .vh-tt p::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--sage);box-shadow:0 0 6px var(--sage);}
+.voice-x{background:rgba(47,59,62,.06);border:none;width:34px;height:34px;border-radius:50%;font-size:16px;color:var(--slate-soft);cursor:pointer;}
+.voice-stage{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 28px;position:relative;z-index:2;}
+/* big animated orb */
+.vorb-wrap{position:relative;width:230px;height:230px;display:flex;align-items:center;justify-content:center;}
+.vorb{
+  width:170px;height:170px;border-radius:50%;position:relative;
+  background:radial-gradient(circle at 35% 28%,#ffffff 0%,var(--sky) 26%,var(--teal) 62%,var(--sage-deep) 100%);
+  box-shadow:0 0 70px rgba(63,163,168,.55),inset 0 2px 0 rgba(255,255,255,.6);
+  transition:transform .25s cubic-bezier(.2,.8,.2,1);
+  animation:remiBreath 4.2s ease-in-out infinite;
+}
+.vorb .vgloss{position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(55% 45% at 32% 22%,rgba(255,255,255,.8),transparent 70%);mix-blend-mode:screen;}
+/* concentric rings */
+.vring{position:absolute;border-radius:50%;border:2px solid rgba(63,163,168,.35);opacity:0;}
+.voice-stage.listening .vorb{animation:none;transform:scale(1.12);}
+.voice-stage.listening .vring{animation:vRipple 1.5s ease-out infinite;}
+.voice-stage.listening .vring.r2{animation-delay:.5s;}
+.voice-stage.listening .vring.r3{animation-delay:1s;}
+@keyframes vRipple{0%{width:170px;height:170px;opacity:.55;}100%{width:250px;height:250px;opacity:0;}}
+/* speaking waveform */
+.vwave{display:flex;align-items:center;gap:5px;height:34px;margin-top:30px;opacity:0;transition:opacity .3s;}
+.voice-stage.speaking .vwave{opacity:1;}
+.voice-stage.speaking .vorb{animation:vSpeak .6s ease-in-out infinite;}
+@keyframes vSpeak{0%,100%{transform:scale(1.02);}50%{transform:scale(1.09);}}
+.vwave i{width:5px;height:10px;border-radius:3px;background:linear-gradient(var(--teal),var(--sage-deep));animation:vBar 1s ease-in-out infinite;}
+.vwave i:nth-child(2){animation-delay:.12s;}.vwave i:nth-child(3){animation-delay:.24s;}
+.vwave i:nth-child(4){animation-delay:.36s;}.vwave i:nth-child(5){animation-delay:.18s;}
+.vwave i:nth-child(6){animation-delay:.30s;}.vwave i:nth-child(7){animation-delay:.06s;}
+@keyframes vBar{0%,100%{height:8px;}50%{height:30px;}}
+/* state label */
+.vstate{margin-top:26px;font-family:'Fraunces',serif;font-size:21px;color:var(--teal-deep);min-height:28px;text-align:center;}
+/* captions */
+.vcaps{margin-top:14px;max-width:300px;text-align:center;min-height:60px;}
+.vcap-q{font-size:13px;color:var(--slate-soft);font-style:italic;opacity:0;transition:opacity .3s;}
+.vcap-q.show{opacity:1;}
+.vcap-a{font-size:14px;line-height:1.5;color:var(--slate);margin-top:8px;opacity:0;transition:opacity .35s;}
+.vcap-a.show{opacity:1;}
+/* example chips fallback */
+.vchips{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;padding:14px 26px 8px;z-index:3;}
+.vchips .chip{flex:none;}
+/* bottom controls */
+.voice-foot{padding:10px 26px 30px;display:flex;align-items:center;justify-content:center;gap:14px;z-index:3;flex:none;}
+.vchips{flex:none;}
+.vmic{
+  width:72px;height:72px;border-radius:50%;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;
+  background:linear-gradient(135deg,var(--sky-deep),var(--teal));
+  box-shadow:0 16px 34px -12px rgba(44,126,131,.8),inset 0 1px 0 rgba(255,255,255,.5);
+  transition:transform .15s;
+}
+.vmic:active{transform:scale(.92);}
+.vmic.live{animation:pulseMic 1s infinite;}
+.vend{
+  background:rgba(255,255,255,.7);border:1px solid var(--line);color:var(--slate-soft);
+  font-family:'Inter';font-weight:600;font-size:13px;padding:14px 20px;border-radius:16px;cursor:pointer;
+}
+
+.sheet-scrim{
+  position:absolute;inset:0;z-index:130;background:rgba(40,70,70,.28);
+  backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .3s;
+}
+.sheet-scrim.show{opacity:1;pointer-events:auto;}
+.ai-sheet{
+  position:absolute;left:0;right:0;bottom:0;z-index:131;
+  height:78%;border-radius:30px 30px 0 0;
+  background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(238,247,244,.92));
+  backdrop-filter:blur(24px) saturate(150%);
+  border-top:1px solid rgba(255,255,255,.9);
+  box-shadow:0 -20px 50px -20px rgba(44,126,131,.5);
+  transform:translateY(100%);transition:transform .45s cubic-bezier(.2,.9,.2,1);
+  display:flex;flex-direction:column;
+}
+.ai-sheet.show{transform:translateY(0);}
+.sheet-grab{width:42px;height:4px;border-radius:4px;background:rgba(47,59,62,.18);margin:12px auto 4px;}
+.sheet-head{padding:6px 22px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);}
+.sheet-head .av{
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(140deg,var(--sky-deep),var(--sage-deep));
+  display:flex;align-items:center;justify-content:center;font-size:19px;
+}
+.sheet-head h4{font-family:'Fraunces',serif;font-weight:500;font-size:17px;}
+.sheet-head p{font-size:11px;color:var(--sage-deep);font-weight:600;display:flex;align-items:center;gap:5px;}
+.sheet-head p::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--sage);box-shadow:0 0 6px var(--sage);}
+.sheet-x{margin-left:auto;background:rgba(47,59,62,.06);border:none;width:32px;height:32px;border-radius:50%;font-size:15px;color:var(--slate-soft);cursor:pointer;}
+
+.chat{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:10px;}
+.chat::-webkit-scrollbar{display:none;}
+.bubble{max-width:80%;padding:11px 14px;font-size:13.5px;line-height:1.5;border-radius:18px;animation:pop .35s cubic-bezier(.2,.9,.2,1);}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.97);}to{opacity:1;transform:none;}}
+.bubble.ai{align-self:flex-start;background:var(--white);color:var(--slate);border:1px solid var(--line);border-bottom-left-radius:6px;box-shadow:var(--shadow-soft);}
+.bubble.me{align-self:flex-end;background:linear-gradient(135deg,var(--teal),var(--teal-deep));color:#fff;border-bottom-right-radius:6px;}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:13px 16px;background:var(--white);border:1px solid var(--line);border-radius:18px;}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--sage);animation:tb 1s infinite;}
+.typing i:nth-child(2){animation-delay:.18s;}.typing i:nth-child(3){animation-delay:.36s;}
+@keyframes tb{0%,60%,100%{transform:translateY(0);opacity:.4;}30%{transform:translateY(-5px);opacity:1;}}
+
+.chips{display:flex;gap:8px;padding:8px 18px 4px;overflow-x:auto;}
+.chips::-webkit-scrollbar{display:none;}
+.chip{flex:none;background:rgba(63,163,168,.10);border:1px solid rgba(63,163,168,.3);color:var(--teal-deep);
+  font-size:12px;font-weight:600;padding:8px 14px;border-radius:999px;cursor:pointer;white-space:nowrap;}
+.chip:active{transform:scale(.94);}
+
+.sheet-input{display:flex;align-items:center;gap:10px;padding:12px 18px 22px;border-top:1px solid var(--line);}
+.sheet-input input{
+  flex:1;border:1px solid var(--line);background:var(--white);border-radius:999px;
+  padding:13px 18px;font-size:13.5px;font-family:'Inter';color:var(--slate);outline:none;
+}
+.sheet-input input:focus{border-color:rgba(63,163,168,.6);}
+.ic-btn{width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;flex:none;
+  display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;}
+.mic-btn{background:linear-gradient(135deg,var(--sky-deep),var(--teal));}
+.mic-btn.listening{animation:pulseMic 1s infinite;}
+@keyframes pulseMic{0%{box-shadow:0 0 0 0 rgba(63,163,168,.5);}100%{box-shadow:0 0 0 16px rgba(63,163,168,0);}}
+.send-btn{background:linear-gradient(135deg,var(--sage),var(--sage-deep));}
+
+/* listening overlay */
+.listen{position:absolute;inset:0;z-index:140;display:none;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(244,248,247,.94);backdrop-filter:blur(8px);}
+.listen.show{display:flex;}
+.listen .orb{width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff,var(--sky) 40%,var(--teal) 90%);
+  box-shadow:0 0 60px rgba(63,163,168,.6);animation:orbPulse 1.4s ease-in-out infinite;}
+@keyframes orbPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
+.listen p{margin-top:24px;font-family:'Fraunces';font-size:20px;color:var(--teal-deep);}
+
+/* ============================================================ TOAST */
+.toast{
+  position:absolute;left:50%;transform:translateX(-50%) translateY(20px);
+  bottom:170px;z-index:150;
+  background:rgba(40,70,70,.92);color:#fff;font-size:13px;font-weight:500;
+  padding:11px 20px;border-radius:999px;opacity:0;pointer-events:none;
+  transition:opacity .3s,transform .3s;backdrop-filter:blur(6px);
+  box-shadow:0 12px 30px -10px rgba(0,0,0,.4);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* mute toggle */
+.mute{
+  position:absolute;top:46px;right:18px;z-index:90;
+  width:36px;height:36px;border-radius:50%;border:1px solid var(--line);
+  background:rgba(255,255,255,.7);backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;
+  box-shadow:var(--shadow-soft);
+}
+@media(max-width:430px){.mute{top:50px;}}
+
+/* ============================================================ COMPLETION */
+#completion{position:absolute;inset:0;z-index:160;display:none;
+  background:radial-gradient(110% 80% at 50% 20%,#f7fcfb,#e2efeb 70%,#d2e3df);}
+#completion.show{display:block;}
+.comp-in{position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 30px;text-align:center;}
+.glowburst{position:absolute;top:26%;left:50%;transform:translate(-50%,-50%);
+  width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle,rgba(127,174,155,.5),transparent 65%);filter:blur(8px);}
+.check-ring{width:104px;height:104px;border-radius:50%;position:relative;z-index:2;
+  background:linear-gradient(135deg,var(--sage),var(--teal));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 20px 50px -16px rgba(63,163,168,.8);}
+.check-ring svg{width:52px;height:52px;}
+.check-ring path{stroke:#fff;stroke-width:7;fill:none;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:60;stroke-dashoffset:60;}
+.comp-title{font-family:'Fraunces',serif;font-weight:400;font-size:30px;margin-top:30px;color:var(--slate);z-index:2;}
+.comp-title em{font-style:italic;color:var(--sage-deep);}
+.comp-sub{color:var(--slate-soft);font-size:14px;margin-top:10px;max-width:280px;line-height:1.55;z-index:2;}
+.stars{display:flex;gap:8px;margin-top:26px;z-index:2;}
+.star{font-size:34px;cursor:pointer;color:#cdd9d6;transition:transform .2s,color .2s;}
+.star.lit{color:#f4b740;transform:scale(1.15);}
+.star:active{transform:scale(.85);}
+.comp-card{margin-top:26px;z-index:2;padding:18px 20px;max-width:300px;}
+.comp-card p{font-size:13px;color:var(--slate-soft);line-height:1.55;}
+.comp-card b{color:var(--teal-deep);}
+.comp-again{margin-top:18px;z-index:2;}
+
+.confetti{position:absolute;top:-10px;width:9px;height:14px;border-radius:2px;z-index:1;opacity:0;}
+
+/* utility */
+.spacer8{height:8px;}
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="grain"></div>
+    <div class="vignette"></div>
+
+    <!-- mute toggle -->
+    <button class="mute" id="muteBtn" title="Sound">🔔</button>
+
+    <!-- progress pill (check-in only) -->
+    <div class="progress-pill" id="progPill">
+      <span id="progTxt">0 of 6</span>
+      <span class="mini"><span id="progBar"></span></span>
+    </div>
+
+    <!-- SCROLL VIEWPORT -->
+    <div class="viewport" id="viewport">
+
+      <!-- ================= CHECK-IN ================= -->
+      <section class="screen active" id="screen-checkin">
+        <div class="s-head">
+          <div class="s-kicker">Your arrival</div>
+          <h1 class="s-title">Welcome to<br><em>Halo House</em></h1>
+          <p class="s-sub">Halo House · Flat 14. Follow the six steps below — tap each circle as you go.</p>
+        </div>
+
+        <div class="timeline" id="timeline">
+          <div class="track"></div>
+          <div class="track-fill" id="trackFill"></div>
+          <!-- steps injected by JS -->
+        </div>
+
+        <div class="finish-wrap" id="finishWrap">
+          <button class="btn finish-btn" id="finishBtn">Finish check-in ✦</button>
+        </div>
+
+        <div class="pad-bottom"></div>
+      </section>
+
+      <!-- ================= HOUSE ================= -->
+      <section class="screen" id="screen-house">
+        <div class="s-head">
+          <div class="s-kicker">House manual</div>
+          <h1 class="s-title">Everything you<br><em>need to know</em></h1>
+          <p class="s-sub">Tap any card to expand the details for Flat 14.</p>
+        </div>
+        <div class="card-list" id="houseList"></div>
+        <div class="pad-bottom"></div>
+      </section>
+
+      <!-- ================= LOCAL ================= -->
+      <section class="screen" id="screen-local">
+        <div class="s-head">
+          <div class="s-kicker">The neighbourhood</div>
+          <h1 class="s-title">Around <em>Ancoats</em></h1>
+          <p class="s-sub">Our favourite spots, all a short walk from your door.</p>
+        </div>
+        <div id="localList"></div>
+        <div class="pad-bottom"></div>
+      </section>
+
+      <!-- ================= EXTRAS ================= -->
+      <section class="screen" id="screen-extras">
+        <div class="s-head">
+          <div class="s-kicker">Make it special</div>
+          <h1 class="s-title">Little <em>luxuries</em></h1>
+          <p class="s-sub">Optional add-ons for your stay. Add only what you fancy.</p>
+        </div>
+        <div class="extras-grid" id="extrasGrid"></div>
+        <div class="pad-bottom"></div>
+      </section>
+
+    </div><!-- /viewport -->
+
+    <!-- floating cart -->
+    <div class="cart" id="cart">
+      <div class="ct-info">
+        <b id="cartTotal">£0</b>
+        <span id="cartCount">0 items added</span>
+      </div>
+      <button class="ct-btn" id="cartBtn">Review</button>
+    </div>
+
+    <!-- REMI CONCIERGE DOCK (voice orb + text bubble) -->
+    <div class="remi-dock">
+      <button class="remi-btn" id="voiceBtn" aria-label="Talk to Remi">
+        <span class="orb-face">🎙️<span class="gloss"></span></span>
+        <span class="lbl">Talk</span>
+      </button>
+      <button class="remi-btn" id="chatBtn" aria-label="Chat with Remi">
+        <span class="bubble-face">💬</span>
+        <span class="lbl">Chat</span>
+      </button>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="nav" id="nav">
+      <div class="nav-item active" data-screen="checkin"><span class="ni-ic">🏠</span>Check-in</div>
+      <div class="nav-item" data-ai="1"><span class="ni-ic">💬</span>Remi</div>
+      <div class="nav-item" data-screen="house"><span class="ni-ic">🏡</span>House</div>
+      <div class="nav-item" data-screen="local"><span class="ni-ic">📍</span>Local</div>
+      <div class="nav-item" data-screen="extras"><span class="ni-ic">✨</span>Extras</div>
+    </nav>
+
+    <!-- AI SHEET -->
+    <div class="sheet-scrim" id="aiScrim"></div>
+    <div class="ai-sheet" id="aiSheet">
+      <div class="sheet-grab"></div>
+      <div class="sheet-head">
+        <div class="remi-av">R</div>
+        <div>
+          <h4>Remi · your concierge</h4>
+          <p>Online · replies instantly</p>
+        </div>
+        <div class="lang-sel" id="langSelChat">
+          <button data-lang="en" class="on">EN</button>
+          <button data-lang="es">ES</button>
+          <button data-lang="fr">FR</button>
+        </div>
+        <button class="sheet-x" id="aiClose">✕</button>
+      </div>
+      <div class="chat" id="chat"></div>
+      <div class="chips" id="chips"></div>
+      <div class="sheet-input">
+        <button class="ic-btn mic-btn" id="micBtn">🎙️</button>
+        <input id="aiInput" type="text" placeholder="Ask about WiFi, parking, heating…" />
+        <button class="ic-btn send-btn" id="sendBtn">➤</button>
+      </div>
+      <!-- listening overlay -->
+      <div class="listen" id="listen">
+        <div class="orb"></div>
+        <p>Listening…</p>
+      </div>
+    </div>
+
+    <!-- VOICE MODE (full-screen) -->
+    <div class="voice" id="voice">
+      <div class="voice-head">
+        <div class="remi-av">R</div>
+        <div class="vh-tt">
+          <h4>Remi · your concierge</h4>
+          <p id="voiceStatus">Voice mode</p>
+        </div>
+        <div class="lang-sel" id="langSelVoice">
+          <button data-lang="en" class="on">EN</button>
+          <button data-lang="es">ES</button>
+          <button data-lang="fr">FR</button>
+        </div>
+        <button class="voice-x" id="voiceClose">✕</button>
+      </div>
+
+      <div class="voice-stage" id="voiceStage">
+        <div class="vorb-wrap">
+          <div class="vring r1"></div>
+          <div class="vring r2"></div>
+          <div class="vring r3"></div>
+          <div class="vorb"><div class="vgloss"></div></div>
+        </div>
+        <div class="vwave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="vstate" id="vState">Tap the mic to talk</div>
+        <div class="vcaps">
+          <div class="vcap-q" id="vCapQ"></div>
+          <div class="vcap-a" id="vCapA"></div>
+        </div>
+      </div>
+
+      <div class="vchips" id="vChips"></div>
+
+      <div class="voice-foot">
+        <button class="vmic" id="vMic">🎙️</button>
+        <button class="vend" id="vEnd">End conversation</button>
+      </div>
+    </div>
+
+    <!-- COMPLETION -->
+    <div id="completion">
+      <div class="comp-in">
+        <div class="glowburst"></div>
+        <div class="check-ring">
+          <svg viewBox="0 0 60 60"><path id="checkPath" d="M14 31 L26 43 L46 18"/></svg>
+        </div>
+        <h2 class="comp-title">You're all<br>checked <em>in</em></h2>
+        <p class="comp-sub">Your stay at Halo House · Flat 14 is ready. We hope it feels like home.</p>
+        <div class="stars" id="stars">
+          <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+        </div>
+        <div class="comp-card glass">
+          <p>Loved it here? <b>Book again</b> and enjoy <b>10% off</b> your next stay — just mention <b>HALO10</b> when you rebook.</p>
+        </div>
+        <button class="btn comp-again" id="bookAgain">Book again</button>
+      </div>
+    </div>
+
+    <!-- toast -->
+    <div class="toast" id="toast">Copied</div>
+
+  </div><!-- /phone -->
+</div><!-- /stage -->
+
+<script>
+/* =====================================================================
+   REMLY — app logic
+   ===================================================================== */
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>Array.from(r.querySelectorAll(s));
+
+/* ---------- Sound + haptics ---------- */
+let muted=false, audioCtx=null;
+function chime(freq=880){
+  if(muted) return;
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type='sine'; o.frequency.value=freq;
+    o.connect(g); g.connect(audioCtx.destination);
+    g.gain.setValueAtTime(0.0001,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.12,audioCtx.currentTime+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+0.32);
+    o.start(); o.stop(audioCtx.currentTime+0.34);
+  }catch(e){}
+}
+function buzz(ms=10){ if(!muted && navigator.vibrate) navigator.vibrate(ms); }
+function tap(freq=880){ chime(freq); buzz(10); }
+
+$('#muteBtn').addEventListener('click',e=>{
+  muted=!muted;
+  e.currentTarget.textContent = muted? '🔕':'🔔';
+  if(!muted) tap(660);
+});
+
+/* ---------- Toast ---------- */
+let toastT;
+function toast(msg){
+  const t=$('#toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1700);
+}
+function copy(text,label){
+  const done=()=>{ toast((label||'Copied')+' ✓'); tap(990); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>{fallbackCopy(text);done();});
+  } else { fallbackCopy(text); done(); }
+}
+function fallbackCopy(text){
+  const ta=document.createElement('textarea'); ta.value=text;
+  ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta);
+  ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta);
+}
+
+/* =====================================================================
+   CHECK-IN TIMELINE
+   ===================================================================== */
+const STEPS=[
+  {t:"Welcome", img:"alt2", glyph:"Halo House", photo:"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=70",
+   note:"Welcome to <b>Halo House · Flat 14</b>. This guide will walk you in step by step. Tap the circle to begin.",
+   actions:[]},
+  {t:"Collect Key", img:"alt",glyph:"Smart Lock", photo:"https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=70",
+   note:"Your door uses a <b>smart lock</b> — no physical key needed. If the app ever fails, there's a lockbox by the main entrance.",
+   code:{label:"Lockbox backup", val:"7421"}},
+  {t:"Walk to Building", img:"", glyph:"4 min walk", photo:"https://images.unsplash.com/photo-1515586838455-8f8f940d6853?auto=format&fit=crop&w=800&q=70",
+   note:"It's a short <b>~4 minute walk</b> to 27 Simpson Street, Manchester M4 4GB. Open the route below.",
+   actions:[{txt:"📍 Open in Maps",cls:"ghost",href:"https://maps.google.com/?q=27+Simpson+Street+Manchester+M4+4GB"}]},
+  {t:"Building Entrance", img:"alt", glyph:"Main Door", photo:"https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=70",
+   note:"At the main glass door, enter the building code on the keypad, then push through.",
+   code:{label:"Entrance code", val:"4080"}},
+  {t:"Apartment Door", img:"alt2", glyph:"Flat 14", photo:"https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=70",
+   note:"Take the lift to the first floor. <b>Flat 14</b> is on your right. Enter the door code to unlock.",
+   code:{label:"Door code", val:"1066"}},
+  {t:"Inside", img:"", glyph:"You're home", photo:"https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=70",
+   note:"You're in! WiFi joins automatically on most phones. Heating is set to a cosy 21°C — give it ~15 min to warm up.",
+   code:{label:"WiFi", val:"HaloHouse_5G", pw:"Manchester2026", wifi:true}},
+];
+const DONE = new Array(STEPS.length).fill(false);
+
+function buildTimeline(){
+  const tl=$('#timeline');
+  STEPS.forEach((s,i)=>{
+    const step=document.createElement('div');
+    step.className='step'; step.dataset.i=i;
+    let actionsHtml='';
+    if(s.code){
+      if(s.code.wifi){
+        actionsHtml+=`<div class="code-chip">${s.code.val} · ${s.code.pw}</div>
+          <div class="btn-row">
+            <button class="btn" data-copywifi='SSID: ${s.code.val} | Password: ${s.code.pw}'>📶 Copy WiFi</button>
+          </div>`;
+      } else {
+        actionsHtml+=`<div class="code-chip">${s.code.val}</div>
+          <div class="btn-row">
+            <button class="btn" data-copy="${s.code.val}" data-label="${s.code.label}">📋 Copy code</button>
+          </div>`;
+      }
+    }
+    if(s.actions && s.actions.length){
+      actionsHtml+=`<div class="btn-row">`+
+        s.actions.map(a=>`<button class="btn ${a.cls||''}" data-href="${a.href||''}">${a.txt}</button>`).join('')+
+      `</div>`;
+    }
+    step.innerHTML=`
+      <div class="dot" data-dot="${i}">${i+1}</div>
+      <div class="glass step-card">
+        <div class="imgph ${s.img}">${s.photo?`<img class="ph" src="${s.photo}" alt="" loading="lazy">`:''}<div class="shine"></div><div class="glyph par">${s.glyph}</div></div>
+        <div style="margin-top:12px">
+          <div class="step-no">Step ${i+1} of 6</div>
+          <div class="step-title">${s.t}</div>
+          <div class="step-note">${s.note}</div>
+          ${actionsHtml}
+        </div>
+      </div>`;
+    tl.appendChild(step);
+  });
+}
+buildTimeline();
+
+/* timeline interactions (delegated) */
+$('#timeline').addEventListener('click',e=>{
+  const dot=e.target.closest('[data-dot]');
+  if(dot){ toggleStep(+dot.dataset.dot); return; }
+  const cp=e.target.closest('[data-copy]');
+  if(cp){ copy(cp.dataset.copy, cp.dataset.label); return; }
+  const wf=e.target.closest('[data-copywifi]');
+  if(wf){ copy(wf.dataset.copywifi,'WiFi details'); return; }
+  const hr=e.target.closest('[data-href]');
+  if(hr){ tap(880); window.open(hr.dataset.href,'_blank'); return; }
+});
+
+function toggleStep(i){
+  DONE[i]=!DONE[i];
+  const el=$(`.step[data-i="${i}"]`);
+  el.classList.toggle('done',DONE[i]);
+  tap(DONE[i]?920:520);
+  if(DONE[i]) gsap.fromTo(el.querySelector('.dot'),{scale:.6},{scale:1,duration:.5,ease:'elastic.out(1,.5)'});
+  updateProgress();
+}
+
+function updateProgress(){
+  const n=DONE.filter(Boolean).length;
+  $('#progTxt').textContent=`${n} of 6`;
+  $('#progBar').style.width=(n/6*100)+'%';
+  // fill track up to last completed dot
+  const dots=$$('#timeline .dot');
+  let lastDone=-1; DONE.forEach((d,i)=>{ if(d) lastDone=i; });
+  const tl=$('#timeline');
+  if(lastDone>=0){
+    const dotRect=dots[lastDone].getBoundingClientRect();
+    const tlRect=tl.getBoundingClientRect();
+    const h=(dotRect.top - tlRect.top)+15 - 24;
+    $('#trackFill').style.height=Math.max(0,h)+'px';
+  } else $('#trackFill').style.height='0px';
+  // reveal finish
+  $('#finishWrap').classList.toggle('show', n===6);
+}
+
+$('#finishBtn').addEventListener('click',()=>{ tap(1040); showCompletion(); });
+
+/* =====================================================================
+   GSAP ScrollTrigger reveal on steps  +  parallax
+   ===================================================================== */
+function initScrollFX(){
+  if(!window.gsap || !window.ScrollTrigger) return;
+  gsap.registerPlugin(ScrollTrigger);
+  ScrollTrigger.defaults({scroller:'#viewport'});
+
+  $$('#timeline .step').forEach((step,i)=>{
+    gsap.fromTo(step,
+      {opacity:0,y:48,scale:.96},
+      {opacity:1,y:0,scale:1,duration:.7,ease:'power3.out',
+       scrollTrigger:{trigger:step,start:'top 88%',toggleActions:'play none none reverse'}});
+  });
+  // parallax on step images
+  $$('#timeline .par').forEach(g=>{
+    gsap.to(g,{y:-18,ease:'none',
+      scrollTrigger:{trigger:g,scroller:'#viewport',start:'top bottom',end:'bottom top',scrub:true}});
+  });
+  // headers gentle reveal
+  $$('.s-head').forEach(h=>{
+    gsap.fromTo(h.children,
+      {opacity:0,y:24},
+      {opacity:1,y:0,duration:.7,stagger:.08,ease:'power3.out',
+       scrollTrigger:{trigger:h,start:'top 95%'}});
+  });
+}
+
+/* =====================================================================
+   LENIS smooth scroll on the viewport
+   ===================================================================== */
+let lenis=null;
+function initLenis(){
+  if(!window.Lenis) return;
+  lenis=new Lenis({wrapper:$('#viewport'),content:$('#viewport'),
+    duration:1.1,smoothWheel:true,smoothTouch:false,
+    easing:t=>Math.min(1,1.001-Math.pow(2,-10*t))});
+  lenis.on('scroll',()=>{ if(window.ScrollTrigger) ScrollTrigger.update(); });
+  function raf(t){ lenis.raf(t); requestAnimationFrame(raf); }
+  requestAnimationFrame(raf);
+}
+
+window.addEventListener('load',()=>{
+  initLenis();
+  initScrollFX();
+  updateProgress();
+});
+
+/* =====================================================================
+   NAV / SCREEN SWITCH
+   ===================================================================== */
+const SCREENS=['checkin','house','local','extras'];
+function switchScreen(name){
+  SCREENS.forEach(s=>$('#screen-'+s).classList.toggle('active', s===name));
+  $$('#nav .nav-item').forEach(n=>n.classList.toggle('active', n.dataset.screen===name));
+  // progress pill only on check-in
+  $('#progPill').style.display = name==='checkin' ? 'flex':'none';
+  // reset scroll
+  if(lenis) lenis.scrollTo(0,{immediate:true}); else $('#viewport').scrollTop=0;
+  setTimeout(()=>{ if(window.ScrollTrigger) ScrollTrigger.refresh(); },60);
+}
+$('#nav').addEventListener('click',e=>{
+  const item=e.target.closest('.nav-item'); if(!item) return;
+  tap(760);
+  if(item.dataset.ai){ openAI(); return; }
+  switchScreen(item.dataset.screen);
+  gsap.fromTo('#screen-'+item.dataset.screen,{opacity:.3,y:10},{opacity:1,y:0,duration:.4,ease:'power2.out'});
+});
+
+/* =====================================================================
+   HOUSE manual
+   ===================================================================== */
+const HOUSE=[
+  {ic:'📶',t:'WiFi',s:'HaloHouse_5G',
+   photo:'https://images.unsplash.com/photo-1606904825846-647eb07f5be2?auto=format&fit=crop&w=800&q=70',
+   body:`Network: <b>HaloHouse_5G</b><br>Password: <b>Manchester2026</b><br><br>Most phones join automatically. The router sits on the hallway shelf if you need to restart it.`,
+   copy:'SSID: HaloHouse_5G | Password: Manchester2026', cl:'WiFi'},
+  {ic:'🔥',t:'Heating',s:'Hive thermostat',
+   photo:'https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?auto=format&fit=crop&w=800&q=70',
+   body:`There's a <b>Hive thermostat</b> in the hallway. Set it to <b>21°C</b> for a cosy flat — it warms up in about 15 minutes. Please turn it down when you head out.`},
+  {ic:'📺',t:'TV',s:'Sky Glass',
+   photo:'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=800&q=70',
+   body:`The lounge has a <b>Sky Glass</b> TV. Press the Sky button on the remote for live TV, Netflix and Disney+. Just sign into your own streaming accounts and sign out before you leave.`},
+  {ic:'☕',t:'Appliances',s:'Nespresso · Washer/Dryer',
+   photo:'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=70',
+   body:`<b>Nespresso</b> machine and complimentary pods are on the kitchen counter. The <b>washer/dryer</b> is under the counter — pods are in the cupboard above. Dishwasher tablets are under the sink.`},
+  {ic:'🆘',t:'Emergency',s:'Host: Hugo',
+   body:`Anything urgent? Call your host <b>Hugo</b> on <b>+44 7700 900123</b> any time. For emergencies dial 999. The stopcock is under the kitchen sink; the fuse box is by the front door.`,
+   call:'+447700900123'},
+  {ic:'📜',t:'House Rules',s:'Keep it lovely',
+   body:`• <b>No parties or events</b><br>• <b>No smoking</b> anywhere inside<br>• <b>Quiet hours after 10pm</b> — neighbours are close<br>• Please leave the flat as you found it. Thank you!`},
+];
+function buildHouse(){
+  const list=$('#houseList');
+  HOUSE.forEach((h,i)=>{
+    const c=document.createElement('div');
+    c.className='glass acc';
+    c.innerHTML=`
+      <div class="acc-head">
+        <div class="acc-ic">${h.ic}</div>
+        <div class="acc-tt"><h4>${h.t}</h4><p>${h.s}</p></div>
+        <div class="chev">▾</div>
+      </div>
+      <div class="acc-body"><div class="acc-body-in">${h.photo?`<img class="acc-photo" src="${h.photo}" alt="" loading="lazy">`:''}${h.body}
+        ${h.copy?`<div class="btn-row"><button class="btn" data-copywifi="${h.copy}">📋 Copy WiFi</button></div>`:''}
+        ${h.call?`<div class="btn-row"><button class="btn sage" data-call="${h.call}">📞 Call host</button></div>`:''}
+      </div></div>`;
+    list.appendChild(c);
+  });
+}
+buildHouse();
+$('#houseList').addEventListener('click',e=>{
+  const cp=e.target.closest('[data-copywifi]');
+  if(cp){ copy(cp.dataset.copywifi,'WiFi details'); return; }
+  const cl=e.target.closest('[data-call]');
+  if(cl){ tap(880); window.location.href='tel:'+cl.dataset.call; return; }
+  const head=e.target.closest('.acc-head'); if(!head) return;
+  const acc=head.parentElement; const open=acc.classList.contains('open');
+  $$('#houseList .acc').forEach(a=>a.classList.remove('open'));
+  if(!open) acc.classList.add('open');
+  tap(700);
+});
+
+/* =====================================================================
+   LOCAL recommendations
+   ===================================================================== */
+const LOCAL=[
+  {group:'Restaurants',items:[
+    {ic:'🍽️',t:'Mackie Mayor',s:'Buzzy food hall · 3 min walk',q:'Mackie Mayor Manchester',photo:'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=400&q=70'},
+    {ic:'🍕',t:"Rudy's Pizza",s:'Neapolitan pizza · 5 min walk',q:"Rudy's Pizza Ancoats Manchester",photo:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=400&q=70'},
+  ]},
+  {group:'Coffee',items:[
+    {ic:'☕',t:'Foundation Coffee House',s:'Specialty roast · 4 min walk',q:'Foundation Coffee House Manchester',photo:'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=400&q=70'},
+  ]},
+  {group:'Supermarket',items:[
+    {ic:'🛒',t:'Tesco Express Ancoats',s:'Daily essentials · 2 min walk',q:'Tesco Express Ancoats Manchester',photo:'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=400&q=70'},
+  ]},
+  {group:'Pharmacy',items:[
+    {ic:'💊',t:'Boots Arndale',s:'Pharmacy & basics · 8 min walk',q:'Boots Arndale Manchester',photo:'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=400&q=70'},
+  ]},
+  {group:'Taxi',items:[
+    {ic:'🚕',t:'StreetCars',s:'Local cabs · 0161 228 7878',q:'StreetCars Manchester',call:'01612287878',photo:'https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=400&q=70'},
+  ]},
+];
+function buildLocal(){
+  const wrap=$('#localList');
+  LOCAL.forEach(g=>{
+    const lab=document.createElement('div'); lab.className='group-label'; lab.textContent=g.group;
+    wrap.appendChild(lab);
+    const list=document.createElement('div'); list.className='card-list'; list.style.paddingTop='0';
+    g.items.forEach(it=>{
+      const c=document.createElement('div');
+      c.className='glass rec';
+      c.innerHTML=`
+        <div class="acc-ic${it.photo?' photo':''}">${it.photo?`<img src="${it.photo}" alt="" loading="lazy">`:it.ic}</div>
+        <div class="acc-tt"><h4>${it.t}</h4><p>${it.s}</p></div>
+        <div class="btn-row" style="margin:0">
+          ${it.call?`<button class="btn ghost" data-call="${it.call}">📞</button>`:''}
+          <button class="btn ghost" data-q="${encodeURIComponent(it.q)}">📍 Maps</button>
+        </div>`;
+      list.appendChild(c);
+    });
+    wrap.appendChild(list);
+  });
+}
+buildLocal();
+$('#localList').addEventListener('click',e=>{
+  const q=e.target.closest('[data-q]');
+  if(q){ tap(820); window.open('https://maps.google.com/?q='+q.dataset.q,'_blank'); return; }
+  const cl=e.target.closest('[data-call]');
+  if(cl){ tap(880); window.location.href='tel:'+cl.dataset.call; }
+});
+
+/* =====================================================================
+   EXTRAS + cart
+   ===================================================================== */
+const EXTRAS=[
+  {ic:'🕓',t:'Late Checkout',d:'Stay until 1pm and ease into your day.',p:25,img:'alt',photo:'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=70'},
+  {ic:'🌅',t:'Early Check-in',d:'Arrive from 12pm if your room is ready.',p:20,img:'alt2',photo:'https://images.unsplash.com/photo-1553531384-cc64ac80f931?auto=format&fit=crop&w=800&q=70'},
+  {ic:'🍷',t:'Bottle of Wine',d:'A chilled glass of red or white on arrival.',p:18,img:'',photo:'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=800&q=70'},
+  {ic:'🥂',t:'Champagne',d:'Celebrate with a bottle of brut on ice.',p:45,img:'alt',photo:'https://images.unsplash.com/photo-1547595628-c61a29f496f0?auto=format&fit=crop&w=800&q=70'},
+  {ic:'✈️',t:'Airport Transfer',d:'Private car to or from Manchester Airport.',p:40,img:'alt2',photo:'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=800&q=70'},
+  {ic:'🥐',t:'Grocery Pre-stock',d:'Fridge filled with breakfast essentials.',p:30,img:'',photo:'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=800&q=70'},
+  {ic:'🧹',t:'Mid-stay Cleaning',d:'Fresh towels and a tidy refresh, mid-stay.',p:35,img:'alt',photo:'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=70'},
+  {ic:'🅿️',t:'Reserved Parking',d:'A guaranteed space steps from the door.',p:15,unit:'/day',img:'alt2',photo:'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=800&q=70'},
+  {ic:'🍼',t:'Baby Cot',d:'A clean travel cot set up before you arrive.',p:10,img:'',photo:'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?auto=format&fit=crop&w=800&q=70'},
+];
+let cart=[];
+function buildExtras(){
+  const grid=$('#extrasGrid');
+  EXTRAS.forEach((x,i)=>{
+    const c=document.createElement('div');
+    c.className='glass extra';
+    c.innerHTML=`
+      <div class="imgph ${x.img}">${x.photo?`<img class="ph" src="${x.photo}" alt="" loading="lazy">`:''}<div class="shine"></div><div class="glyph">${x.ic} ${x.t}</div></div>
+      <div class="extra-body">
+        <h4>${x.t}</h4>
+        <p>${x.d}</p>
+        <div class="extra-foot">
+          <div class="price">£${x.p}<small>${x.unit||''}</small></div>
+          <button class="btn add-btn" data-add="${i}">Add</button>
+        </div>
+      </div>`;
+    grid.appendChild(c);
+  });
+}
+buildExtras();
+$('#extrasGrid').addEventListener('click',e=>{
+  const b=e.target.closest('[data-add]'); if(!b) return;
+  const i=+b.dataset.add, x=EXTRAS[i];
+  const idx=cart.indexOf(i);
+  if(idx>-1){ cart.splice(idx,1); b.textContent='Add'; b.classList.remove('added'); tap(540); }
+  else { cart.push(i); b.textContent='Added ✓'; b.classList.add('added'); tap(960);
+    gsap.fromTo(b,{scale:.8},{scale:1,duration:.5,ease:'elastic.out(1,.5)'});
+  }
+  renderCart();
+});
+function renderCart(){
+  const total=cart.reduce((s,i)=>s+EXTRAS[i].p,0);
+  $('#cartTotal').textContent='£'+total;
+  $('#cartCount').textContent=cart.length+(cart.length===1?' item added':' items added');
+  $('#cart').classList.toggle('show', cart.length>0);
+  const dock=document.querySelector('.remi-dock');
+  if(dock) dock.classList.toggle('lifted', cart.length>0);
+}
+$('#cartBtn').addEventListener('click',()=>{
+  tap(900);
+  toast('Added to your stay · we\'ll confirm by message');
+});
+
+/* =====================================================================
+   REMI — AI CONCIERGE  (text chat + full-screen voice)
+   ===================================================================== */
+const SUGGEST=['Where do I park?','What\'s the WiFi?','How does the heating work?','Can I check out later?'];
+
+/* language + proactive greeting */
+let lang='en';
+const GREETING={
+  en:"Welcome to Halo House. You're a 4 minute walk from the tram, in the heart of Manchester's Northern Quarter. Want me to walk you in?",
+  es:"Bienvenido a Halo House. Estás a 4 minutos a pie del tranvía, en pleno Northern Quarter de Mánchester. ¿Quieres que te guíe hasta la entrada?",
+  fr:"Bienvenue à Halo House. Vous êtes à 4 minutes à pied du tram, au cœur du Northern Quarter de Manchester. Voulez-vous que je vous guide jusqu'à l'entrée ?"
+};
+const SPEECH_LANG={en:'en-GB',es:'es-ES',fr:'fr-FR'};
+
+/* Index of EXTRAS items for one-tap actions (matches EXTRAS array titles) */
+function extraIndex(title){ return EXTRAS.findIndex(x=>x.t===title); }
+/* Add an extra by title via the EXISTING cart logic, sync the Extras tab button */
+function addExtraByTitle(title){
+  const i=extraIndex(title); if(i<0) return;
+  if(cart.indexOf(i)===-1){
+    cart.push(i);
+    const b=$(`#extrasGrid [data-add="${i}"]`);
+    if(b){ b.textContent='Added ✓'; b.classList.add('added'); }
+    renderCart(); tap(960);
+    toast(title+' added to your stay');
+  } else { toast(title+' is already in your stay'); }
+}
+
+/* Structured answers: {text, html?, actions?:[{label,fn,cls}], photo?} */
+function answer(qRaw){
+  const q=qRaw.toLowerCase();
+  if(/park/.test(q)) return {
+    text:"Parking is at NCP Shudehill, a 4 minute walk — about £14 a day. Or I can lock in a reserved space right by the door for £15 a day. No pressure either way.",
+    actions:[{label:'Add reserved parking · £15/day',cls:'',act:'parking'}]
+  };
+  if(/wifi|internet|password/.test(q)) return {
+    text:"The WiFi network is HaloHouse_5G and the password is Manchester2026. Most phones join automatically. Want me to copy it for you?",
+    actions:[{label:'📶 Copy WiFi',cls:'sage',act:'wifi'}]
+  };
+  if(/heat|heating|cold|thermostat|warm/.test(q)) return {
+    text:"There's a Hive thermostat in the hallway. Tap up to 21°C and the flat warms through in about 15 minutes. Here's what it looks like:",
+    photo:{cls:'alt2',glyph:'🔥 Hive Thermostat',src:'https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?auto=format&fit=crop&w=800&q=70',cap:"In the hallway — set to <b>21°C</b> for cosy."}
+  };
+  if(/checkout|check out|check-out|late/.test(q)) return {
+    text:"Checkout is 11am. If you'd love a slower morning, late checkout until 1pm is £25 — happy to add it whenever suits.",
+    actions:[{label:'Add late checkout · £25',cls:'',act:'late'}]
+  };
+  return {text:"I'm best on questions about Halo House — try WiFi, parking, heating or checkout, and I'll sort it for you."};
+}
+
+/* run a named action from an answer button */
+function runAction(act){
+  if(act==='parking') addExtraByTitle('Reserved Parking');
+  else if(act==='late') addExtraByTitle('Late Checkout');
+  else if(act==='wifi') copy('SSID: HaloHouse_5G | Password: Manchester2026','WiFi details');
+}
+
+/* ---------- language selector (both headers stay in sync) ---------- */
+function setLang(l){
+  lang=l;
+  ['#langSelChat','#langSelVoice'].forEach(sel=>{
+    $$(sel+' button').forEach(b=>b.classList.toggle('on',b.dataset.lang===l));
+  });
+}
+document.addEventListener('click',e=>{
+  const lb=e.target.closest('#langSelChat button, #langSelVoice button');
+  if(!lb) return;
+  tap(760); setLang(lb.dataset.lang);
+});
+
+/* =====================================================================
+   TEXT CHAT
+   ===================================================================== */
+let chatGreeted=false;
+function openAI(){
+  tap(820);
+  $('#aiScrim').classList.add('show');
+  $('#aiSheet').classList.add('show');
+  if(!chatGreeted){
+    chatGreeted=true;
+    addBubble('ai',GREETING[lang]);
+  }
+  buildChips();
+}
+function closeAI(){ $('#aiScrim').classList.remove('show'); $('#aiSheet').classList.remove('show'); }
+$('#chatBtn').addEventListener('click',openAI);
+$('#aiClose').addEventListener('click',()=>{ tap(560); closeAI(); });
+$('#aiScrim').addEventListener('click',closeAI);
+
+/* AI bubble with Remi avatar, optional photo card + one-tap action buttons */
+function addBubble(who,payload){
+  const b=document.createElement('div');
+  if(who==='ai'){
+    const a=(typeof payload==='string')?{text:payload}:payload;
+    b.className='bubble ai with-av';
+    let html=`<div class="remi-av sm ai-av">R</div>`+ (a.html||a.text);
+    if(a.photo){
+      html+=`<div class="ans-photo"><div class="imgph ${a.photo.cls}">${a.photo.src?`<img class="ph" src="${a.photo.src}" alt="" loading="lazy">`:''}<div class="shine"></div><div class="glyph">${a.photo.glyph}</div></div>
+        <div class="cap">🔥 ${a.photo.cap}</div></div>`;
+    }
+    if(a.actions&&a.actions.length){
+      html+=`<div class="ai-actions">`+a.actions.map(ac=>
+        `<button class="ai-act ${ac.cls||''}" data-act="${ac.act}">${ac.label}</button>`).join('')+`</div>`;
+    }
+    b.innerHTML=html;
+  } else {
+    b.className='bubble me'; b.textContent=payload;
+  }
+  $('#chat').appendChild(b); scrollChat();
+}
+/* delegated one-tap action buttons inside replies */
+$('#chat').addEventListener('click',e=>{
+  const ab=e.target.closest('.ai-act'); if(!ab) return;
+  runAction(ab.dataset.act);
+  if(ab.dataset.act!=='wifi'){ ab.textContent='Added ✓'; ab.classList.add('done'); }
+});
+function scrollChat(){ const c=$('#chat'); c.scrollTop=c.scrollHeight; }
+function buildChips(){
+  const c=$('#chips'); c.innerHTML='';
+  SUGGEST.forEach(s=>{ const ch=document.createElement('div'); ch.className='chip'; ch.textContent=s;
+    ch.addEventListener('click',()=>ask(s)); c.appendChild(ch); });
+}
+function ask(text){
+  if(!text.trim()) return;
+  tap(880);
+  addBubble('me',text);
+  $('#aiInput').value='';
+  const typ=document.createElement('div'); typ.className='typing'; typ.innerHTML='<i></i><i></i><i></i>';
+  $('#chat').appendChild(typ); scrollChat();
+  setTimeout(()=>{ typ.remove(); addBubble('ai',answer(text)); chime(720); },900+Math.random()*400);
+}
+$('#sendBtn').addEventListener('click',()=>ask($('#aiInput').value));
+$('#aiInput').addEventListener('keydown',e=>{ if(e.key==='Enter') ask($('#aiInput').value); });
+
+/* chat mic → jump into full voice mode */
+$('#micBtn').addEventListener('click',()=>{ tap(820); closeAI(); openVoice(); });
+
+/* =====================================================================
+   VOICE MODE  (Web Speech: speechSynthesis + recognition w/ fallback)
+   ===================================================================== */
+let voiceGreeted=false, recog=null, recogActive=false, pickedVoice=null;
+
+/* choose a pleasant voice once available */
+function pickVoice(){
+  if(!('speechSynthesis' in window)) return;
+  const vs=window.speechSynthesis.getVoices();
+  const want=SPEECH_LANG[lang];
+  pickedVoice =
+    vs.find(v=>/female|samantha|serena|fiona|google uk english female|amelie|monica|aurelie/i.test(v.name) && v.lang.startsWith(want.slice(0,2))) ||
+    vs.find(v=>v.lang===want) ||
+    vs.find(v=>v.lang.startsWith(want.slice(0,2))) || vs[0] || null;
+}
+if('speechSynthesis' in window){
+  pickVoice();
+  window.speechSynthesis.onvoiceschanged=pickVoice;
+}
+function speak(text,onend){
+  if(muted || !('speechSynthesis' in window)){ if(onend) setTimeout(onend,700); return; }
+  window.speechSynthesis.cancel();
+  pickVoice();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang=SPEECH_LANG[lang]; if(pickedVoice) u.voice=pickedVoice;
+  u.rate=.98; u.pitch=1.04;
+  setVoiceState('speaking');
+  u.onend=()=>{ setVoiceState('idle'); if(onend) onend(); };
+  u.onerror=()=>{ setVoiceState('idle'); if(onend) onend(); };
+  window.speechSynthesis.speak(u);
+}
+
+function setVoiceState(s){
+  const stage=$('#voiceStage');
+  stage.classList.remove('listening','speaking');
+  if(s==='listening'){ stage.classList.add('listening'); $('#vState').textContent='Listening…'; $('#voiceStatus').textContent='Listening'; }
+  else if(s==='speaking'){ stage.classList.add('speaking'); $('#vState').textContent='Remi is speaking'; $('#voiceStatus').textContent='Speaking'; }
+  else { $('#vState').textContent='Tap the mic to talk'; $('#voiceStatus').textContent='Voice mode'; }
+}
+function setCaptions(qt,at){
+  const q=$('#vCapQ'), a=$('#vCapA');
+  q.textContent=qt?('“'+qt+'”'):''; q.classList.toggle('show',!!qt);
+  a.textContent=at||''; a.classList.toggle('show',!!at);
+}
+function buildVoiceChips(){
+  const c=$('#vChips'); c.innerHTML='';
+  SUGGEST.forEach(s=>{ const ch=document.createElement('div'); ch.className='chip'; ch.textContent=s;
+    ch.addEventListener('click',()=>handleVoiceQuestion(s)); c.appendChild(ch); });
+}
+
+/* one Q&A turn in voice mode */
+function handleVoiceQuestion(text){
+  if(recogActive) stopRecog();
+  tap(880);
+  const a=answer(text);
+  setCaptions(text,'');
+  setVoiceState('speaking');
+  setTimeout(()=>{
+    setCaptions(text,a.text);
+    speak(a.text);
+  },350);
+}
+
+function openVoice(){
+  tap(820);
+  $('#voice').classList.add('show');
+  buildVoiceChips();
+  setVoiceState('idle');
+  setCaptions('','');
+  // detect recognition support → hide chips if real listening is available
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  $('#vChips').style.display = SR ? 'none' : 'flex';
+  if(!voiceGreeted){
+    voiceGreeted=true;
+    setCaptions('',GREETING[lang]);
+    setTimeout(()=>speak(GREETING[lang]),450);
+  }
+}
+function closeVoice(){
+  $('#voice').classList.remove('show');
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  stopRecog(); setVoiceState('idle');
+}
+$('#voiceBtn').addEventListener('click',openVoice);
+$('#voiceClose').addEventListener('click',()=>{ tap(560); closeVoice(); });
+$('#vEnd').addEventListener('click',()=>{ tap(560); closeVoice(); });
+
+/* mic in voice mode: real recognition if available, else prompt chips */
+function startRecog(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){
+    $('#vChips').style.display='flex';
+    $('#vState').textContent='Tap a question below';
+    return;
+  }
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  recog=new SR();
+  recog.lang=SPEECH_LANG[lang]; recog.interimResults=false; recog.maxAlternatives=1;
+  recogActive=true; $('#vMic').classList.add('live'); setVoiceState('listening'); tap(820);
+  recog.onresult=ev=>{
+    const said=ev.results[0][0].transcript;
+    handleVoiceQuestion(said);
+  };
+  recog.onerror=()=>{ // permission denied / no speech → fall back to chips
+    $('#vChips').style.display='flex';
+    setVoiceState('idle'); $('#vState').textContent='Tap a question below';
+    stopRecog();
+  };
+  recog.onend=()=>{ recogActive=false; $('#vMic').classList.remove('live'); };
+  try{ recog.start(); }catch(e){ $('#vChips').style.display='flex'; }
+}
+function stopRecog(){
+  if(recog){ try{recog.stop();}catch(e){} }
+  recogActive=false; $('#vMic').classList.remove('live');
+}
+$('#vMic').addEventListener('click',()=>{ recogActive ? stopRecog() : startRecog(); });
+
+/* =====================================================================
+   COMPLETION
+   ===================================================================== */
+function showCompletion(){
+  const c=$('#completion'); c.classList.add('show');
+  // animate check
+  const path=$('#checkPath');
+  gsap.fromTo(path,{strokeDashoffset:60},{strokeDashoffset:0,duration:.7,delay:.25,ease:'power2.out'});
+  gsap.fromTo('.check-ring',{scale:0,rotate:-30},{scale:1,rotate:0,duration:.8,ease:'elastic.out(1,.55)'});
+  gsap.fromTo('.glowburst',{scale:0,opacity:0},{scale:1.2,opacity:1,duration:1,ease:'power2.out'});
+  gsap.fromTo(['.comp-title','.comp-sub','#stars','.comp-card','.comp-again'],
+    {opacity:0,y:24},{opacity:1,y:0,duration:.6,stagger:.12,delay:.4,ease:'power3.out'});
+  fireConfetti();
+  chime(660); setTimeout(()=>chime(880),140); setTimeout(()=>chime(1100),280);
+  buzz([15,40,15]);
+}
+function fireConfetti(){
+  const colors=['#7fae9b','#3fa3a8','#8fc4dd','#f4b740','#5c9483','#ffffff'];
+  const host=$('.comp-in');
+  for(let i=0;i<70;i++){
+    const cf=document.createElement('div'); cf.className='confetti';
+    cf.style.background=colors[i%colors.length];
+    const x=Math.random()*100; cf.style.left=x+'%'; cf.style.top='18%';
+    host.appendChild(cf);
+    gsap.to(cf,{
+      y:(300+Math.random()*380), x:(Math.random()*180-90),
+      rotation:Math.random()*720-360, opacity:1,
+      duration:1.4+Math.random()*1.3, ease:'power1.out',
+      onComplete:()=>cf.remove()
+    });
+    gsap.to(cf,{opacity:0,duration:.5,delay:1.3+Math.random()});
+  }
+}
+/* stars */
+$('#stars').addEventListener('click',e=>{
+  const star=e.target.closest('.star'); if(!star) return;
+  const stars=$$('#stars .star'); const idx=stars.indexOf(star);
+  stars.forEach((s,i)=>s.classList.toggle('lit',i<=idx));
+  tap(900+idx*40);
+  if(idx===4){ toast('Thank you! ⭐⭐⭐⭐⭐'); fireConfetti(); }
+  else toast('Thanks for the feedback');
+});
+$('#bookAgain').addEventListener('click',()=>{
+  tap(1000);
+  toast('Code HALO10 saved · we\'ll be in touch 💌');
+});
+
+/* keep track fill aligned on resize */
+window.addEventListener('resize',()=>{ updateProgress(); if(window.ScrollTrigger) ScrollTrigger.refresh(); });
+</script>
+<script>
+/* Embed scroll bridge: when the in-phone demo hits the end of its scroll,
+   hand the wheel/touch over to the parent landing page so it keeps scrolling. */
+(function(){
+  if(window.parent === window) return;
+  function sc(){
+    var v = document.getElementById('viewport');
+    if(v && v.scrollHeight > v.clientHeight + 4) return v;
+    var s = document.querySelector('.screen.active');
+    if(s && s.scrollHeight > s.clientHeight + 4) return s;
+    var d = document.scrollingElement;
+    return (d && d.scrollHeight > d.clientHeight + 4) ? d : null;
+  }
+  function fwd(dy){ try{ parent.postMessage({remlyScroll: dy}, '*'); }catch(e){} }
+  function boundary(el, dy){
+    var top = el.scrollTop <= 1;
+    var bot = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
+    return (dy > 0 && bot) || (dy < 0 && top);
+  }
+  window.addEventListener('wheel', function(e){
+    var el = sc();
+    if(!el){ fwd(e.deltaY); return; }
+    if(boundary(el, e.deltaY)) fwd(e.deltaY);
+  }, {passive:true});
+  var ty = null;
+  window.addEventListener('touchstart', function(e){ ty = e.touches[0].clientY; }, {passive:true});
+  window.addEventListener('touchend', function(){ ty = null; }, {passive:true});
+  window.addEventListener('touchmove', function(e){
+    if(ty === null) return;
+    var y = e.touches[0].clientY, dy = ty - y; ty = y;
+    var el = sc();
+    if(!el){ fwd(dy * 2); return; }
+    if(boundary(el, dy)) fwd(dy * 2);
+  }, {passive:true});
+})();
+</script>
+</body>
+</html>

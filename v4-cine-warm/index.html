@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Remly · Guest Check-in</title>
+
+<!-- Google Fonts: editorial serif + clean sans -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- GSAP + ScrollTrigger + Lenis -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
+
+<style>
+/* ============ RESET / TOKENS ============ */
+:root{
+  --ivory:#f7f1e8;
+  --ivory-2:#fbf6ee;
+  --paper:#f2e9db;
+  --terracotta:#c8643f;
+  --terracotta-deep:#b04f2d;
+  --amber:#e0993e;
+  --clay:#d8a679;
+  --espresso:#3a2a20;
+  --espresso-soft:#5c4636;
+  --muted:#8a7261;
+  --line:#e7dccb;
+  --glass:rgba(255,255,255,0.62);
+  --glass-strong:rgba(255,255,255,0.82);
+  --shadow-warm:0 18px 40px -18px rgba(120,72,40,0.30);
+  --shadow-soft:0 8px 22px -12px rgba(120,72,40,0.22);
+  --radius:22px;
+  --serif:"Fraunces", Georgia, serif;
+  --sans:"Inter", system-ui, sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:var(--sans);
+  color:var(--espresso);
+  background:#e9ddcb;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ============ PHONE FRAME (desktop) ============ */
+.stage{
+  height:100vh;width:100vw;display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(120% 90% at 50% -10%, #f3e7d2 0%, #e4d4bd 55%, #d8c6ac 100%);
+}
+.phone{
+  position:relative;
+  width:390px;height:844px;max-height:96vh;
+  border-radius:46px;
+  background:var(--ivory);
+  box-shadow:
+    0 60px 120px -40px rgba(80,46,22,0.55),
+    0 0 0 11px #1c1410,
+    0 0 0 13px #2a2018;
+  overflow:hidden;
+}
+@media (max-width:430px){
+  .stage{background:var(--ivory);}
+  .phone{width:100vw;height:100vh;max-height:100vh;border-radius:0;box-shadow:none;}
+}
+/* notch */
+.notch{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:140px;height:26px;background:#1c1410;border-radius:0 0 18px 18px;z-index:200;
+}
+@media (max-width:430px){.notch{display:none;}}
+
+/* ============ APP SHELL ============ */
+.app{position:absolute;inset:0;overflow:hidden;background:var(--ivory);}
+
+/* paper texture + grain + vignette overlays */
+.tex{
+  position:absolute;inset:0;pointer-events:none;z-index:5;mix-blend-mode:multiply;opacity:.5;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(200,170,130,.10) 0, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(200,150,110,.10) 0, transparent 42%);
+}
+.grain{
+  position:absolute;inset:0;pointer-events:none;z-index:120;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.vignette{
+  position:absolute;inset:0;pointer-events:none;z-index:110;
+  box-shadow:inset 0 0 120px 30px rgba(120,70,30,0.16), inset 0 0 40px 10px rgba(120,70,30,0.08);
+  background:radial-gradient(120% 80% at 50% 30%, transparent 55%, rgba(150,95,45,0.10) 100%);
+}
+
+/* ============ SCREENS ============ */
+.screen{
+  position:absolute;inset:0;bottom:0;
+  overflow-y:auto;overflow-x:hidden;
+  padding:54px 18px 120px;
+  display:none;
+  -webkit-overflow-scrolling:touch;
+}
+.screen.active{display:block;}
+.screen::-webkit-scrollbar{display:none;}
+.screen{scrollbar-width:none;}
+
+/* top brand bar */
+.brandbar{
+  position:absolute;top:0;left:0;right:0;height:48px;z-index:60;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+  background:linear-gradient(180deg, var(--ivory) 40%, rgba(247,241,232,0));
+}
+.brandbar .logo{font-family:var(--serif);font-weight:600;font-size:19px;letter-spacing:.3px;color:var(--espresso);}
+.brandbar .logo span{color:var(--terracotta);}
+.brandbar .dot{font-size:11px;color:var(--muted);font-weight:500;display:flex;align-items:center;gap:6px;}
+.brandbar .dot i{width:7px;height:7px;border-radius:50%;background:#3fae6a;display:inline-block;box-shadow:0 0 0 3px rgba(63,174,106,.18);}
+
+/* mute toggle */
+.mute{
+  position:absolute;top:54px;right:16px;z-index:130;
+  width:38px;height:38px;border-radius:50%;
+  background:var(--glass-strong);border:1px solid var(--line);
+  box-shadow:var(--shadow-soft);backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;
+}
+
+/* ============ HEADINGS ============ */
+.eyebrow{
+  font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--terracotta);margin-bottom:10px;
+}
+h1.disp{font-family:var(--serif);font-weight:600;font-size:38px;line-height:1.02;letter-spacing:-.5px;color:var(--espresso);}
+h2.disp{font-family:var(--serif);font-weight:600;font-size:27px;line-height:1.05;color:var(--espresso);}
+.sub{font-size:14px;color:var(--muted);line-height:1.55;margin-top:10px;font-weight:400;}
+
+/* ============ CARDS ============ */
+.card{
+  background:var(--glass);
+  border:1px solid rgba(255,255,255,.7);
+  box-shadow:var(--shadow-soft);
+  border-radius:var(--radius);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+.imgph{
+  position:relative;width:100%;border-radius:16px;overflow:hidden;
+  background:linear-gradient(135deg,#e9d3b8,#d7a878 60%,#c8643f);
+}
+.imgph::after{
+  content:attr(data-label);
+  position:absolute;left:14px;bottom:12px;
+  font-family:var(--serif);font-style:italic;font-size:15px;color:rgba(255,255,255,.92);
+  text-shadow:0 2px 8px rgba(80,40,20,.4);
+}
+.imgph .glow{position:absolute;inset:0;background:radial-gradient(80% 60% at 30% 20%, rgba(255,240,220,.45), transparent 60%);}
+/* --- real photos layered into placeholders (additive) --- */
+.imgph img.ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:0;}
+.imgph .glow{z-index:1;}
+.imgph::after{z-index:2;}
+.imgph .scrim{position:absolute;left:0;right:0;bottom:0;height:58px;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(58,32,16,0),rgba(58,32,16,.55));}
+.local .thumb.photo{padding:0;overflow:hidden;}
+.local .thumb.photo img{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;}
+.acc-body .inner img.acc-photo{width:100%;height:110px;object-fit:cover;border-radius:12px;display:block;margin-bottom:12px;}
+.thermo-card .pic img.ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:0;}
+.thermo-card .pic .scrim{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(40,22,12,.5),rgba(40,22,12,0) 55%);}
+.thermo-card .pic .badge{z-index:2;}
+.thermo-card .pic .dial{position:relative;z-index:2;}
+
+/* ============ BUTTONS ============ */
+.btn{
+  font-family:var(--sans);font-size:14px;font-weight:600;
+  border:none;border-radius:14px;cursor:pointer;
+  padding:13px 18px;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  transition:transform .12s ease;
+}
+.btn:active{transform:scale(.95);}
+.btn-primary{background:linear-gradient(135deg,var(--terracotta),var(--terracotta-deep));color:#fff8f0;box-shadow:0 10px 22px -10px rgba(176,79,45,.7);}
+.btn-ghost{background:var(--glass-strong);color:var(--espresso);border:1px solid var(--line);}
+.btn-amber{background:linear-gradient(135deg,var(--amber),#cf8128);color:#fff8ee;box-shadow:0 10px 20px -10px rgba(207,129,40,.6);}
+.btn-block{width:100%;}
+
+/* ============ CHECK-IN TIMELINE ============ */
+.timeline{position:relative;margin-top:26px;padding-left:6px;}
+.progress-rail{
+  position:absolute;left:24px;top:8px;bottom:8px;width:3px;border-radius:3px;
+  background:var(--line);overflow:hidden;
+}
+.progress-fill{
+  position:absolute;left:0;top:0;width:100%;height:0%;
+  background:linear-gradient(180deg,var(--amber),var(--terracotta));
+  border-radius:3px;box-shadow:0 0 10px rgba(200,100,60,.4);
+  transition:height .6s cubic-bezier(.2,.8,.2,1);
+}
+.step{position:relative;padding-left:46px;margin-bottom:30px;}
+.step-node{
+  position:absolute;left:14px;top:6px;width:24px;height:24px;border-radius:50%;
+  background:var(--ivory-2);border:2px solid var(--clay);z-index:3;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent;
+  transition:all .3s ease;
+}
+.step-node:active{transform:scale(.85);}
+.step.done .step-node{background:linear-gradient(135deg,var(--terracotta),var(--terracotta-deep));border-color:var(--terracotta-deep);color:#fff;}
+.step-card{padding:14px;}
+.step-card .imgph{height:120px;margin-bottom:12px;}
+.step-num{font-family:var(--serif);font-size:12px;font-weight:600;color:var(--terracotta);letter-spacing:1px;}
+.step-title{font-family:var(--serif);font-weight:600;font-size:20px;color:var(--espresso);margin:2px 0 6px;}
+.step-note{font-size:13.5px;color:var(--espresso-soft);line-height:1.5;}
+.code-pill{
+  display:inline-flex;align-items:center;gap:8px;margin-top:12px;
+  background:var(--paper);border:1px dashed var(--clay);border-radius:12px;
+  padding:9px 12px;font-family:var(--serif);font-weight:600;font-size:18px;letter-spacing:3px;color:var(--espresso);
+}
+.step-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.step-actions .btn{padding:10px 14px;font-size:13px;}
+
+.progress-head{
+  display:flex;align-items:center;justify-content:space-between;margin-top:20px;
+  background:var(--glass-strong);border:1px solid var(--line);border-radius:16px;padding:12px 16px;
+  box-shadow:var(--shadow-soft);
+}
+.progress-head .count{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--espresso);}
+.progress-head .lbl{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+
+#finishWrap{margin-top:6px;opacity:0;height:0;overflow:hidden;transition:opacity .4s;}
+#finishWrap.show{opacity:1;height:auto;margin-top:18px;}
+
+/* ============ BOTTOM NAV ============ */
+.nav{
+  position:absolute;left:12px;right:12px;bottom:12px;z-index:100;height:66px;
+  background:var(--glass-strong);
+  border:1px solid rgba(255,255,255,.8);
+  border-radius:24px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:var(--shadow-warm);
+  display:flex;align-items:center;justify-content:space-around;padding:0 6px;
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;
+  color:var(--muted);font-size:10px;font-weight:600;padding:8px 0;border-radius:16px;
+  transition:color .2s;
+}
+.nav-item .ic{font-size:20px;transition:transform .2s;}
+.nav-item.active{color:var(--terracotta);}
+.nav-item.active .ic{transform:translateY(-2px) scale(1.12);}
+.nav-item:active .ic{transform:scale(.85);}
+
+/* ============ CONCIERGE LAUNCHERS (voice orb + text bubble) ============ */
+.concierge-dock{
+  position:absolute;right:16px;bottom:90px;z-index:140;
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+}
+.cdock-btn{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;}
+.cdock-btn .lbl{
+  font-size:10px;font-weight:600;letter-spacing:.4px;color:var(--espresso-soft);
+  background:var(--glass-strong);border:1px solid var(--line);border-radius:9px;
+  padding:2px 8px;box-shadow:var(--shadow-soft);backdrop-filter:blur(8px);
+}
+/* primary voice orb */
+.voice-orb{
+  position:relative;width:66px;height:66px;border-radius:50%;
+  background:radial-gradient(60% 60% at 35% 28%, #f6d29a 0%, var(--amber) 40%, var(--terracotta) 78%, var(--terracotta-deep) 100%);
+  box-shadow:0 16px 34px -10px rgba(200,100,50,.75), inset 0 2px 6px rgba(255,255,255,.5), inset 0 -6px 14px rgba(140,60,30,.35);
+  display:flex;align-items:center;justify-content:center;font-size:25px;color:#fff8f0;
+  animation:orbBreath 3.6s ease-in-out infinite;
+}
+.voice-orb .ring{position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(224,153,62,.5);animation:pulse 2.6s ease-out infinite;}
+.voice-orb .ring.r2{animation-delay:1.3s;}
+@keyframes pulse{0%{transform:scale(.92);opacity:.7}100%{transform:scale(1.55);opacity:0}}
+@keyframes orbBreath{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.06);filter:brightness(1.08)}}
+/* secondary text bubble */
+.text-bubble{
+  position:relative;width:48px;height:48px;border-radius:50%;cursor:pointer;
+  background:var(--glass-strong);border:1px solid rgba(255,255,255,.85);
+  box-shadow:var(--shadow-soft);backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:center;font-size:21px;color:var(--terracotta);
+  transition:transform .12s ease;
+}
+.text-bubble:active,.voice-orb:active{transform:scale(.9);}
+
+/* ============ FULL-SCREEN VOICE OVERLAY ============ */
+.voice-overlay{
+  position:absolute;inset:0;z-index:180;display:none;flex-direction:column;
+  background:
+    radial-gradient(120% 90% at 50% 8%, #fbf2e2 0%, var(--ivory) 46%, #efe2cd 100%);
+  overflow:hidden;
+}
+.voice-overlay.open{display:flex;}
+.voice-overlay .vtex{position:absolute;inset:0;pointer-events:none;opacity:.06;z-index:1;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='vn'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23vn)'/%3E%3C/svg%3E");}
+.voice-head{position:relative;z-index:3;display:flex;align-items:center;gap:10px;padding:54px 20px 4px;}
+.voice-head .avatar{width:36px;height:36px;border-radius:50%;background:radial-gradient(60% 60% at 35% 28%,#f6d29a,var(--amber) 45%,var(--terracotta));display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:600;font-size:15px;color:#fff8f0;box-shadow:inset 0 1px 3px rgba(255,255,255,.5);}
+.voice-head .who{font-family:var(--serif);font-weight:600;font-size:16px;color:var(--espresso);line-height:1.1;}
+.voice-head .who small{display:block;font-family:var(--sans);font-size:10.5px;font-weight:500;color:var(--muted);letter-spacing:.3px;}
+.voice-head .vx{margin-left:auto;width:36px;height:36px;border-radius:50%;background:var(--glass-strong);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--muted);cursor:pointer;}
+.lang-select{
+  border:1px solid var(--line);background:var(--glass-strong);border-radius:11px;
+  font-family:var(--sans);font-size:11px;font-weight:600;color:var(--espresso-soft);
+  padding:6px 8px;cursor:pointer;outline:none;
+}
+/* big animated orb */
+.voice-stage{position:relative;z-index:3;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 26px;}
+.big-orb-wrap{position:relative;width:200px;height:200px;display:flex;align-items:center;justify-content:center;}
+.big-orb{
+  position:relative;width:148px;height:148px;border-radius:50%;
+  background:radial-gradient(60% 60% at 35% 28%, #fbe2b8 0%, var(--amber) 38%, var(--terracotta) 76%, var(--terracotta-deep) 100%);
+  box-shadow:0 26px 60px -18px rgba(200,100,50,.7), inset 0 3px 10px rgba(255,255,255,.55), inset 0 -10px 24px rgba(140,60,30,.4);
+  animation:orbBreath 3.6s ease-in-out infinite;
+  display:flex;align-items:center;justify-content:center;
+}
+.big-orb .face{font-family:var(--serif);font-weight:600;font-size:34px;color:rgba(255,248,240,.95);text-shadow:0 2px 8px rgba(120,50,20,.4);}
+.halo{position:absolute;border-radius:50%;border:2px solid rgba(224,153,62,.45);}
+.halo.h1{inset:8px;}.halo.h2{inset:-12px;}.halo.h3{inset:-32px;border-color:rgba(200,100,60,.25);}
+/* listening state — orb grows, halos pulse out */
+.voice-overlay.listening .big-orb{animation:orbListen 1.1s ease-in-out infinite;}
+.voice-overlay.listening .halo{animation:haloOut 1.6s ease-out infinite;}
+.voice-overlay.listening .halo.h2{animation-delay:.5s;}
+.voice-overlay.listening .halo.h3{animation-delay:1s;}
+@keyframes orbListen{0%,100%{transform:scale(1)}50%{transform:scale(1.14);filter:brightness(1.12)}}
+@keyframes haloOut{0%{transform:scale(.85);opacity:.6}100%{transform:scale(1.4);opacity:0}}
+/* speaking state — waveform */
+.wave{display:flex;align-items:center;justify-content:center;gap:5px;height:30px;margin-top:22px;opacity:0;transition:opacity .3s;}
+.voice-overlay.speaking .wave{opacity:1;}
+.wave i{width:5px;height:10px;border-radius:4px;background:linear-gradient(180deg,var(--amber),var(--terracotta));}
+.voice-overlay.speaking .wave i{animation:waveBar .9s ease-in-out infinite;}
+.wave i:nth-child(2){animation-delay:.12s}.wave i:nth-child(3){animation-delay:.24s}.wave i:nth-child(4){animation-delay:.36s}.wave i:nth-child(5){animation-delay:.48s}.wave i:nth-child(6){animation-delay:.3s}.wave i:nth-child(7){animation-delay:.18s}
+@keyframes waveBar{0%,100%{height:8px}50%{height:28px}}
+.voice-state{margin-top:26px;font-family:var(--serif);font-weight:600;font-size:20px;color:var(--espresso);text-align:center;min-height:26px;letter-spacing:-.3px;}
+.voice-caption{margin-top:14px;max-width:300px;text-align:center;font-size:13.5px;line-height:1.55;color:var(--espresso-soft);min-height:20px;}
+.voice-caption .qline{display:block;color:var(--muted);font-style:italic;margin-bottom:6px;}
+/* example chips fallback */
+.voice-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;padding:6px 24px 6px;max-width:340px;}
+.voice-chips .chip{background:var(--glass-strong);}
+.voice-foot{position:relative;z-index:3;display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 24px 38px;}
+.voice-mic{
+  width:70px;height:70px;border-radius:50%;cursor:pointer;border:none;
+  background:linear-gradient(135deg,var(--terracotta),var(--terracotta-deep));
+  box-shadow:0 16px 32px -12px rgba(176,79,45,.7), inset 0 2px 4px rgba(255,255,255,.3);
+  display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff8f0;
+  transition:transform .12s ease;
+}
+.voice-mic:active{transform:scale(.92);}
+.voice-overlay.listening .voice-mic{animation:miclisten 1s ease-in-out infinite;}
+.voice-end{
+  padding:13px 20px;border:1px solid var(--line);border-radius:16px;background:var(--glass-strong);
+  font-family:var(--sans);font-size:13px;font-weight:600;color:var(--espresso-soft);cursor:pointer;
+}
+.voice-end:active{transform:scale(.95);}
+
+/* ============ CHAT — Remi avatar on AI bubbles + action buttons ============ */
+.msg.ai{position:relative;}
+.ai-row{align-self:flex-start;display:flex;gap:8px;align-items:flex-end;max-width:88%;}
+.ai-row .mini-av{width:26px;height:26px;border-radius:50%;flex-shrink:0;background:radial-gradient(60% 60% at 35% 28%,#f6d29a,var(--amber) 45%,var(--terracotta));display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:600;font-size:12px;color:#fff8f0;box-shadow:inset 0 1px 2px rgba(255,255,255,.5);margin-bottom:2px;}
+.ai-row .bubble{background:var(--glass-strong);border:1px solid var(--line);border-radius:18px;border-bottom-left-radius:5px;color:var(--espresso);box-shadow:var(--shadow-soft);padding:11px 14px;font-size:14px;line-height:1.5;}
+.ai-row .bubble .who-tag{font-size:10px;font-weight:600;letter-spacing:.5px;color:var(--terracotta);text-transform:uppercase;margin-bottom:4px;}
+.reply-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px;}
+.reply-actions .btn{padding:9px 13px;font-size:12.5px;}
+.thermo-card{margin-top:11px;border-radius:14px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow-soft);}
+.thermo-card .pic{height:104px;position:relative;background:linear-gradient(135deg,#3a2a20,#5c4636 70%,#7a5a40);display:flex;align-items:center;justify-content:center;}
+.thermo-card .pic .dial{width:74px;height:74px;border-radius:50%;background:radial-gradient(60% 60% at 40% 30%,#f7f1e8,#e7dccb);box-shadow:0 6px 16px -6px rgba(0,0,0,.5), inset 0 0 0 6px rgba(216,166,121,.5);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:600;font-size:20px;color:var(--terracotta);}
+.thermo-card .pic .badge{position:absolute;top:8px;left:10px;font-size:10px;font-weight:600;letter-spacing:1px;color:rgba(255,248,240,.85);text-transform:uppercase;}
+.thermo-card .cap{padding:8px 12px;font-size:12px;font-style:italic;color:var(--muted);background:var(--ivory-2);}
+
+/* keep legacy .ai-fab class harmless if referenced */
+.ai-fab{display:none;}
+
+/* ============ AI SHEET ============ */
+.sheet-mask{position:absolute;inset:0;z-index:150;background:rgba(60,35,20,.28);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .3s;}
+.sheet-mask.open{opacity:1;pointer-events:auto;}
+.sheet{
+  position:absolute;left:0;right:0;bottom:0;z-index:160;
+  height:78%;background:var(--ivory-2);
+  border-radius:28px 28px 0 0;border-top:1px solid rgba(255,255,255,.9);
+  box-shadow:0 -20px 50px -20px rgba(90,50,25,.5);
+  transform:translateY(100%);transition:transform .42s cubic-bezier(.2,.85,.25,1);
+  display:flex;flex-direction:column;
+}
+.sheet.open{transform:translateY(0);}
+.sheet-grab{width:42px;height:5px;border-radius:5px;background:var(--clay);margin:10px auto 4px;}
+.sheet-head{padding:6px 20px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;}
+.sheet-head .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--amber),var(--terracotta));display:flex;align-items:center;justify-content:center;font-size:18px;}
+.sheet-head .who{font-family:var(--serif);font-weight:600;font-size:17px;}
+.sheet-head .who small{display:block;font-family:var(--sans);font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.3px;}
+.sheet-head .x{margin-left:auto;font-size:22px;color:var(--muted);cursor:pointer;width:34px;height:34px;display:flex;align-items:center;justify-content:center;}
+.chat{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px;}
+.chat::-webkit-scrollbar{display:none;}
+.msg{max-width:80%;padding:11px 14px;border-radius:18px;font-size:14px;line-height:1.5;}
+.msg.ai{align-self:flex-start;background:var(--glass-strong);border:1px solid var(--line);border-bottom-left-radius:5px;color:var(--espresso);box-shadow:var(--shadow-soft);}
+.msg.me{align-self:flex-end;background:linear-gradient(135deg,var(--terracotta),var(--terracotta-deep));color:#fff8f0;border-bottom-right-radius:5px;}
+.chips{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 8px;}
+.chip{font-size:12px;font-weight:600;padding:8px 12px;border-radius:20px;background:var(--paper);border:1px solid var(--line);color:var(--espresso-soft);cursor:pointer;transition:transform .12s;}
+.chip:active{transform:scale(.93);}
+.composer{display:flex;align-items:center;gap:8px;padding:10px 16px 18px;border-top:1px solid var(--line);background:var(--ivory-2);}
+.composer input{
+  flex:1;border:1px solid var(--line);background:#fff;border-radius:20px;padding:12px 16px;font-size:14px;font-family:var(--sans);color:var(--espresso);outline:none;
+}
+.composer input:focus{border-color:var(--clay);}
+.icbtn{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0;}
+.icbtn.mic{background:var(--glass-strong);color:var(--espresso);border:1px solid var(--line);}
+.icbtn.mic.listening{background:linear-gradient(135deg,var(--amber),var(--terracotta));color:#fff;animation:miclisten 1s ease-in-out infinite;}
+@keyframes miclisten{0%,100%{box-shadow:0 0 0 0 rgba(200,100,50,.5)}50%{box-shadow:0 0 0 10px rgba(200,100,50,0)}}
+.icbtn.send{background:linear-gradient(135deg,var(--terracotta),var(--terracotta-deep));}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:12px 16px;background:var(--glass-strong);border:1px solid var(--line);border-radius:18px;border-bottom-left-radius:5px;}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--clay);animation:td 1.2s infinite;}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+
+/* ============ EXPANDABLE (HOUSE) ============ */
+.acc{margin-top:14px;}
+.acc-item{background:var(--glass);border:1px solid rgba(255,255,255,.7);border-radius:18px;margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow-soft);}
+.acc-head{display:flex;align-items:center;gap:12px;padding:16px;cursor:pointer;}
+.acc-head .em{font-size:22px;}
+.acc-head .t{font-family:var(--serif);font-weight:600;font-size:17px;flex:1;}
+.acc-head .ch{font-size:14px;color:var(--muted);transition:transform .3s;}
+.acc-item.open .acc-head .ch{transform:rotate(180deg);}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+.acc-body .inner{padding:0 16px 16px;font-size:13.5px;line-height:1.6;color:var(--espresso-soft);}
+.acc-body .inner .row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed var(--line);}
+.acc-body .inner .row:last-child{border:none;}
+.acc-body .inner .row b{font-family:var(--serif);font-weight:600;color:var(--espresso);}
+
+/* ============ LOCAL CARDS ============ */
+.group-title{font-family:var(--serif);font-weight:600;font-size:18px;margin:22px 0 10px;color:var(--espresso);display:flex;align-items:center;gap:8px;}
+.local{display:flex;align-items:center;gap:13px;padding:13px;margin-bottom:10px;}
+.local .thumb{width:52px;height:52px;border-radius:13px;flex-shrink:0;background:linear-gradient(135deg,#e9d3b8,#c8643f);display:flex;align-items:center;justify-content:center;font-size:22px;}
+.local .meta{flex:1;}
+.local .meta .n{font-family:var(--serif);font-weight:600;font-size:15px;color:var(--espresso);}
+.local .meta .d{font-size:12px;color:var(--muted);margin-top:2px;}
+.local .go{font-size:12px;font-weight:600;color:var(--terracotta);white-space:nowrap;cursor:pointer;padding:8px 10px;border-radius:10px;background:var(--paper);}
+.local .go:active{transform:scale(.93);}
+
+/* ============ EXTRAS ============ */
+.extras-grid{margin-top:18px;}
+.extra{padding:14px;margin-bottom:14px;}
+.extra .imgph{height:96px;margin-bottom:12px;}
+.extra .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.extra .name{font-family:var(--serif);font-weight:600;font-size:18px;color:var(--espresso);}
+.extra .desc{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.45;}
+.extra .price{font-family:var(--serif);font-weight:600;font-size:19px;color:var(--terracotta);white-space:nowrap;}
+.extra .add{margin-top:12px;width:100%;}
+.extra.added .add{background:var(--glass-strong);color:var(--terracotta);border:1px solid var(--clay);}
+
+.cart-float{
+  position:absolute;left:50%;transform:translateX(-50%) translateY(120%);
+  bottom:90px;z-index:135;
+  background:linear-gradient(135deg,var(--espresso),#5c4636);color:#fff8f0;
+  border-radius:18px;padding:12px 18px;display:flex;align-items:center;gap:14px;
+  box-shadow:0 18px 36px -14px rgba(58,42,32,.7);transition:transform .4s cubic-bezier(.2,.85,.25,1);
+  min-width:240px;
+}
+.cart-float.show{transform:translateX(-50%) translateY(0);}
+.cart-float .ct{font-size:13px;font-weight:500;}
+.cart-float .ct b{font-family:var(--serif);font-size:17px;}
+.cart-float .chk{margin-left:auto;background:var(--amber);color:#fff;border:none;border-radius:12px;padding:8px 14px;font-weight:600;font-size:13px;cursor:pointer;}
+
+/* ============ TOAST ============ */
+.toast{
+  position:absolute;left:50%;top:70px;transform:translateX(-50%) translateY(-20px);
+  z-index:300;background:var(--espresso);color:#fff8f0;
+  padding:11px 18px;border-radius:14px;font-size:13px;font-weight:500;
+  box-shadow:0 14px 30px -12px rgba(58,42,32,.7);opacity:0;pointer-events:none;
+  transition:opacity .3s, transform .3s;display:flex;align-items:center;gap:8px;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ============ COMPLETION ============ */
+#screen-done{padding-top:0;}
+.done-wrap{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px 120px;position:relative;}
+.done-glow{position:absolute;top:18%;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(224,153,62,.5),transparent 65%);filter:blur(8px);}
+.checkmark{
+  width:104px;height:104px;border-radius:50%;position:relative;z-index:2;
+  background:linear-gradient(135deg,var(--amber),var(--terracotta));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 20px 44px -16px rgba(200,100,50,.7);
+}
+.checkmark svg{width:52px;height:52px;}
+.checkmark path{stroke:#fff;stroke-width:7;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60;}
+.done-wrap h1{font-family:var(--serif);font-weight:600;font-size:32px;line-height:1.1;margin-top:26px;z-index:2;}
+.done-wrap p{font-size:14.5px;color:var(--espresso-soft);margin-top:12px;max-width:300px;line-height:1.6;z-index:2;}
+.stars{display:flex;gap:8px;margin-top:26px;z-index:2;}
+.stars span{font-size:34px;cursor:pointer;filter:grayscale(1) opacity(.35);transition:transform .15s, filter .15s;}
+.stars span.lit{filter:none;transform:scale(1.12);}
+.confetti{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;overflow:hidden;}
+.conf{position:absolute;width:9px;height:14px;border-radius:2px;opacity:0;}
+
+/* fade-in util for scroll reveals handled by GSAP */
+.reveal{will-change:transform,opacity;}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="app" id="app">
+
+      <!-- overlays -->
+      <div class="tex"></div>
+      <div class="vignette"></div>
+      <div class="grain"></div>
+
+      <!-- brand bar -->
+      <div class="brandbar">
+        <div class="logo">Rem<span>ly</span></div>
+        <div class="dot"><i></i> Halo House · Flat 14</div>
+      </div>
+
+      <!-- mute toggle -->
+      <div class="mute" id="muteBtn" title="Sound">🔊</div>
+
+      <!-- toast -->
+      <div class="toast" id="toast"><span id="toastTxt"></span></div>
+
+      <!-- ============ SCREEN: CHECK-IN ============ -->
+      <div class="screen active" id="screen-checkin">
+        <div class="eyebrow reveal">Your arrival</div>
+        <h1 class="disp reveal">Welcome to<br>Halo House.</h1>
+        <p class="sub reveal">Six gentle steps and you're home. Scroll to follow your check-in — tap each circle as you go.</p>
+
+        <div class="progress-head reveal">
+          <div>
+            <div class="count"><span id="stepCount">0</span> of 6</div>
+            <div class="lbl">Steps complete</div>
+          </div>
+          <div style="font-family:var(--serif);font-size:30px;">🌿</div>
+        </div>
+
+        <div class="timeline" id="timeline">
+          <div class="progress-rail"><div class="progress-fill" id="progFill"></div></div>
+          <!-- steps injected by JS -->
+        </div>
+
+        <div id="finishWrap">
+          <button class="btn btn-amber btn-block" id="finishBtn" style="padding:16px;font-size:15px;">Finish check-in ✦</button>
+        </div>
+      </div>
+
+      <!-- ============ SCREEN: AI (full) ============ -->
+      <div class="screen" id="screen-ai">
+        <div class="eyebrow">Concierge</div>
+        <h1 class="disp">Ask Remly<br>anything.</h1>
+        <p class="sub">Your warm, always-on host. WiFi, parking, heating, checkout — just ask. Tap the glowing button any time, on any screen.</p>
+        <div class="card" style="padding:18px;margin-top:22px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:46px;height:46px;border-radius:50%;background:radial-gradient(60% 60% at 35% 28%,#f6d29a,var(--amber) 45%,var(--terracotta));display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:600;font-size:20px;color:#fff8f0;box-shadow:inset 0 1px 3px rgba(255,255,255,.5);">R</div>
+            <div>
+              <div style="font-family:var(--serif);font-weight:600;font-size:18px;">Remi · your concierge</div>
+              <div style="font-size:12px;color:var(--muted);">Replies in seconds · Property only</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px;">
+            <button class="btn btn-primary" style="flex:1;" onclick="openVoice()">🎙️ Talk to Remi</button>
+            <button class="btn btn-ghost" style="flex:1;" onclick="openAI()">💬 Chat</button>
+          </div>
+        </div>
+        <div class="card" style="padding:18px;margin-top:14px;">
+          <div style="font-family:var(--serif);font-weight:600;font-size:16px;margin-bottom:10px;">Popular questions</div>
+          <div class="chips" style="padding:0;">
+            <div class="chip" onclick="openAI('Where can I park?')">Parking?</div>
+            <div class="chip" onclick="openAI('What is the WiFi?')">WiFi?</div>
+            <div class="chip" onclick="openAI('How does the heating work?')">Heating?</div>
+            <div class="chip" onclick="openAI('What time is checkout?')">Checkout?</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ SCREEN: HOUSE ============ -->
+      <div class="screen" id="screen-house">
+        <div class="eyebrow">The manual</div>
+        <h1 class="disp">House<br>guide.</h1>
+        <p class="sub">Everything you need, in one warm place. Tap any card to open it.</p>
+        <div class="acc" id="acc"></div>
+      </div>
+
+      <!-- ============ SCREEN: LOCAL ============ -->
+      <div class="screen" id="screen-local">
+        <div class="eyebrow">The neighbourhood</div>
+        <h1 class="disp">Around<br>Ancoats.</h1>
+        <p class="sub">Hand-picked favourites, all a short stroll away.</p>
+        <div id="localWrap"></div>
+      </div>
+
+      <!-- ============ SCREEN: EXTRAS ============ -->
+      <div class="screen" id="screen-extras">
+        <div class="eyebrow">Make it special</div>
+        <h1 class="disp">Little<br>extras.</h1>
+        <p class="sub">Optional touches to make your stay effortless. No pressure — only if you'd like.</p>
+        <div class="extras-grid" id="extrasWrap"></div>
+      </div>
+
+      <!-- ============ SCREEN: DONE ============ -->
+      <div class="screen" id="screen-done">
+        <div class="done-wrap">
+          <div class="confetti" id="confetti"></div>
+          <div class="done-glow"></div>
+          <div class="checkmark"><svg viewBox="0 0 100 100"><path id="checkPath" d="M28 52 L44 68 L74 32"/></svg></div>
+          <h1>You're all<br>checked in.</h1>
+          <p>Make yourself at home. The kettle's ready, the heating's on, and Remly is one tap away if you need a thing.</p>
+          <div class="stars" id="stars">
+            <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
+          </div>
+          <p id="reviewMsg" style="font-size:13px;color:var(--terracotta);font-weight:600;min-height:18px;"></p>
+          <div class="card" style="padding:16px;margin-top:20px;width:100%;max-width:320px;">
+            <div style="font-family:var(--serif);font-weight:600;font-size:16px;">Loved it here?</div>
+            <p style="font-size:13px;color:var(--muted);margin:6px 0 12px;">You're always welcome back at Halo House. Book direct next time for a friendlier rate.</p>
+            <button class="btn btn-primary btn-block" onclick="toast('We saved your details — see you soon! 🤍')">Book again</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ CONCIERGE LAUNCHERS ============ -->
+      <div class="concierge-dock" id="conciergeDock">
+        <div class="cdock-btn" onclick="openVoice()">
+          <div class="voice-orb" id="voiceOrbBtn">
+            <div class="ring"></div><div class="ring r2"></div>🎙️
+          </div>
+          <div class="lbl">Talk</div>
+        </div>
+        <div class="cdock-btn" onclick="openAI()">
+          <div class="text-bubble">💬</div>
+          <div class="lbl">Chat</div>
+        </div>
+      </div>
+
+      <!-- ============ FULL-SCREEN VOICE OVERLAY ============ -->
+      <div class="voice-overlay" id="voiceOverlay">
+        <div class="vtex"></div>
+        <div class="voice-head">
+          <div class="avatar">R</div>
+          <div class="who">Remi<small>your concierge · live</small></div>
+          <select class="lang-select" id="langSelect" onchange="setLang(this.value)">
+            <option value="en">EN</option>
+            <option value="es">ES</option>
+            <option value="fr">FR</option>
+          </select>
+          <div class="vx" onclick="closeVoice()">✕</div>
+        </div>
+        <div class="voice-stage">
+          <div class="big-orb-wrap">
+            <div class="halo h1"></div><div class="halo h2"></div><div class="halo h3"></div>
+            <div class="big-orb"><span class="face">R</span></div>
+          </div>
+          <div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="voice-state" id="voiceState">Tap to talk</div>
+          <div class="voice-caption" id="voiceCaption"></div>
+        </div>
+        <div class="voice-chips" id="voiceChips"></div>
+        <div class="voice-foot">
+          <button class="voice-mic" id="voiceMic" onclick="voiceListen()">🎙️</button>
+          <button class="voice-end" onclick="closeVoice()">End conversation</button>
+        </div>
+      </div>
+
+      <!-- ============ AI SHEET ============ -->
+      <div class="sheet-mask" id="sheetMask" onclick="closeAI()"></div>
+      <div class="sheet" id="sheet">
+        <div class="sheet-grab"></div>
+        <div class="sheet-head">
+          <div class="avatar" style="font-family:var(--serif);font-weight:600;color:#fff8f0;">R</div>
+          <div class="who">Remi<small>your concierge · Halo House Flat 14</small></div>
+          <select class="lang-select" style="margin-left:auto;" id="langSelectChat" onchange="setLang(this.value)">
+            <option value="en">EN</option>
+            <option value="es">ES</option>
+            <option value="fr">FR</option>
+          </select>
+          <div class="x" onclick="closeAI()">✕</div>
+        </div>
+        <div class="chat" id="chat"></div>
+        <div class="chips" id="aiChips">
+          <div class="chip" onclick="send('Where can I park?')">Parking?</div>
+          <div class="chip" onclick="send('What is the WiFi password?')">WiFi?</div>
+          <div class="chip" onclick="send('How do I use the heating?')">Heating?</div>
+          <div class="chip" onclick="send('What time is checkout?')">Checkout?</div>
+        </div>
+        <div class="composer">
+          <button class="icbtn mic" id="micBtn" onclick="voice()">🎙️</button>
+          <input id="aiInput" placeholder="Ask about the property…" onkeydown="if(event.key==='Enter')send()" />
+          <button class="icbtn send" onclick="send()">➤</button>
+        </div>
+      </div>
+
+      <!-- ============ CART FLOAT ============ -->
+      <div class="cart-float" id="cartFloat">
+        <div class="ct"><span id="cartCount">0</span> extras · <b>£<span id="cartTotal">0</span></b></div>
+        <button class="chk" onclick="toast('Extras confirmed — added to your stay ✦')">Confirm</button>
+      </div>
+
+      <!-- ============ BOTTOM NAV ============ -->
+      <div class="nav" id="nav">
+        <div class="nav-item active" data-screen="checkin"><div class="ic">🏠</div>Check-in</div>
+        <div class="nav-item" data-screen="ai"><div class="ic">🤖</div>AI</div>
+        <div class="nav-item" data-screen="house"><div class="ic">🏡</div>House</div>
+        <div class="nav-item" data-screen="local"><div class="ic">📍</div>Local</div>
+        <div class="nav-item" data-screen="extras"><div class="ic">✨</div>Extras</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   REMLY — guest check-in mockup logic
+   ============================================================ */
+
+/* ---------- sound + haptics ---------- */
+let muted=false, audioCtx=null;
+function blip(freq=520){
+  if(muted)return;
+  try{
+    audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type='sine';o.frequency.value=freq;
+    g.gain.setValueAtTime(0.0001,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.12,audioCtx.currentTime+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+0.16);
+    o.connect(g);g.connect(audioCtx.destination);
+    o.start();o.stop(audioCtx.currentTime+0.17);
+  }catch(e){}
+}
+function haptic(ms=10){ if(navigator.vibrate)try{navigator.vibrate(ms);}catch(e){} }
+function tap(freq){ blip(freq); haptic(10); }
+
+document.getElementById('muteBtn').addEventListener('click',function(){
+  muted=!muted;
+  this.textContent=muted?'🔇':'🔊';
+  if(!muted)tap(620);
+});
+
+/* ---------- toast ---------- */
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toastTxt').textContent=msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2300);
+}
+function copyText(txt,label){
+  const done=()=>{ tap(660); toast((label||'Copied')+' · '+txt); };
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done).catch(()=>{fallbackCopy(txt);done();});
+  }else{ fallbackCopy(txt); done(); }
+}
+function fallbackCopy(txt){
+  const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);
+}
+
+/* ============================================================
+   CHECK-IN TIMELINE
+   ============================================================ */
+const steps=[
+  {t:"Welcome",img:"Sunlit hallway",photo:"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=70",note:"Welcome to Halo House, Flat 14. We're so glad you're here. Tap the circle to begin, and follow each step down the page.",actions:[]},
+  {t:"Collect your key",img:"Smart lock keypad",photo:"https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=70",note:"Entry is keyless via the smart lock. If the app ever fails, a lockbox sits to the right of the main door — backup code below.",code:{val:"7421",label:"Lockbox code"},actions:[{l:"Copy code",fn:"copyText('7421','Lockbox code')",cls:"btn-ghost"}]},
+  {t:"Walk to the building",img:"Cobbled Ancoats street",photo:"https://images.unsplash.com/photo-1515586838455-8f8f940d6853?auto=format&fit=crop&w=800&q=70",note:"You're a 4-minute stroll away at 27 Simpson Street, M4 4GB. Head down Simpson Street — the navy door is on your left.",actions:[{l:"Open in Maps 🧭",fn:"openMaps('https://maps.google.com/?q=27+Simpson+Street+Manchester+M4+4GB')",cls:"btn-primary"}]},
+  {t:"Building entrance",img:"Navy communal door",photo:"https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=70",note:"At the main communal door, key in the entrance code on the silver panel, then push gently.",code:{val:"4080",label:"Entrance code"},actions:[{l:"Copy code",fn:"copyText('4080','Entrance code')",cls:"btn-ghost"}]},
+  {t:"Apartment door",img:"Flat 14 doorway",photo:"https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=70",note:"Take the lift to the first floor. Flat 14 is straight ahead. The door has a keypad — tap in your code.",code:{val:"1066",label:"Door code"},actions:[{l:"Copy code",fn:"copyText('1066','Door code')",cls:"btn-ghost"}]},
+  {t:"You're inside",img:"Warm living room",photo:"https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=70",note:"Welcome home. WiFi details are below. The Hive thermostat in the hallway is set to 21°C — give it ~15 min to warm through.",code:{val:"HaloHouse_5G",label:"WiFi"},actions:[{l:"Copy WiFi",fn:"copyText('HaloHouse_5G / Manchester2026','WiFi')",cls:"btn-amber"}]}
+];
+
+const done=new Array(steps.length).fill(false);
+const tl=document.getElementById('timeline');
+
+steps.forEach((s,i)=>{
+  const el=document.createElement('div');
+  el.className='step reveal';el.id='step'+i;
+  let codeHtml = s.code ? `<div class="code-pill">🔑 ${s.code.val}</div>` : '';
+  let actHtml = s.actions.map(a=>`<button class="btn ${a.cls}" onclick="${a.fn}">${a.l}</button>`).join('');
+  el.innerHTML=`
+    <div class="step-node" onclick="toggleStep(${i})">✓</div>
+    <div class="step-card card">
+      <div class="imgph" data-label="${s.img}" style="height:120px;">${s.photo?`<img class="ph" src="${s.photo}" alt="" loading="lazy">`:''}<div class="glow"></div><div class="scrim"></div></div>
+      <div class="step-num">STEP ${i+1}</div>
+      <div class="step-title">${s.t}</div>
+      <div class="step-note">${s.note}</div>
+      ${codeHtml}
+      <div class="step-actions">${actHtml}</div>
+    </div>`;
+  tl.appendChild(el);
+});
+
+function toggleStep(i){
+  done[i]=!done[i];
+  document.getElementById('step'+i).classList.toggle('done',done[i]);
+  tap(done[i]?700:440);
+  if(done[i]){
+    gsap.fromTo('#step'+i+' .step-node',{scale:.6},{scale:1,duration:.4,ease:'back.out(3)'});
+  }
+  updateProgress();
+}
+function updateProgress(){
+  const n=done.filter(Boolean).length;
+  document.getElementById('stepCount').textContent=n;
+  document.getElementById('progFill').style.height=(n/steps.length*100)+'%';
+  document.getElementById('finishWrap').classList.toggle('show',n===steps.length);
+  if(n===steps.length){ toast('All steps done — finish below ✦'); }
+}
+function openMaps(url){ tap(600); toast('Opening Maps…'); window.open(url,'_blank'); }
+
+document.getElementById('finishBtn').addEventListener('click',()=>{
+  tap(740); switchScreen('done'); fireConfetti(); animateCheck();
+});
+
+/* ============================================================
+   NAV / SCREEN SWITCH
+   ============================================================ */
+const screenMap={checkin:'screen-checkin',ai:'screen-ai',house:'screen-house',local:'screen-local',extras:'screen-extras',done:'screen-done'};
+function switchScreen(key){
+  Object.values(screenMap).forEach(id=>document.getElementById(id).classList.remove('active'));
+  const el=document.getElementById(screenMap[key]);
+  el.classList.add('active');
+  el.scrollTop=0;
+  // nav highlight (done has no nav item -> clear)
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.screen===key));
+  gsap.fromTo(el,{opacity:0,y:14},{opacity:1,y:0,duration:.5,ease:'power2.out'});
+  // refresh scrolltrigger on check-in
+  if(window.ScrollTrigger)ScrollTrigger.refresh();
+}
+document.querySelectorAll('.nav-item').forEach(n=>{
+  n.addEventListener('click',()=>{ tap(560); switchScreen(n.dataset.screen); });
+});
+
+/* ============================================================
+   AI CONCIERGE
+   ============================================================ */
+const sheet=document.getElementById('sheet'), mask=document.getElementById('sheetMask'), chat=document.getElementById('chat');
+let aiGreeted=false;
+
+/* ---- greeting translations (proactive, by listing) ---- */
+const GREET={
+  en:"Welcome to Halo House. You're a 4 minute walk from the tram, in the heart of Manchester's Northern Quarter. Want me to walk you in?",
+  es:"Bienvenido a Halo House. Estás a 4 minutos a pie del tranvía, en pleno Northern Quarter de Mánchester. ¿Quieres que te guíe hasta la entrada?",
+  fr:"Bienvenue à Halo House. Vous êtes à 4 minutes à pied du tram, au cœur du Northern Quarter de Manchester. Voulez-vous que je vous guide jusqu'à l'entrée ?"
+};
+const SPEECH_LANG={en:'en-GB',es:'es-ES',fr:'fr-FR'};
+let conciergeLang='en';
+function setLang(l){
+  conciergeLang=l;
+  // keep both selectors in sync
+  const a=document.getElementById('langSelect'),b=document.getElementById('langSelectChat');
+  if(a)a.value=l; if(b)b.value=l;
+  tap(560);
+}
+
+function openAI(pre){
+  tap(640);
+  sheet.classList.add('open'); mask.classList.add('open');
+  if(!aiGreeted){ aiGreeted=true; addMsg(GREET[conciergeLang],'ai'); }
+  if(pre){ setTimeout(()=>send(pre),250); }
+}
+function closeAI(){ tap(440); sheet.classList.remove('open'); mask.classList.remove('open'); }
+
+/* text bubble: render with Remi avatar + name; supports inline action HTML */
+function addMsg(txt,who,actionsHtml){
+  if(who==='ai'){
+    const row=document.createElement('div');row.className='ai-row';
+    row.innerHTML=`<div class="mini-av">R</div><div class="bubble"><div class="who-tag">Remi</div><div class="bubbletxt"></div>${actionsHtml||''}</div>`;
+    row.querySelector('.bubbletxt').textContent=txt;
+    chat.appendChild(row);chat.scrollTop=chat.scrollHeight;
+    gsap.fromTo(row,{opacity:0,y:10,scale:.96},{opacity:1,y:0,scale:1,duration:.35,ease:'power2.out'});
+  }else{
+    const m=document.createElement('div');m.className='msg '+who;m.textContent=txt;
+    chat.appendChild(m);chat.scrollTop=chat.scrollHeight;
+    gsap.fromTo(m,{opacity:0,y:10,scale:.96},{opacity:1,y:0,scale:1,duration:.35,ease:'power2.out'});
+  }
+}
+
+/* plain spoken/canned answer text (used by voice + as chat base) */
+function answerFor(q){
+  const s=q.toLowerCase();
+  if(s.includes('park')) return "Parking is at NCP Shudehill, a 4-minute walk. It's £14 a day. I can add a reserved space from Extras if you'd like.";
+  if(s.includes('wifi')||s.includes('internet')||s.includes('password')) return "The WiFi network is HaloHouse 5G and the password is Manchester2026. I can copy it to your clipboard.";
+  if(s.includes('heat')||s.includes('cold')||s.includes('warm')||s.includes('thermostat')) return "The Hive thermostat is on the hallway wall. Set it to 21 degrees and it warms through in about 15 minutes.";
+  if(s.includes('checkout')||s.includes('check out')||s.includes('late')) return "Checkout is at 11am. If you'd like, late checkout until 1pm is 25 pounds and I can add it now.";
+  return "I can help with anything about your flat. Try asking about WiFi, parking, the heating, or checkout.";
+}
+
+/* action buttons inside relevant chat replies (reuse cart/copy helpers) */
+function actionsFor(q){
+  const s=q.toLowerCase();
+  if(s.includes('park'))
+    return `<div class="reply-actions"><button class="btn btn-amber" onclick="addExtra(7)">Add reserved parking · £15/day</button></div>`;
+  if(s.includes('wifi')||s.includes('internet')||s.includes('password'))
+    return `<div class="reply-actions"><button class="btn btn-ghost" onclick="copyText('HaloHouse_5G / Manchester2026','WiFi')">Copy WiFi</button></div>`;
+  if(s.includes('heat')||s.includes('cold')||s.includes('warm')||s.includes('thermostat'))
+    return `<div class="thermo-card"><div class="pic"><img class="ph" src="https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?auto=format&fit=crop&w=800&q=70" alt="" loading="lazy"><div class="scrim"></div><div class="badge">Hallway · Hive</div><div class="dial">21°</div></div><div class="cap">The Hive thermostat — turn the dial to 21°C, give it ~15 min.</div></div>`;
+  if(s.includes('checkout')||s.includes('check out')||s.includes('late'))
+    return `<div class="reply-actions"><button class="btn btn-primary" onclick="addExtra(0)">Add late checkout · £25</button></div>`;
+  return '';
+}
+
+function send(preset){
+  const input=document.getElementById('aiInput');
+  const q=(preset!==undefined?preset:input.value).trim();
+  if(!q)return;
+  input.value='';
+  tap(560);
+  addMsg(q,'me');
+  const typing=document.createElement('div');typing.className='typing';typing.innerHTML='<i></i><i></i><i></i>';
+  chat.appendChild(typing);chat.scrollTop=chat.scrollHeight;
+  setTimeout(()=>{
+    typing.remove();
+    addMsg(answerFor(q),'ai',actionsFor(q));
+    blip(680);
+  },780);
+}
+
+/* in-sheet mic just opens the full voice experience */
+function voice(){ closeAI(); setTimeout(openVoice,260); }
+
+/* ============================================================
+   VOICE MODE — full-screen, speaks via Web Speech API
+   ============================================================ */
+const vOverlay=document.getElementById('voiceOverlay');
+const vState=document.getElementById('voiceState');
+const vCaption=document.getElementById('voiceCaption');
+const vChips=document.getElementById('voiceChips');
+let voiceGreeted=false, voiceRecog=null, recogSupported=false, listeningVoice=false;
+const VOICE_EXAMPLES=["Where do I park?","What's the WiFi?","How does the heating work?","Can I check out later?"];
+
+// detect speech recognition
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+recogSupported = !!SR;
+
+function buildVoiceChips(){
+  vChips.innerHTML = VOICE_EXAMPLES.map(x=>`<div class="chip" onclick="voiceAsk('${x.replace(/'/g,"\\'")}')">${x}</div>`).join('');
+}
+
+function pickVoice(lang){
+  const vs=window.speechSynthesis?window.speechSynthesis.getVoices():[];
+  if(!vs.length)return null;
+  // prefer a female-ish, matching-language voice
+  const byLang=vs.filter(v=>v.lang&&v.lang.toLowerCase().startsWith(lang.slice(0,2)));
+  const pool=byLang.length?byLang:vs;
+  const pref=pool.find(v=>/female|samantha|amelie|monica|google uk english female|libby|fiona|karen/i.test(v.name));
+  return pref||pool[0];
+}
+function speak(text,onend){
+  try{
+    if(!window.speechSynthesis){ if(onend)onend(); return; }
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang=SPEECH_LANG[conciergeLang]||'en-GB';
+    u.rate=0.98; u.pitch=1.04; u.volume=muted?0:1;
+    const v=pickVoice(u.lang); if(v)u.voice=v;
+    setSpeaking(true);
+    u.onend=()=>{ setSpeaking(false); if(onend)onend(); };
+    u.onerror=()=>{ setSpeaking(false); if(onend)onend(); };
+    if(muted){ setSpeaking(false); if(onend)onend(); return; }
+    window.speechSynthesis.speak(u);
+  }catch(e){ setSpeaking(false); if(onend)onend(); }
+}
+function setSpeaking(on){
+  vOverlay.classList.toggle('speaking',on);
+  if(on){ vOverlay.classList.remove('listening'); vState.textContent='Remi is speaking…'; }
+  else if(!listeningVoice){ vState.textContent='Tap to talk'; }
+}
+function setListening(on){
+  listeningVoice=on;
+  vOverlay.classList.toggle('listening',on);
+  if(on){ vState.textContent='Listening…'; }
+  else if(!vOverlay.classList.contains('speaking')){ vState.textContent='Tap to talk'; }
+}
+
+function openVoice(){
+  tap(640);
+  vOverlay.classList.add('open');
+  buildVoiceChips();
+  gsap.fromTo('.big-orb-wrap',{scale:.6,opacity:0},{scale:1,opacity:1,duration:.6,ease:'back.out(2)'});
+  // proactive greeting, spoken aloud, first open only
+  if(!voiceGreeted){
+    voiceGreeted=true;
+    vCaption.innerHTML=`<span class="qline">Remi says</span>${GREET[conciergeLang]}`;
+    setTimeout(()=>speak(GREET[conciergeLang]),350);
+  }
+}
+function closeVoice(){
+  tap(440);
+  try{ if(window.speechSynthesis)window.speechSynthesis.cancel(); }catch(e){}
+  try{ if(voiceRecog)voiceRecog.stop(); }catch(e){}
+  setSpeaking(false); setListening(false);
+  vOverlay.classList.remove('open');
+}
+
+// handle an asked question (from chip OR recognition)
+function voiceAsk(q){
+  setListening(false);
+  const ans=answerFor(q);
+  vCaption.innerHTML=`<span class="qline">“${q}”</span>${ans}`;
+  blip(680);
+  speak(ans);
+}
+
+// tap mic: try real recognition, else nudge to chips
+function voiceListen(){
+  if(listeningVoice){ try{voiceRecog&&voiceRecog.stop();}catch(e){} setListening(false); return; }
+  tap(600);
+  try{ if(window.speechSynthesis)window.speechSynthesis.cancel(); }catch(e){}
+  setSpeaking(false);
+  if(recogSupported){
+    try{
+      voiceRecog=new SR();
+      voiceRecog.lang=SPEECH_LANG[conciergeLang]||'en-GB';
+      voiceRecog.interimResults=false; voiceRecog.maxAlternatives=1;
+      voiceRecog.onstart=()=>setListening(true);
+      voiceRecog.onresult=(e)=>{
+        const said=e.results[0][0].transcript;
+        voiceAsk(said);
+      };
+      voiceRecog.onerror=()=>{ setListening(false); vCaption.innerHTML=`<span class="qline">No worries</span>Tap a question below and I'll answer out loud.`; };
+      voiceRecog.onend=()=>{ if(listeningVoice)setListening(false); };
+      voiceRecog.start();
+      return;
+    }catch(e){ /* fall through */ }
+  }
+  // fallback: prompt the chips
+  vState.textContent='Pick a question';
+  vCaption.innerHTML=`<span class="qline">Mic not available here</span>Tap one of the questions below — I'll answer out loud.`;
+  gsap.fromTo('.voice-chips .chip',{scale:.8,opacity:0},{scale:1,opacity:1,duration:.4,stagger:.05,ease:'back.out(2)'});
+}
+
+/* ============================================================
+   HOUSE MANUAL
+   ============================================================ */
+const houseData=[
+  {em:"📶",t:"WiFi",photo:"https://images.unsplash.com/photo-1606904825846-647eb07f5be2?auto=format&fit=crop&w=800&q=70",rows:[["Network","HaloHouse_5G"],["Password","Manchester2026"],["Speed","Fibre · 500 Mbps"]],note:"Router is in the TV cabinet if you need to restart it."},
+  {em:"🔥",t:"Heating — Hive",photo:"https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?auto=format&fit=crop&w=800&q=70",rows:[["Thermostat","Hallway wall"],["Set to","21°C"],["Warm-up","~15 minutes"]],note:"Hold the dial to boost for an hour. Towel rail switch is in the bathroom."},
+  {em:"📺",t:"TV — Sky Glass",photo:"https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=800&q=70",rows:[["Power","Sky remote, top button"],["Apps","Netflix, Disney+, Prime"],["Input","Auto — no switching needed"]],note:"Just say 'Hello Sky' to the remote to search."},
+  {em:"☕",t:"Appliances",photo:"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=70",rows:[["Coffee","Nespresso · pods in drawer"],["Washer/Dryer","Kitchen, eco cycle 40°"],["Dishwasher","Tablets under sink"]],note:"Kettle, toaster and air fryer are all yours to use."},
+  {em:"🆘",t:"Emergency",rows:[["Host","Hugo"],["Phone","+44 7700 900123"],["Water stop","Under kitchen sink"]],note:"Call or text Hugo any time — day or night."},
+  {em:"📜",t:"House Rules",rows:[["Parties","Not permitted"],["Smoking","No smoking inside"],["Quiet hours","After 10pm"]],note:"It's a friendly building — please be kind to the neighbours."}
+];
+const acc=document.getElementById('acc');
+houseData.forEach((h,i)=>{
+  const item=document.createElement('div');item.className='acc-item';
+  const rows=h.rows.map(r=>`<div class="row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('');
+  item.innerHTML=`
+    <div class="acc-head" onclick="toggleAcc(this)">
+      <span class="em">${h.em}</span><span class="t">${h.t}</span><span class="ch">▾</span>
+    </div>
+    <div class="acc-body"><div class="inner">${h.photo?`<img class="acc-photo" src="${h.photo}" alt="" loading="lazy">`:''}${rows}<p style="margin-top:10px;font-style:italic;color:var(--muted);">${h.note}</p>
+    ${h.t==='WiFi'?'<button class="btn btn-amber btn-block" style="margin-top:12px;" onclick="copyText(\'HaloHouse_5G / Manchester2026\',\'WiFi\')">Copy WiFi</button>':''}
+    ${h.t==='Emergency'?'<button class="btn btn-primary btn-block" style="margin-top:12px;" onclick="copyText(\'+44 7700 900123\',\'Host number\')">Copy number</button>':''}
+    </div></div>`;
+  acc.appendChild(item);
+});
+function toggleAcc(head){
+  const item=head.parentElement, body=head.nextElementSibling;
+  const isOpen=item.classList.contains('open');
+  tap(isOpen?440:600);
+  if(isOpen){ body.style.maxHeight=null; item.classList.remove('open'); }
+  else{ item.classList.add('open'); body.style.maxHeight=body.scrollHeight+'px'; }
+}
+
+/* ============================================================
+   LOCAL
+   ============================================================ */
+const localData=[
+  {g:"Restaurants",icon:"🍽️",items:[
+    {n:"Mackie Mayor",d:"Food hall · 3 min walk",em:"🥘",photo:"https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=400&q=70",q:"Mackie+Mayor+Manchester"},
+    {n:"Rudy's Pizza",d:"Neapolitan pizza · 5 min walk",em:"🍕",photo:"https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=400&q=70",q:"Rudys+Pizza+Ancoats+Manchester"}
+  ]},
+  {g:"Coffee",icon:"☕",items:[
+    {n:"Foundation Coffee House",d:"Speciality coffee · 4 min walk",em:"☕",photo:"https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=400&q=70",q:"Foundation+Coffee+House+Manchester"}
+  ]},
+  {g:"Supermarket",icon:"🛒",items:[
+    {n:"Tesco Express Ancoats",d:"Groceries · 2 min walk",em:"🛒",photo:"https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=400&q=70",q:"Tesco+Express+Ancoats+Manchester"}
+  ]},
+  {g:"Pharmacy",icon:"💊",items:[
+    {n:"Boots Arndale",d:"Pharmacy · 8 min walk",em:"💊",photo:"https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=400&q=70",q:"Boots+Arndale+Manchester"}
+  ]},
+  {g:"Taxi",icon:"🚕",items:[
+    {n:"StreetCars",d:"Local cabs · 0161 228 7878",em:"🚕",photo:"https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=400&q=70",tel:"01612287878"}
+  ]}
+];
+const lw=document.getElementById('localWrap');
+localData.forEach(group=>{
+  const gt=document.createElement('div');gt.className='group-title';gt.innerHTML=`${group.icon} ${group.g}`;lw.appendChild(gt);
+  group.items.forEach(it=>{
+    const c=document.createElement('div');c.className='local card';
+    const action = it.tel ? `tel:${it.tel}'),toast('Calling StreetCars…')` : `openMaps('https://maps.google.com/?q=${it.q}')`;
+    c.innerHTML=`
+      <div class="thumb${it.photo?' photo':''}">${it.photo?`<img src="${it.photo}" alt="" loading="lazy">`:it.em}</div>
+      <div class="meta"><div class="n">${it.n}</div><div class="d">${it.d}</div></div>
+      <div class="go" onclick="${it.tel?`callTaxi('${it.tel}')`:`openMaps('https://maps.google.com/?q=${it.q}')`}">${it.tel?'Call':'Maps ↗'}</div>`;
+    lw.appendChild(c);
+  });
+});
+function callTaxi(tel){ tap(600); toast('Calling StreetCars…'); window.open('tel:'+tel); }
+
+/* ============================================================
+   EXTRAS
+   ============================================================ */
+const extrasData=[
+  {n:"Late Checkout",d:"Stay until 1pm, no rush.",p:25,img:"Slow morning",photo:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=70"},
+  {n:"Early Check-in",d:"Arrive from midday.",p:20,img:"Open door",photo:"https://images.unsplash.com/photo-1553531384-cc64ac80f931?auto=format&fit=crop&w=800&q=70"},
+  {n:"Bottle of Wine",d:"A chilled local red or white.",p:18,img:"Glass of wine",photo:"https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=800&q=70"},
+  {n:"Champagne",d:"Chilled and waiting on arrival.",p:45,img:"Champagne flutes",photo:"https://images.unsplash.com/photo-1547595628-c61a29f496f0?auto=format&fit=crop&w=800&q=70"},
+  {n:"Airport Transfer",d:"Private car to MAN, door to door.",p:40,img:"Car at dusk",photo:"https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=800&q=70"},
+  {n:"Grocery Pre-stock",d:"Fridge filled before you land.",p:30,img:"Fresh groceries",photo:"https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=800&q=70"},
+  {n:"Mid-stay Cleaning",d:"Fresh linens and a tidy.",p:35,img:"Made bed",photo:"https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=70"},
+  {n:"Reserved Parking",d:"A guaranteed space, per day.",p:15,img:"Parking space",photo:"https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=800&q=70",unit:"/day"},
+  {n:"Baby Cot",d:"Travel cot, set up ready.",p:10,img:"Cosy cot",photo:"https://images.unsplash.com/photo-1555252333-9f8e92e65df9?auto=format&fit=crop&w=800&q=70"}
+];
+const ew=document.getElementById('extrasWrap');
+let cart=[];
+extrasData.forEach((x,i)=>{
+  const c=document.createElement('div');c.className='extra card';c.id='extra'+i;
+  c.innerHTML=`
+    <div class="imgph" data-label="${x.img}" style="height:96px;">${x.photo?`<img class="ph" src="${x.photo}" alt="" loading="lazy">`:''}<div class="glow"></div><div class="scrim"></div></div>
+    <div class="top">
+      <div><div class="name">${x.n}</div><div class="desc">${x.d}</div></div>
+      <div class="price">£${x.p}${x.unit||''}</div>
+    </div>
+    <button class="btn btn-ghost add" onclick="addExtra(${i})">Add to stay</button>`;
+  ew.appendChild(c);
+});
+function addExtra(i){
+  const card=document.getElementById('extra'+i);
+  const idx=cart.indexOf(i);
+  if(idx>-1){
+    cart.splice(idx,1); card.classList.remove('added');
+    card.querySelector('.add').textContent='Add to stay';
+    tap(440);
+  }else{
+    cart.push(i); card.classList.add('added');
+    card.querySelector('.add').textContent='✓ Added';
+    tap(700);
+    gsap.fromTo(card,{scale:.98},{scale:1,duration:.4,ease:'back.out(2.5)'});
+    toast(extrasData[i].n+' added ✦');
+  }
+  updateCart();
+}
+function updateCart(){
+  const total=cart.reduce((s,i)=>s+extrasData[i].p,0);
+  document.getElementById('cartCount').textContent=cart.length;
+  document.getElementById('cartTotal').textContent=total;
+  document.getElementById('cartFloat').classList.toggle('show',cart.length>0);
+}
+
+/* ============================================================
+   COMPLETION — confetti + checkmark + stars
+   ============================================================ */
+function animateCheck(){
+  const p=document.getElementById('checkPath');
+  gsap.fromTo(p,{strokeDashoffset:60},{strokeDashoffset:0,duration:.7,delay:.25,ease:'power2.out'});
+  gsap.fromTo('.checkmark',{scale:0,rotate:-20},{scale:1,rotate:0,duration:.7,ease:'back.out(2.2)'});
+  gsap.fromTo('.done-glow',{scale:.4,opacity:0},{scale:1,opacity:1,duration:1,ease:'power2.out'});
+  blip(720);setTimeout(()=>blip(880),180);setTimeout(()=>blip(990),340);
+}
+function fireConfetti(){
+  const wrap=document.getElementById('confetti');
+  wrap.innerHTML='';
+  const colors=['#c8643f','#e0993e','#d8a679','#b04f2d','#f0c98a'];
+  for(let i=0;i<46;i++){
+    const c=document.createElement('div');c.className='conf';
+    c.style.background=colors[i%colors.length];
+    c.style.left=Math.random()*100+'%';
+    c.style.top=(-10-Math.random()*20)+'%';
+    wrap.appendChild(c);
+    gsap.to(c,{
+      y:600+Math.random()*200,
+      x:(Math.random()-.5)*160,
+      rotation:Math.random()*720,
+      opacity:1,
+      duration:1.6+Math.random()*1.4,
+      delay:Math.random()*.4,
+      ease:'power1.out',
+      onComplete:()=>{ gsap.to(c,{opacity:0,duration:.4}); }
+    });
+  }
+}
+const stars=document.querySelectorAll('#stars span');
+const reviewMsgs={1:"Sorry to hear that — Hugo will reach out.",2:"We'll do better next time.",3:"Thanks for the honesty.",4:"So glad you enjoyed it!",5:"You've made our day — thank you! 🤍"};
+stars.forEach(st=>{
+  st.addEventListener('click',()=>{
+    const v=+st.dataset.v;
+    tap(680);
+    stars.forEach(s=>s.classList.toggle('lit',+s.dataset.v<=v));
+    document.getElementById('reviewMsg').textContent=reviewMsgs[v];
+    gsap.fromTo(st,{scale:.6},{scale:1.12,duration:.4,ease:'back.out(3)'});
+  });
+});
+
+/* ============================================================
+   LENIS SMOOTH SCROLL + GSAP SCROLLTRIGGER (cinematic reveals)
+   ============================================================ */
+window.addEventListener('load',()=>{
+  let lenis;
+  const checkinScreen=document.getElementById('screen-checkin');
+  try{
+    lenis=new Lenis({ wrapper:checkinScreen, content:checkinScreen, lerp:0.09, smoothWheel:true });
+    function raf(t){ lenis.raf(t); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+    if(window.ScrollTrigger){
+      lenis.on('scroll',ScrollTrigger.update);
+    }
+  }catch(e){ /* lenis optional */ }
+
+  if(window.gsap && window.ScrollTrigger){
+    gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.defaults({scroller:checkinScreen});
+
+    // hero reveals
+    gsap.utils.toArray('#screen-checkin .reveal').forEach((el,i)=>{
+      if(el.classList.contains('step'))return; // steps handled below
+      gsap.fromTo(el,{opacity:0,y:24},{
+        opacity:1,y:0,duration:.8,ease:'power3.out',
+        scrollTrigger:{trigger:el,start:'top 92%'}
+      });
+    });
+
+    // cinematic step reveals: fade + slide + scale, parallax on image
+    gsap.utils.toArray('.step').forEach((step)=>{
+      gsap.fromTo(step,{opacity:0,y:50,scale:.94},{
+        opacity:1,y:0,scale:1,duration:.9,ease:'power3.out',
+        scrollTrigger:{trigger:step,start:'top 85%'}
+      });
+      const img=step.querySelector('.imgph');
+      if(img){
+        gsap.fromTo(img,{yPercent:-8},{yPercent:8,ease:'none',
+          scrollTrigger:{trigger:step,start:'top bottom',end:'bottom top',scrub:true}});
+      }
+    });
+    ScrollTrigger.refresh();
+  }
+});
+
+/* initial entrance */
+window.addEventListener('load',()=>{
+  gsap.fromTo('.brandbar',{opacity:0,y:-12},{opacity:1,y:0,duration:.7,ease:'power2.out'});
+  gsap.fromTo('.nav',{opacity:0,y:30},{opacity:1,y:0,duration:.7,delay:.2,ease:'power2.out'});
+  gsap.fromTo('.concierge-dock .cdock-btn',{opacity:0,scale:0,y:14},{opacity:1,scale:1,y:0,duration:.6,delay:.5,stagger:.12,ease:'back.out(2)'});
+  // warm up speech-synthesis voice list (Chrome loads async)
+  try{
+    if(window.speechSynthesis){
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
+    }
+  }catch(e){}
+});
+</script>
+<script>
+/* Embed scroll bridge: when the in-phone demo hits the end of its scroll,
+   hand the wheel/touch over to the parent landing page so it keeps scrolling. */
+(function(){
+  if(window.parent === window) return;
+  function sc(){
+    var v = document.getElementById('viewport');
+    if(v && v.scrollHeight > v.clientHeight + 4) return v;
+    var s = document.querySelector('.screen.active');
+    if(s && s.scrollHeight > s.clientHeight + 4) return s;
+    var d = document.scrollingElement;
+    return (d && d.scrollHeight > d.clientHeight + 4) ? d : null;
+  }
+  function fwd(dy){ try{ parent.postMessage({remlyScroll: dy}, '*'); }catch(e){} }
+  function boundary(el, dy){
+    var top = el.scrollTop <= 1;
+    var bot = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
+    return (dy > 0 && bot) || (dy < 0 && top);
+  }
+  window.addEventListener('wheel', function(e){
+    var el = sc();
+    if(!el){ fwd(e.deltaY); return; }
+    if(boundary(el, e.deltaY)) fwd(e.deltaY);
+  }, {passive:true});
+  var ty = null;
+  window.addEventListener('touchstart', function(e){ ty = e.touches[0].clientY; }, {passive:true});
+  window.addEventListener('touchend', function(){ ty = null; }, {passive:true});
+  window.addEventListener('touchmove', function(e){
+    if(ty === null) return;
+    var y = e.touches[0].clientY, dy = ty - y; ty = y;
+    var el = sc();
+    if(!el){ fwd(dy * 2); return; }
+    if(boundary(el, dy)) fwd(dy * 2);
+  }, {passive:true});
+})();
+</script>
+</body>
+</html>
