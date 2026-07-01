@@ -618,6 +618,51 @@ body{
 
 /* utility */
 .spacer8{height:8px;}
+
+/* ============================================================
+   DEMO TIP (coach mark) — additive block. Small educational
+   pop-up for the host viewing the demo. Shows once per tab
+   (Extras / Local) per page load, above the bottom nav.
+   ============================================================ */
+.demo-tip{
+  position:absolute;left:22px;bottom:96px;z-index:110;
+  width:calc(100% - 44px);
+  padding:12px 14px 13px;border-radius:18px;cursor:pointer;
+  background:linear-gradient(155deg,rgba(255,255,255,.9),rgba(238,247,244,.85));
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  border:1px solid rgba(255,255,255,.85);
+  box-shadow:0 18px 44px -18px rgba(44,126,131,.55),inset 0 1px 0 rgba(255,255,255,.85);
+  opacity:0;transform:translateY(90px);
+}
+.demo-tip .dt-top{display:flex;align-items:center;gap:9px;margin-bottom:5px;}
+.demo-tip .dt-emoji{
+  font-size:20px;line-height:1;flex:none;display:inline-block;
+  transform-origin:50% 80%;
+  animation:dtWiggle 2.2s ease-in-out infinite;
+}
+@keyframes dtWiggle{
+  0%,100%{transform:rotate(0deg) translateY(0);}
+  20%{transform:rotate(-9deg) translateY(-2px);}
+  40%{transform:rotate(7deg) translateY(0);}
+  60%{transform:rotate(-4deg) translateY(-1px);}
+  80%{transform:rotate(0deg) translateY(0);}
+}
+.demo-tip .dt-kicker{
+  flex:1;font-size:9.5px;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--teal-deep);font-weight:700;
+}
+.demo-tip .dt-x{
+  flex:none;width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(47,59,62,.07);color:var(--slate-soft);
+  font-size:13px;display:flex;align-items:center;justify-content:center;
+}
+.demo-tip .dt-body{font-size:13px;line-height:1.5;color:var(--slate);}
+/* CSS fallback entrance/exit (used only if GSAP is unavailable) */
+.demo-tip.dt-in{animation:dtIn .55s cubic-bezier(.34,1.45,.44,1) forwards;}
+@keyframes dtIn{from{opacity:0;transform:translateY(90px);}to{opacity:1;transform:translateY(0);}}
+.demo-tip.dt-out{animation:dtOut .3s ease-in forwards;}
+@keyframes dtOut{from{opacity:1;transform:translateY(0);}to{opacity:0;transform:translateY(40px);}}
 </style>
 </head>
 <body>
@@ -1509,6 +1554,70 @@ $('#bookAgain').addEventListener('click',()=>{
 
 /* keep track fill aligned on resize */
 window.addEventListener('resize',()=>{ updateProgress(); if(window.ScrollTrigger) ScrollTrigger.refresh(); });
+
+/* =====================================================================
+   DEMO TIP (coach mark) — additive block. Educates the host viewing
+   the demo. Shown once per tab (Extras / Local) per page load.
+   Hooks in via a second delegated listener on #nav, which runs after
+   the existing nav handler, so no existing code is modified.
+   ===================================================================== */
+(function(){
+  const TIP_COPY={
+    extras:{emoji:'✨',text:'Your Extras shop. Add or remove anything you like: beers, wine, early check-in, airport taxi. You set the prices and every sale is yours.'},
+    local:{emoji:'📍',text:'Your own local guide. Swap in your favourite cafés, restaurants and taxi numbers. Guests explore like a local and the five-star review is yours.'}
+  };
+  const tipShown={extras:false,local:false};
+  let tipEl=null, tipTimer=null;
+
+  function dismissTip(){
+    if(!tipEl) return;
+    const el=tipEl; tipEl=null;
+    clearTimeout(tipTimer); tipTimer=null;
+    if(window.gsap){
+      gsap.to(el,{y:40,opacity:0,duration:.28,ease:'power2.in',onComplete:()=>el.remove()});
+    } else {
+      el.classList.remove('dt-in'); el.classList.add('dt-out');
+      setTimeout(()=>el.remove(),320);
+    }
+  }
+
+  function showTip(name){
+    const t=TIP_COPY[name];
+    if(!t || tipShown[name]) return;
+    tipShown[name]=true;
+    const el=document.createElement('div');
+    el.className='demo-tip';
+    el.innerHTML=`
+      <div class="dt-top">
+        <span class="dt-emoji">${t.emoji}</span>
+        <span class="dt-kicker">Demo Tip</span>
+        <button class="dt-x" aria-label="Dismiss tip">✕</button>
+      </div>
+      <div class="dt-body">${t.text}</div>`;
+    $('.phone').appendChild(el);
+    tipEl=el;
+    if(window.gsap){
+      gsap.fromTo(el,{y:90,opacity:0},{y:0,opacity:1,duration:.6,ease:'back.out(1.4)'});
+    } else {
+      el.classList.add('dt-in');
+    }
+    el.addEventListener('click',dismissTip); /* tap anywhere on the tip (or its ✕) */
+    tipTimer=setTimeout(dismissTip,7000);    /* auto-dismiss ~7s */
+  }
+
+  /* runs after the existing #nav handler (registered earlier), so the
+     screen is already active when the tip appears */
+  $('#nav').addEventListener('click',e=>{
+    const item=e.target.closest('.nav-item'); if(!item) return;
+    dismissTip(); /* switching tabs clears any visible tip */
+    const s=item.dataset.screen;
+    if(s==='extras'||s==='local') showTip(s);
+  });
+
+  /* interacting with the screen content (Add buttons, cards, scroll taps)
+     dismisses the tip */
+  $('#viewport').addEventListener('pointerdown',()=>{ if(tipEl) dismissTip(); },true);
+})();
 </script>
 <script>
 /* Embed scroll bridge: when the in-phone demo hits the end of its scroll,

@@ -518,7 +518,8 @@ function fitPhone(){
   if(window.innerWidth <= 768){
     s = Math.min(.97, (window.innerWidth - 40) / 411);
   }else{
-    s = Math.min(1.06, Math.max(.97, (window.innerHeight - 150) / 870));
+    /* desktop: match the Editorial (v5) phone size — fit height, cap at 1.0 */
+    s = Math.max(.72, Math.min(1, (window.innerHeight - 104) / 870));
   }
   document.documentElement.style.setProperty('--s', s.toFixed(3));
 }

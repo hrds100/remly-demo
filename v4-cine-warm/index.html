@@ -487,6 +487,56 @@ h2.disp{font-family:var(--serif);font-weight:600;font-size:27px;line-height:1.05
 
 /* fade-in util for scroll reveals handled by GSAP */
 .reveal{will-change:transform,opacity;}
+
+/* ============ DEMO TIP COACH MARK (additive — host education pop-up) ============ */
+.coach-tip{
+  position:absolute;left:22px;width:calc(100% - 44px);bottom:96px;z-index:145;
+  background:var(--glass-strong);
+  border:1px solid rgba(255,255,255,.85);
+  border-radius:18px;
+  box-shadow:var(--shadow-warm);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  padding:12px 42px 13px 14px;
+  display:flex;align-items:flex-start;gap:10px;
+  cursor:pointer;
+  opacity:0;
+}
+.coach-tip .coach-emoji{
+  font-size:20px;line-height:1;margin-top:9px;flex-shrink:0;display:inline-block;
+  animation:coachWiggle 2.2s ease-in-out infinite;
+}
+@keyframes coachWiggle{
+  0%,100%{transform:rotate(0deg) translateY(0);}
+  20%{transform:rotate(-9deg) translateY(-2px);}
+  40%{transform:rotate(8deg) translateY(0);}
+  60%{transform:rotate(-5deg) translateY(-1px);}
+  80%{transform:rotate(3deg) translateY(0);}
+}
+.coach-tip .coach-kicker{
+  font-size:9px;font-weight:700;letter-spacing:2.2px;text-transform:uppercase;
+  color:var(--terracotta);margin-bottom:3px;
+}
+.coach-tip .coach-txt{
+  font-family:var(--sans);font-size:13px;line-height:1.5;color:var(--espresso-soft);
+}
+.coach-tip .coach-x{
+  position:absolute;top:7px;right:7px;width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;color:var(--muted);
+  background:var(--paper);border:1px solid var(--line);cursor:pointer;
+}
+/* CSS fallback entrance/exit (used only if GSAP is unavailable) */
+.coach-tip.coach-in{animation:coachIn .55s cubic-bezier(.34,1.56,.64,1) forwards;}
+.coach-tip.coach-out{animation:coachOut .28s ease-in forwards;}
+@keyframes coachIn{from{opacity:0;transform:translateY(44px);}to{opacity:1;transform:translateY(0);}}
+@keyframes coachOut{from{opacity:1;transform:translateY(0);}to{opacity:0;transform:translateY(24px);}}
+/* Pre-existing bug fix (found while verifying the demo tips): the hidden
+   extras cart bar only slides 66px down (120% of its own height), landing
+   exactly on top of the bottom nav where it covered it and swallowed taps
+   on the AI / House / Local tabs. Hide it and let taps through when it is
+   not shown; existing .cart-float rules above are untouched. */
+.cart-float{opacity:0;pointer-events:none;transition:transform .4s cubic-bezier(.2,.85,.25,1),opacity .3s;}
+.cart-float.show{opacity:1;pointer-events:auto;}
 </style>
 </head>
 <body>
@@ -1241,6 +1291,73 @@ window.addEventListener('load',()=>{
     }
   }catch(e){}
 });
+
+/* ============================================================
+   DEMO TIP COACH MARKS (additive — teaches demo viewers/hosts
+   what the Extras and Local tabs are; shows once per tab per
+   page load, auto-dismisses; delegated nav listener so no
+   existing code is touched)
+   ============================================================ */
+(function(){
+  const coachShown={extras:false,local:false};
+  const COACH={
+    extras:{emoji:'✨',txt:"Your Extras shop. Add or remove anything you like: beers, wine, early check-in, airport taxi. You set the prices and every sale is yours."},
+    local:{emoji:'📍',txt:"Your own local guide. Swap in your favourite cafés, restaurants and taxi numbers. Guests explore like a local and the five-star review is yours."}
+  };
+  let coachEl=null, coachTimer=null, coachScreen=null;
+
+  function dismissCoach(){
+    if(!coachEl)return;
+    const el=coachEl; coachEl=null;
+    clearTimeout(coachTimer);
+    if(coachScreen){ coachScreen.removeEventListener('pointerdown',dismissCoach,true); coachScreen=null; }
+    if(window.gsap){
+      gsap.to(el,{opacity:0,y:24,duration:.28,ease:'power2.in',onComplete:()=>el.remove()});
+    }else{
+      el.classList.remove('coach-in'); el.classList.add('coach-out');
+      setTimeout(()=>el.remove(),320);
+    }
+  }
+
+  function showCoach(key){
+    if(!COACH[key]||coachShown[key])return;
+    coachShown[key]=true;
+    if(coachEl)dismissCoach();
+    const c=COACH[key];
+    const el=document.createElement('div');
+    el.className='coach-tip';
+    el.innerHTML='<span class="coach-emoji">'+c.emoji+'</span>'+
+      '<div><div class="coach-kicker">Demo tip</div><div class="coach-txt"></div></div>'+
+      '<div class="coach-x" aria-label="Dismiss tip">✕</div>';
+    el.querySelector('.coach-txt').textContent=c.txt;
+    el.addEventListener('click',dismissCoach);
+    document.getElementById('app').appendChild(el);
+    coachEl=el;
+    // dismiss as soon as the viewer starts interacting with the screen content
+    coachScreen=document.getElementById(screenMap[key]);
+    if(coachScreen)coachScreen.addEventListener('pointerdown',dismissCoach,true);
+    if(window.gsap){
+      gsap.fromTo(el,{opacity:0,y:44},{opacity:1,y:0,duration:.55,ease:'back.out(1.4)'});
+    }else{
+      el.classList.add('coach-in');
+    }
+    coachTimer=setTimeout(dismissCoach,7000);
+  }
+
+  const navEl=document.getElementById('nav');
+  if(navEl)navEl.addEventListener('click',function(e){
+    const item=e.target.closest('.nav-item');
+    if(!item)return;
+    const key=item.dataset.screen;
+    if(key==='extras'||key==='local'){
+      // delegated listener fires after the existing per-item switchScreen handler,
+      // so the screen is already active by the time the tip appears
+      setTimeout(()=>showCoach(key),80);
+    }else{
+      dismissCoach();
+    }
+  });
+})();
 </script>
 <script>
 /* Embed scroll bridge: when the in-phone demo hits the end of its scroll,

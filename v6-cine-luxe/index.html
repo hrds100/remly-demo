@@ -713,6 +713,52 @@ body{
   color:#fff;background:rgba(44,42,39,.55);backdrop-filter:blur(4px);padding:4px 9px;border-radius:30px}
 .aiCard .aiCap{padding:10px 13px;font-size:11.5px;color:var(--char-soft);font-weight:300;line-height:1.5}
 .aiCard .aiCap b{color:var(--char);font-weight:500}
+
+/* ============================================================
+   DEMO TIP (coach mark) — ADDITIVE BLOCK ONLY.
+   A small one-time educational pop-up shown to the demo viewer
+   (the host) when they first open the Extras / Local tabs.
+   Matches the luxe glass language: gold hairline, Cormorant
+   accents, Jost body, ease-lux motion. Nothing else touched.
+   ============================================================ */
+.demoTip{
+  position:absolute;left:22px;right:22px;bottom:96px;z-index:60; /* above screen content, below sheet(70)/voice(90) */
+  background:var(--glass-strong);backdrop-filter:blur(20px) saturate(130%);
+  border:1px solid var(--line);border-radius:18px;
+  box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.7);
+  padding:13px 34px 14px 14px;
+  display:flex;gap:11px;align-items:flex-start;
+  cursor:pointer;
+  opacity:0;transform:translateY(26px); /* pre-entrance state */
+}
+.demoTip.in{animation:tipIn .65s cubic-bezier(.34,1.56,.64,1) forwards} /* CSS fallback if GSAP missing */
+.demoTip.out{animation:tipOut .3s ease-in forwards}
+@keyframes tipIn{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tipOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(20px)}}
+.demoTip .dt-emoji{
+  width:36px;height:36px;flex:0 0 auto;border-radius:12px;display:grid;place-items:center;font-size:17px;
+  background:linear-gradient(145deg,#fff,#efe4cc);border:1px solid var(--line);
+  box-shadow:0 6px 14px -9px rgba(168,136,79,.7);
+}
+.demoTip .dt-emoji span{display:block;animation:tipWiggle 2.4s ease-in-out infinite}
+@keyframes tipWiggle{
+  0%,100%{transform:rotate(0deg) translateY(0)}
+  15%{transform:rotate(-9deg) translateY(-2px)}
+  30%{transform:rotate(7deg) translateY(0)}
+  45%{transform:rotate(-4deg) translateY(-1px)}
+  60%{transform:rotate(0deg) translateY(0)}
+}
+.demoTip .dt-body{flex:1;min-width:0}
+.demoTip .dt-kicker{font-size:8.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold-deep);font-weight:500}
+.demoTip .dt-text{margin-top:4px;font-size:13px;line-height:1.5;color:var(--char-soft);font-weight:300}
+.demoTip .dt-text b{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:14.5px;color:var(--char)}
+.demoTip .dt-x{
+  position:absolute;top:5px;right:5px;width:28px;height:28px;border:none;border-radius:50%;
+  background:transparent;display:grid;place-items:center;cursor:pointer;
+  font-family:'Jost',sans-serif;font-size:13px;color:var(--char-faint);
+  transition:transform .4s var(--ease-lux),color .3s;
+}
+.demoTip .dt-x:active{transform:scale(.82);color:var(--gold-deep)}
 </style>
 </head>
 <body>
@@ -1690,6 +1736,74 @@ setTimeout(()=>{
     document.querySelectorAll('.reveal').forEach(el=>{el.style.opacity=1;el.style.transform='none';});
   }
 },700);
+
+/* =========================================================
+   DEMO TIP (coach mark) — ADDITIVE BLOCK ONLY.
+   Educates the demo viewer (the host) the first time they
+   open the Extras or Local tab. Once per tab, per page load.
+   Uses a delegated listener on the nav (bubble phase runs
+   AFTER the existing per-item handlers switch the screen),
+   so no existing function is modified.
+   ========================================================= */
+(function(){
+  const tipShown = { extras:false, local:false };
+  const TIPS = {
+    extras:{ emoji:'✨', text:'Your <b>Extras</b> shop. Add or remove anything you like: beers, wine, early check-in, airport taxi. You set the prices and every sale is yours.' },
+    local:{ emoji:'📍', text:'Your own <b>local guide</b>. Swap in your favourite cafés, restaurants and taxis. Guests explore like a local and the five-star review is yours.' }
+  };
+  let tipEl=null, tipTimer=null;
+
+  function dismissTip(){
+    if(!tipEl) return;
+    const el=tipEl; tipEl=null;
+    clearTimeout(tipTimer); tipTimer=null;
+    if(window.gsap){
+      gsap.to(el,{y:24,opacity:0,duration:.3,ease:'power2.in',onComplete:()=>el.remove()});
+    } else {
+      el.classList.remove('in'); el.classList.add('out');
+      setTimeout(()=>el.remove(),340);
+    }
+  }
+
+  function showTip(key){
+    const t=TIPS[key]; if(!t) return;
+    dismissTip();
+    const el=document.createElement('div');
+    el.className='demoTip';
+    el.innerHTML=
+      '<div class="dt-emoji"><span>'+t.emoji+'</span></div>'+
+      '<div class="dt-body">'+
+        '<div class="dt-kicker">Demo tip</div>'+
+        '<div class="dt-text">'+t.text+'</div>'+
+      '</div>'+
+      '<button class="dt-x" aria-label="Dismiss tip">✕</button>';
+    document.getElementById('phone').appendChild(el);
+    tipEl=el;
+    el.addEventListener('click',dismissTip); // tap anywhere on the card (incl. the ✕) dismisses
+    if(window.gsap){
+      gsap.fromTo(el,{y:26,opacity:0},{y:0,opacity:1,duration:.65,ease:'back.out(1.4)'});
+    } else {
+      el.classList.add('in');
+    }
+    tipTimer=setTimeout(dismissTip,7000); // auto-dismiss ~7s
+  }
+
+  const navEl=document.getElementById('nav');
+  if(navEl) navEl.addEventListener('click',function(e){
+    const item=e.target.closest('.navItem'); if(!item) return;
+    const scr=item.dataset.scr;
+    if((scr==='extras'||scr==='local') && !tipShown[scr]){
+      tipShown[scr]=true;
+      setTimeout(()=>showTip(scr),450); // let the screen settle in first
+    } else {
+      dismissTip(); // any other tab tap clears an open tip
+    }
+  });
+
+  // Interacting with the screen content (Add buttons, cards, scroll taps) dismisses the tip
+  const vpEl=document.getElementById('viewport');
+  if(vpEl) vpEl.addEventListener('pointerdown',function(){ dismissTip(); },{passive:true});
+})();
 </script>
 <script>
 /* Embed scroll bridge: when the in-phone demo hits the end of its scroll,
